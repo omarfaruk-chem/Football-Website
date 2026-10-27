@@ -91,24 +91,13 @@
     .pitch { position: relative; container-type: inline-size; aspect-ratio: 3/4; border: 3px solid var(--g); background: repeating-linear-gradient(180deg, #1f6e4a 0 12.5%, #1a6244 12.5% 25%); }
     .pitch svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: rgba(255,255,255,.6); stroke-width: .5; }
     .tl { position: absolute; width: 13.6%; aspect-ratio: 1; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; border: 2px solid var(--g); background: #f3f7f5; color: var(--g); cursor: pointer; transition: left .5s cubic-bezier(.3,.8,.3,1), top .5s cubic-bezier(.3,.8,.3,1); overflow: hidden; }
-    .manager-tile { position:absolute; top:3.2%; left:50%; transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:clamp(5px,1.5cqw,9px); max-width:86%; min-width:0; padding:clamp(4px,1.2cqw,7px) clamp(7px,2cqw,12px) clamp(4px,1.2cqw,7px) clamp(4px,1.2cqw,7px); border:2px solid #f2c14e; border-radius:999px; background:linear-gradient(135deg,#082f27 0%,#145743 70%,#1d6b50 100%); color:#fff; font:700 clamp(8px,2.4cqw,12px)/1.1 var(--m); white-space:nowrap; box-shadow:0 5px 16px rgba(0,0,0,.3),0 0 0 2px rgba(255,255,255,.18); overflow:hidden; }
-    .manager-tile .manager-photo, .manager-tile .manager-initials { display:grid; place-items:center; width:clamp(25px,7cqw,38px); height:clamp(25px,7cqw,38px); flex:none; border-radius:50%; border:2px solid #f2c14e; background:#f2c14e; color:#123f36; font-size:clamp(9px,2.4cqw,12px); object-fit:cover; box-shadow:0 1px 5px rgba(0,0,0,.25); }
-    .manager-tile .manager-copy { display:flex; flex-direction:column; min-width:0; gap:3px; overflow:hidden; text-align:left; }
-    .manager-tile .manager-role { color:#f8d979; font-size:clamp(6px,1.55cqw,8px); letter-spacing:.16em; font-weight:700; }
-    .manager-tile .manager-name { overflow:hidden; text-overflow:ellipsis; max-width:42cqw; }
-    .manager-tile.manager-editable { cursor:pointer; }
-    .manager-tile.manager-editable:hover { transform:translateX(-50%) translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 0 3px rgba(242,193,78,.25); }
-    .manager-tile .manager-photo-hint { display:none; color:#fff; font-size:clamp(6px,1.4cqw,8px); opacity:.8; }
-    .manager-tile.manager-editable .manager-photo-hint { display:block; }
-    @media (max-width:520px) { .manager-tile { max-width:92%; } .manager-tile .manager-name { max-width:35cqw; } }
     .tl:hover { box-shadow: 0 0 0 3px rgba(255,255,255,.55); z-index: 5; }
     .tl img.tile-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
     .tl .n, .tl b, .tl .r { position: relative; z-index: 3; }
-    .tl .n { position: absolute; top: 4px; left: 4px; font: 600 max(9px,2.3cqw)/1 var(--m); background: rgba(0,0,0,.68); color: #fff; padding: 2px 4px; border-radius: 3px; z-index: 4; }
-    .tl b { font: 700 max(21px,7.4cqw)/.85 var(--c); text-shadow: 0 2px 4px rgba(0,0,0,.75); }
-    .tl .r { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font: 600 max(8px,2cqw)/1 var(--m); margin: 0; background: rgba(0,0,0,.72); color: #fff; padding: 2px 5px; border-radius: 3px; z-index: 4; }
-    .tl.no-img b { color: var(--g); text-shadow: none; font-size: max(18px,6.2cqw); }
-    .tl.no-img .r { background: var(--g); color: #fff; }
+    .tl .n { position: absolute; top: 4px; left: 4px; font: 600 max(9px,2.3cqw)/1 var(--m); background: rgba(0,0,0,.6); color: #fff; padding: 1px 4px; border-radius: 3px; }
+    .tl b { font: 700 max(21px,7.4cqw)/.85 var(--c); text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    .tl .r { font: 400 max(8px,2cqw)/1 var(--m); margin-top: 3px; background: rgba(0,0,0,.6); color: #fff; padding: 2px 6px; border-radius: 3px; }
+    .tl.no-img b { color: var(--g); text-shadow: none; }
     /* When a player photo exists, hide the surname-derived symbol; keep number and position visible. */
     .tl:has(img.tile-photo) > b { display: none; }
     .tl .nm { position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%); background: var(--g); color: #fff; font: 600 max(9px,2.3cqw)/1 var(--f); padding: 3px 6px; white-space: nowrap; }
@@ -150,14 +139,7 @@
 
     /* Fixtures & Results */
     .fx { list-style: none; margin: 0; padding: 0; }
-    .fx li { display: flex; align-items: center; gap: 20px; padding: 22px 0; border-top: 1px solid var(--line); flex-wrap: wrap; }
-    .fx li:last-child { border-bottom: 1px solid var(--line); }
-    .fx-date { flex: 0 0 78px; }
-    .fx-info { flex: 1 1 260px; min-width: 200px; }
-    .fx-badge { margin-left: auto; font-size: .88rem; font-weight: 500; padding: 8px 14px; border: 1.5px solid var(--ink); border-radius: 99px; white-space: nowrap; text-align: center; }
-    .fx-badge.upcoming { background: transparent; }
-    .fx-info .v { font-size: 1.15rem; font-weight: 800; line-height: 1.25; margin-bottom: 4px; }
-    .fx-info .w { color: var(--mute); font-size: .92rem; }
+    .fx li { display: flex; align-items: center; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
     .fx li.past-match { display: none; }
     
     .fx-date { font-size: 2.3rem; line-height: .9; font-weight: 800; letter-spacing: -.04em; min-width: 60px; }
@@ -568,7 +550,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     ]
   };
 
-  const ROLE_NAMES = { GK:'Goalkeeper', RB:'Right back', LB:'Left back', CB:'Centre-back', CB1:'Centre-back 1', CB2:'Centre-back 2', CB3:'Centre-back 3', DM:'Defensive midfielder', CM:'Central midfielder', MID:'Midfielder', CMF:'Central midfielder', LMF:'Left midfielder', RMF:'Right midfielder', LM:'Left midfielder', RM:'Right midfielder', LW:'Left winger', RW:'Right winger', CF:'Centre forward', ST:'Striker', LWB:'Left wing-back', RWB:'Right wing-back' };
+  const ROLE_NAMES = { GK:'Goalkeeper', RB:'Right back', LB:'Left back', CB:'Centre-back', CB1:'Centre-back 1', CB2:'Centre-back 2', CB3:'Centre-back 3', DM:'Defensive midfielder', CM:'Central midfielder', MID:'Midfielder', CMF:'Central midfielder', LMF:'Left midfielder', RMF:'Right midfielder', LM:'Left midfielder', RM:'Right midfielder', LW:'Left winger', RW:'Right winger', CF:'Centre forward', ST:'Striker', LWB:'Left wing-back', RWB:'Right wing-back', Manager:'Manager' };
   const CAPTAIN_NO = 6;
 
   const $ = s => document.querySelector(s);
@@ -639,33 +621,43 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   function currentPlayers(){ return getActiveSession()?.players || []; }
   function currentFixtures(){ return getActiveSession()?.fixtures || []; }
 
-  // ---------- রোটেশন ও প্লেয়ার সিলেকশন লজিক ----------
+  // ---------- ম্যানেজার ও রোটেশন লজিক ----------
   function renderPitch(){
     pitch.querySelectorAll('.tl').forEach(el => el.remove());
+    
+    // ম্যানেজারকে আলাদা করা
     const allPlayers = currentPlayers();
     const manager = allPlayers.find(p => String(p.ln || '').toLowerCase() === 'manager' || String(p.pos || '').toLowerCase() === 'manager');
+    
+    // ম্যানেজারকে বাদ দিয়ে বাকি প্লেয়ারদের মাঠে দেখানো
     const players = allPlayers.filter(p => p !== manager);
+    
+    // ম্যানেজার থাকলে মাঠের উপরে বাম দিকে বড় ছবি ও নামসহ কার্ড দেখানো
     if (manager) {
       const badge = document.createElement('div');
-      badge.className = 'manager-tile' + (isAdmin && manager.dbId ? ' manager-editable' : '');
-      badge.title = isAdmin ? 'Team manager: ' + manager.name + ' — click to add or replace photo' : 'Team manager: ' + manager.name;
-      const photo = manager.img
-        ? `<img class="manager-photo" src="${manager.img}" alt="${manager.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" onerror="this.style.display='none'">`
-        : `<span class="manager-initials">${sym(manager.name)}</span>`;
-      badge.innerHTML = `${photo}<span class="manager-copy"><span class="manager-role">TEAM MANAGER</span><span class="manager-name">${manager.name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>${isAdmin ? '<span class="manager-photo-hint">Click to add / change photo</span>' : ''}</span>`;
-      if (isAdmin && manager.dbId) badge.addEventListener('click', () => openPhotoPicker(manager.dbId));
+      badge.style.cssText = 'position:absolute; top:10px; left:10px; background:rgba(255,255,255,0.95); border:2px solid var(--gold); border-radius:8px; padding:6px; display:flex; flex-direction:column; align-items:center; gap:6px; z-index:10; box-shadow:0 4px 12px rgba(0,0,0,0.4); width:80px; backdrop-filter: blur(4px);';
+      
+      const imgHtml = manager.img 
+        ? `<img src="${manager.img}" style="width:68px; height:68px; border-radius:6px; object-fit:cover; border:2px solid var(--g); box-shadow: 0 2px 4px rgba(0,0,0,0.2);">` 
+        : `<div style="width:68px; height:68px; border-radius:6px; background:var(--gold); color:var(--g); display:grid; place-items:center; font:800 1.8rem var(--c); border:2px solid var(--g);">${sym(manager.name)}</div>`;
+        
+      badge.innerHTML = `
+        ${imgHtml}
+        <div style="display:flex; flex-direction:column; align-items:center; line-height:1.1; text-align:center;">
+          <span style="font:700 0.55rem var(--m); color:var(--gold); text-transform:uppercase; letter-spacing:1px; background:var(--g); padding:2px 6px; border-radius:4px; margin-bottom:4px;">Manager</span>
+          <span style="font:800 0.75rem var(--f); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70px;">${manager.name}</span>
+        </div>
+      `;
       pitch.appendChild(badge);
     }
+
     if (!players.length) return;
     
     const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
-    const renderedPlayerIds = new Set(); // একই প্লেয়ার যেন দুইবার মাঠে না আসে
+    const renderedPlayerIds = new Set();
 
     formation.forEach(slot => {
-      // ১. এই স্লটের জন্য উপযুক্ত প্লেয়ার খুঁজে বের করা
       let matchingPlayers = players.filter(p => {
-        if (String(p.ln || '').toLowerCase() === 'manager' || String(p.pos || '').toLowerCase() === 'manager') return false;
-        // Midfield slots are distinct: CMF, LMF and RMF. Generic MID is a fallback only.
         const pos = (p.pos || '').toUpperCase().replace(/[^A-Z]/g, '');
         if (['CMF','LMF','RMF'].includes(slot.r)) {
           const aliases = { CMF:['CMF','CM','CENTRALMIDFIELDER'], LMF:['LMF','LM','LEFTMIDFIELDER'], RMF:['RMF','RM','RIGHTMIDFIELDER'] };
@@ -673,15 +665,12 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
           if (exact.length) return aliases[slot.r].some(a => pos === a || pos.includes(a));
           return pos === 'MID' || pos.includes('MIDFIELDER') || pos.includes('DM') || pos.includes('CM');
         }
-        // CF স্লটের জন্য ST, CF, FW ম্যাচ করবে
         if (slot.r === 'CF') {
           return p.pos.toUpperCase().includes('ST') || p.pos.toUpperCase().includes('CF') || p.pos.toUpperCase().includes('FW');
         }
-        // GK
         if (slot.r === 'GK') {
           return p.pos.toUpperCase().includes('GK') || p.pos.toUpperCase().includes('GOAL');
         }
-        // Defender
         if (['CB','CB1','CB2','CB3','LB','RB','LWB','RWB'].includes(slot.r)) {
           const rawPos = (p.pos || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
           if (['CB1','CB2','CB3'].includes(slot.r)) {
@@ -691,15 +680,12 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
           }
           return rawPos.includes(slot.r) || rawPos.includes('DEFENDER') || rawPos.includes('BACK') || rawPos === 'CB';
         }
-        // Winger
         if (['LW', 'RW'].includes(slot.r)) {
            return p.pos.toUpperCase().includes(slot.r.toUpperCase()) || p.pos.toUpperCase().includes('WINGER');
         }
-        
         return p.pos.toUpperCase().includes(slot.r.toUpperCase());
       });
 
-      // যদি নির্দিষ্ট পজিশনের প্লেয়ার না পাওয়া যায়, তবে লাইন দিয়ে ফলব্যাক
       if (matchingPlayers.length === 0) {
         let lineFallback = 'mid';
         if (['GK'].includes(slot.r)) lineFallback = 'gk';
@@ -709,22 +695,19 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
         matchingPlayers = players.filter(p => p.ln === lineFallback);
       }
 
-      // ২. রোটেশন ইনডেক্স ও ইউনিক প্লেয়ার লজিক
       const slotKey = slot.r + '_' + slot.x;
       if (!slotRotations[slotKey]) slotRotations[slotKey] = 0;
 
-      // শুধু সেই প্লেয়ারদের নাও যারা আগে মাঠে বসেনি
       let availablePlayers = matchingPlayers.filter(p => !renderedPlayerIds.has(p.dbId));
       if (availablePlayers.length === 0) availablePlayers = matchingPlayers;
 
-      if (availablePlayers.length === 0) return; // কোনো প্লেয়ার নেই
+      if (availablePlayers.length === 0) return;
 
       const playerIndex = slotRotations[slotKey] % availablePlayers.length;
       const p = availablePlayers[playerIndex];
       
       renderedPlayerIds.add(p.dbId);
 
-      // ৩. টাইল তৈরি করা
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'tl'; b.dataset.n = p.n;
       b.style.left = slot.x + '%'; b.style.top = slot.y + '%';
@@ -753,7 +736,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (currentPlayers().length > 11) {
       rotationInterval = setInterval(() => {
         Object.keys(slotRotations).forEach(key => { slotRotations[key]++; });
-        renderPitch(); // শুধু মাঠের টাইল আপডেট হবে
+        renderPitch(); 
       }, 3000);
     }
   }
@@ -843,7 +826,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
             <option value="def"${p.ln==='def'?' selected':''}>Defender</option>
             <option value="mid"${p.ln==='mid'?' selected':''}>Midfielder</option>
             <option value="fwd"${p.ln==='fwd'?' selected':''}>Forward</option>
-            <option value="manager"${(p.ln==='manager' || String(p.pos || '').toLowerCase()==='manager')?' selected':''}>Manager</option>
+            <option value="manager"${p.ln==='manager'?' selected':''}>Manager</option>
           </select>
         </td>
         <td><button data-save="${p.dbId}" type="button">Save</button> <button class="cancel" data-cancel="${p.dbId}" type="button">Cancel</button></td>
@@ -872,9 +855,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       const lnVal = editRow.querySelector('[data-edit="ln"]').value;
       const nVal = Number(editRow.querySelector('[data-edit="n"]').value);
       if (!nameVal) { alert('Player name required.'); return; }
-      const safeLine = lnVal === 'manager' ? 'mid' : lnVal;
-      const safePosition = lnVal === 'manager' ? 'Manager' : (posVal || 'Player');
-      const { error } = await supabaseClient.from('players').update({ jersey_no: nVal, name: nameVal, position: safePosition, line: safeLine }).eq('id', dbId);
+      const { error } = await supabaseClient.from('players').update({ jersey_no: nVal, name: nameVal, position: posVal || 'Player', line: lnVal }).eq('id', dbId);
       if (error) { alert('Update failed: ' + error.message); return; }
       Object.keys(FORMATIONS).forEach(fk => { FORMATIONS[fk].forEach(slot => { if (slot.n === Number(editRow.dataset.editFor)) slot.n = nVal; }); });
       await loadAllDataFromSupabase(); return;
@@ -1295,14 +1276,10 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     const pos = ln === 'manager' ? 'Manager' : (document.getElementById('pPos').value.trim() || 'Player');
     if (!no || no < 1 || no > 99) { playerError.textContent = 'Jersey number 1–99.'; return; }
     if (!name) { playerError.textContent = 'Name required.'; return; }
-    // The database players_line_check constraint allows player lines only; store managers with an allowed line and identify them by position.
-    const safeLine = ln === 'manager' ? 'mid' : ln;
-    const { error } = await supabaseClient.from('players').insert({ session_id: session.id, jersey_no: no, name, position: pos, line: safeLine });
+    const { error } = await supabaseClient.from('players').insert({ session_id: session.id, jersey_no: no, name, position: pos, line: ln });
     if (error) { playerError.textContent = error.message; return; }
-    if (ln !== 'manager') {
-      const slot = { n: no, r: ln === 'gk' ? 'GK' : ln === 'def' ? 'CB' : ln === 'mid' ? 'MID' : 'CF', x: 50, y: 50 };
-      Object.keys(FORMATIONS).forEach(fk => FORMATIONS[fk].push({ ...slot }));
-    }
+    const slot = { n: no, r: ln === 'gk' ? 'GK' : ln === 'def' ? 'CB' : ln === 'mid' ? 'MID' : 'CF', x: 50, y: 50 };
+    Object.keys(FORMATIONS).forEach(fk => FORMATIONS[fk].push({ ...slot }));
     playerModal.classList.remove('open');
     await loadAllDataFromSupabase();
   });
