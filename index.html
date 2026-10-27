@@ -603,9 +603,10 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       }))
     }));
 
-    const visible = sessions.filter(s => s.visible);
+    // ডিফল্ট সেশন সবচেয়ে নতুন সেশনটি (যেমন 2027) হবে
     if (!activeSessionName || !sessions.find(s => s.name === activeSessionName)) {
-      activeSessionName = visible.length ? visible[0].name : (sessions[0]?.name || null);
+      const sortedSessions = [...sessions].sort((a, b) => b.name.localeCompare(a.name));
+      activeSessionName = sortedSessions.length ? sortedSessions[0].name : null;
     }
     refreshAll();
   }
@@ -624,6 +625,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   // ---------- ম্যানেজার ও রোটেশন লজিক ----------
   function renderPitch(){
     pitch.querySelectorAll('.tl').forEach(el => el.remove());
+    pitch.querySelectorAll('.manager-tile').forEach(el => el.remove());
     
     // ম্যানেজারকে আলাদা করা
     const allPlayers = currentPlayers();
@@ -632,16 +634,32 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     // ম্যানেজারকে বাদ দিয়ে বাকি প্লেয়ারদের মাঠে দেখানো
     const players = allPlayers.filter(p => p !== manager);
     
-    // ম্যানেজার থাকলে মাঠের উপরে বাম দিকে তার ছবি ও নামসহ ব্যাজ দেখানো
+    // ম্যানেজার থাকলে মাঠের উপরে বাম দিকে তার ছবি ও নামসহ কার্ড দেখানো
     if (manager) {
       const badge = document.createElement('div');
-      badge.style.cssText = 'position:absolute; top:8px; left:8px; background:var(--card); border:2px solid var(--gold); border-radius:30px; padding:4px 12px 4px 4px; display:flex; align-items:center; gap:8px; z-index:10; box-shadow:0 4px 10px rgba(0,0,0,0.3);';
+      badge.className = 'manager-tile';
+      badge.style.cssText = 'position:absolute; top:10px; left:10px; background:rgba(255,255,255,0.95); border:2px solid var(--gold); border-radius:8px; padding:6px; display:flex; flex-direction:column; align-items:center; gap:6px; z-index:10; box-shadow:0 4px 12px rgba(0,0,0,0.4); width:80px; backdrop-filter: blur(4px); cursor:pointer;';
       
       const imgHtml = manager.img 
-        ? `<img src="${manager.img}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid var(--g);">` 
-        : `<div style="width:32px; height:32px; border-radius:50%; background:var(--gold); color:var(--g); display:grid; place-items:center; font:700 0.9rem var(--c); border:2px solid var(--g);">${sym(manager.name)}</div>`;
+        ? `<img src="${manager.img}" style="width:68px; height:68px; border-radius:6px; object-fit:cover; border:2px solid var(--g); box-shadow: 0 2px 4px rgba(0,0,0,0.2);">` 
+        : `<div style="width:68px; height:68px; border-radius:6px; background:var(--gold); color:var(--g); display:grid; place-items:center; font:800 1.8rem var(--c); border:2px solid var(--g);">${sym(manager.name)}</div>`;
         
-      badge.innerHTML = `${imgHtml}<div style="display:flex; flex-direction:column; line-height:1.1;"><span style="font:600 0.6rem var(--m); color:var(--mute); text-transform:uppercase; letter-spacing:1px;">Manager</span><span style="font:700 0.9rem var(--f); color:var(--ink);">${manager.name}</span></div>`;
+      badge.innerHTML = `
+        ${imgHtml}
+        <div style="display:flex; flex-direction:column; align-items:center; line-height:1.1; text-align:center;">
+          <span style="font:700 0.55rem var(--m); color:var(--gold); text-transform:uppercase; letter-spacing:1px; background:var(--g); padding:2px 6px; border-radius:4px; margin-bottom:4px;">Manager</span>
+          <span style="font:800 0.75rem var(--f); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70px;">${manager.name}</span>
+        </div>
+      `;
+      // ম্যানেজারকে ক্লিক করলে ছবি আপলোড বা পরিবর্তনের অপশন পাবেন
+      badge.addEventListener('click', () => {
+        if (isAdmin) {
+          openPhotoPicker(manager.dbId);
+        } else {
+          selectedPlayer = manager.n;
+          renderPlayerCard(); // ভিজিটর হলে শুধু কার্ড দেখাবে
+        }
+      });
       pitch.appendChild(badge);
     }
 
@@ -743,18 +761,25 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   function renderPlayerCard(){
     const players = currentPlayers();
     if (!players.length) { pcard.innerHTML = '<p class="note">No players in this session.</p>'; return; }
-    let p = players.find(x => x.n === selectedPlayer && String(x.ln || '').toLowerCase() !== 'manager');
-    if (!p) { p = players[0]; selectedPlayer = p.n; }
+    
+    let p = players.find(x => x.n === selectedPlayer);
+    if (!p) { 
+      const outfield = players.filter(x => String(x.ln || '').toLowerCase() !== 'manager');
+      p = outfield.length ? outfield[0] : players[0]; 
+      selectedPlayer = p.n; 
+    }
+    
+    const isManager = String(p.ln || '').toLowerCase() === 'manager' || String(p.pos || '').toLowerCase() === 'manager';
     const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
     const slot = formation.find(s => s.n === p.n);
-    const roleLabel = slot ? (ROLE_NAMES[slot.r] || slot.r) : p.pos;
-    const isCaptain = p.n === CAPTAIN_NO;
+    const roleLabel = isManager ? 'Manager' : (slot ? (ROLE_NAMES[slot.r] || slot.r) : p.pos);
+    const isCaptain = !isManager && p.n === CAPTAIN_NO;
 
     const photoBlock = p.img ? `<img src="${p.img}" alt="${p.name}" class="player-photo">` : `<div class="photo-fallback"><b>${sym(p.name)}</b></div>`;
 
-    pcard.innerHTML = `<div class="big"><span>${p.n}</span>${photoBlock}<em>${slot ? slot.r : '?'}</em></div>` +
+    pcard.innerHTML = `<div class="big"><span>${isManager ? 'M' : p.n}</span>${photoBlock}<em>${isManager ? 'MGR' : (slot ? slot.r : '?')}</em></div>` +
       `<div><h3>${p.name}</h3><p>${roleLabel}${isCaptain ? ' · Captain' : ''}</p>` +
-      `<dl><dt>Jersey</dt><dd>${p.n}</dd><dt>Formation</dt><dd>${currentFormation}</dd><dt>Season</dt><dd>${getActiveSession()?.name || '—'}</dd></dl></div>`;
+      `<dl><dt>Jersey</dt><dd>${isManager ? '—' : p.n}</dd><dt>Formation</dt><dd>${currentFormation}</dd><dt>Season</dt><dd>${getActiveSession()?.name || '—'}</dd></dl></div>`;
 
     if (isAdmin) {
       const btn = document.createElement('button');
@@ -789,10 +814,10 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   });
 
   function renderSquad(){
-    const lineOrder = { gk: 0, def: 1, mid: 2, fwd: 3 };
+    const lineOrder = { manager: -1, gk: 0, def: 1, mid: 2, fwd: 3 };
     const players = currentPlayers().slice().sort((a, b) => {
-      const lineA = String(a.ln || '').toLowerCase() === 'manager' ? -1 : (lineOrder[String(a.ln || '').toLowerCase()] ?? 4);
-      const lineB = String(b.ln || '').toLowerCase() === 'manager' ? -1 : (lineOrder[String(b.ln || '').toLowerCase()] ?? 4);
+      const lineA = lineOrder[String(a.ln || '').toLowerCase()] ?? 4;
+      const lineB = lineOrder[String(b.ln || '').toLowerCase()] ?? 4;
       return lineA - lineB || a.n - b.n;
     });
     const sessionName = getActiveSession()?.name || '';
@@ -1105,8 +1130,8 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   });
 
   function renderSessionSelect(){
-    const visible = sessions.filter(s => s.visible);
-    sessionSelect.innerHTML = visible.map(s => `<option value="${s.name}"${s.name === activeSessionName ? ' selected' : ''}>${s.name}</option>`).join('');
+    const sortedSessions = [...sessions].sort((a, b) => b.name.localeCompare(a.name));
+    sessionSelect.innerHTML = sortedSessions.map(s => `<option value="${s.name}"${s.name === activeSessionName ? ' selected' : ''}>${s.name}</option>`).join('');
   }
 
   sessionSelect.addEventListener('change', function(){
