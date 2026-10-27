@@ -476,7 +476,7 @@
     <label>Full name</label>
     <input id="pName" required>
     <label>Position label (e.g. Striker)</label>
-    <input id="pPos" placeholder="Striker">
+    <input id="pPos" placeholder="e.g. CMF, LMF, RMF, CB, GK, Striker">
     <label>Line</label>
     <select id="pLn">
       <option value="gk">Goalkeeper</option>
@@ -523,30 +523,30 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     '4-3-3': [
       { n:1, r:'GK', x:50, y:89 }, { n:2, r:'RB', x:86, y:71 },
       { n:3, r:'CB', x:63, y:74 }, { n:4, r:'CB', x:37, y:74 },
-      { n:5, r:'LB', x:14, y:71 }, { n:6, r:'MID', x:50, y:56 },
-      { n:7, r:'MID', x:76, y:44 }, { n:8, r:'MID', x:24, y:44 },
+      { n:5, r:'LB', x:14, y:71 }, { n:6, r:'CMF', x:50, y:56 },
+      { n:7, r:'RMF', x:76, y:44 }, { n:8, r:'LMF', x:24, y:44 },
       { n:9, r:'CF', x:50, y:17 }, { n:10, r:'LW', x:17, y:23 },
       { n:11, r:'RW', x:83, y:23 }
     ],
     '4-4-2': [
       { n:1, r:'GK', x:50, y:89 }, { n:2, r:'RB', x:86, y:71 },
       { n:3, r:'CB', x:63, y:74 }, { n:4, r:'CB', x:37, y:74 },
-      { n:5, r:'LB', x:14, y:71 }, { n:6, r:'MID', x:62, y:48 },
-      { n:7, r:'MID', x:86, y:40 }, { n:8, r:'MID', x:38, y:48 },
+      { n:5, r:'LB', x:14, y:71 }, { n:6, r:'CMF', x:62, y:48 },
+      { n:7, r:'RMF', x:86, y:40 }, { n:8, r:'LMF', x:38, y:48 },
       { n:10, r:'LW', x:14, y:40 }, { n:9, r:'CF', x:63, y:18 },
       { n:11, r:'RW', x:37, y:18 }
     ],
     '3-5-2': [
       { n:1, r:'GK', x:50, y:89 }, { n:3, r:'CB', x:73, y:73 },
       { n:4, r:'CB', x:50, y:75 }, { n:5, r:'CB', x:27, y:73 },
-      { n:2, r:'RB', x:88, y:52 }, { n:6, r:'MID', x:50, y:58 },
-      { n:7, r:'MID', x:70, y:43 }, { n:8, r:'MID', x:30, y:43 },
+      { n:2, r:'RB', x:88, y:52 }, { n:6, r:'CMF', x:50, y:58 },
+      { n:7, r:'RMF', x:70, y:43 }, { n:8, r:'LMF', x:30, y:43 },
       { n:10, r:'LW', x:12, y:52 }, { n:9, r:'CF', x:63, y:18 },
       { n:11, r:'RW', x:37, y:18 }
     ]
   };
 
-  const ROLE_NAMES = { GK:'Goalkeeper', RB:'Right back', LB:'Left back', CB:'Centre-back', DM:'Defensive midfielder', CM:'Central midfielder', MID:'Midfielder', LM:'Left midfielder', RM:'Right midfielder', LW:'Left winger', RW:'Right winger', CF:'Centre forward', ST:'Striker', LWB:'Left wing-back', RWB:'Right wing-back' };
+  const ROLE_NAMES = { GK:'Goalkeeper', RB:'Right back', LB:'Left back', CB:'Centre-back', DM:'Defensive midfielder', CM:'Central midfielder', MID:'Midfielder', CMF:'Central midfielder', LMF:'Left midfielder', RMF:'Right midfielder', LM:'Left midfielder', RM:'Right midfielder', LW:'Left winger', RW:'Right winger', CF:'Centre forward', ST:'Striker', LWB:'Left wing-back', RWB:'Right wing-back' };
   const CAPTAIN_NO = 6;
 
   const $ = s => document.querySelector(s);
@@ -629,9 +629,13 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     formation.forEach(slot => {
       // ১. এই স্লটের জন্য উপযুক্ত প্লেয়ার খুঁজে বের করা
       let matchingPlayers = players.filter(p => {
-        // MID স্লটের জন্য CM, DM, LM, RM সবই ম্যাচ করবে
-        if (slot.r === 'MID') {
-          return p.pos.toUpperCase().includes('MID') || p.pos.toUpperCase().includes('CM') || p.pos.toUpperCase().includes('DM');
+        // Midfield slots are distinct: CMF, LMF and RMF. Generic MID is a fallback only.
+        const pos = (p.pos || '').toUpperCase().replace(/[^A-Z]/g, '');
+        if (['CMF','LMF','RMF'].includes(slot.r)) {
+          const aliases = { CMF:['CMF','CM','CENTRALMIDFIELDER'], LMF:['LMF','LM','LEFTMIDFIELDER'], RMF:['RMF','RM','RIGHTMIDFIELDER'] };
+          const exact = players.filter(q => { const qp=(q.pos||'').toUpperCase().replace(/[^A-Z]/g,''); return aliases[slot.r].some(a => qp === a || qp.includes(a)); });
+          if (exact.length) return aliases[slot.r].some(a => pos === a || pos.includes(a));
+          return pos === 'MID' || pos.includes('MIDFIELDER') || pos.includes('DM') || pos.includes('CM');
         }
         // CF স্লটের জন্য ST, CF, FW ম্যাচ করবে
         if (slot.r === 'CF') {
