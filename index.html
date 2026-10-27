@@ -124,26 +124,42 @@
     .tag { margin-left: 12px; padding: 6px 10px; border: 1px solid var(--line); background: var(--card); font: 400 .68rem/1 var(--m); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); vertical-align: middle; white-space: nowrap; }
     .pitch { position: relative; container-type: inline-size; aspect-ratio: 3/4; border: 3px solid var(--g); background: repeating-linear-gradient(180deg, #1f6e4a 0 12.5%, #1a6244 12.5% 25%); }
     .pitch svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: rgba(255,255,255,.6); stroke-width: .5; }
-    .tl { position: absolute; width: 13.6%; aspect-ratio: 1; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; border: 2px solid var(--g); background: #f3f7f5; color: var(--g); cursor: pointer; transition: left .5s cubic-bezier(.3,.8,.3,1), top .5s cubic-bezier(.3,.8,.3,1); }
-    .tl:hover { box-shadow: 0 0 0 3px rgba(255,255,255,.55); }
-    .tl .n { position: absolute; top: 2px; left: 4px; font: 600 max(9px,2.3cqw)/1 var(--m); }
-    .tl b { font: 700 max(21px,7.4cqw)/.85 var(--c); }
-    .tl .r { font: 400 max(8px,2cqw)/1 var(--m); margin-top: 3px; opacity: .65; }
+    
+    /* মাঠের টাইল (Pitch Tile) */
+    .tl { position: absolute; width: 13.6%; aspect-ratio: 1; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; border: 2px solid var(--g); background: #f3f7f5; color: var(--g); cursor: pointer; transition: left .5s cubic-bezier(.3,.8,.3,1), top .5s cubic-bezier(.3,.8,.3,1); overflow: hidden; }
+    .tl:hover { box-shadow: 0 0 0 3px rgba(255,255,255,.55); z-index: 5; }
+    
+    .tl img.tile-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+    .tl .n, .tl b, .tl .r { position: relative; z-index: 3; }
+    
+    .tl .n { position: absolute; top: 4px; left: 4px; font: 600 max(9px,2.3cqw)/1 var(--m); background: rgba(0,0,0,.6); color: #fff; padding: 1px 4px; border-radius: 3px; }
+    .tl b { font: 700 max(21px,7.4cqw)/.85 var(--c); text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+    .tl .r { font: 400 max(8px,2cqw)/1 var(--m); margin-top: 3px; background: rgba(0,0,0,.6); color: #fff; padding: 2px 6px; border-radius: 3px; }
+    .tl.no-img b { color: var(--g); text-shadow: none; }
+    
     .tl .nm { position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%); background: var(--g); color: #fff; font: 600 max(9px,2.3cqw)/1 var(--f); padding: 3px 6px; white-space: nowrap; }
     .tl.on { background: var(--gold); box-shadow: 0 0 0 3px var(--g); z-index: 2; }
-    .tl .cap { position: absolute; top: -8px; right: -8px; width: 17px; height: 17px; border-radius: 50%; background: #fff; border: 2px solid var(--g); font: 700 9px/13px var(--m); text-align: center; }
+    .tl .cap { position: absolute; top: -8px; right: -8px; width: 17px; height: 17px; border-radius: 50%; background: #fff; border: 2px solid var(--g); font: 700 9px/13px var(--m); text-align: center; z-index: 4; }
+    
     .lb { font: 400 .74rem var(--m); letter-spacing: .16em; text-transform: uppercase; color: var(--mute); margin: 0 0 10px; }
     .fm { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
     .fm button { font: 600 .95rem var(--m); letter-spacing: .08em; padding: 12px 18px; border: 2px solid var(--g); background: var(--card); color: var(--g); cursor: pointer; }
     .fm button[aria-pressed="true"] { background: var(--g); color: #fff; }
-    .pcard { display: flex; flex-wrap: wrap; gap: 22px; padding: 20px; border: 2px solid var(--g); background: var(--card); margin-bottom: 16px; }
-    .big { position: relative; flex: none; width: 84px; height: 112px; background: var(--gold); border: 2px solid var(--g); color: var(--g); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
-    .big span { position: absolute; top: 4px; left: 6px; font: 600 1.05rem/1 var(--m); z-index: 2; background: rgba(0,0,0,.4); color: #fff; padding: 1px 5px; border-radius: 3px; }
-    .big b { font: 700 3.2rem/.9 var(--c); }
-    .big em { font: 600 .95rem var(--m); margin-top: 6px; letter-spacing: .06em; z-index: 2; position: relative; }
-    .big img.player-photo { position: absolute; inset: 4px 4px 22px 4px; width: calc(100% - 8px); height: calc(100% - 26px); object-fit: cover; border-radius: 2px; z-index: 1; }
-    .big .photo-fallback { position: absolute; inset: 4px 4px 22px 4px; display: flex; align-items: center; justify-content: center; background: var(--gold); }
-    .big .photo-fallback b { font: 700 2.6rem/.9 var(--c); color: var(--g); }
+    
+    /* প্লেয়ার কার্ড (Player Card) */
+    .pcard { display: flex; flex-wrap: wrap; gap: 22px; padding: 20px; border: 2px solid var(--g); background: var(--card); margin-bottom: 16px; align-items: flex-start; }
+    
+    .big { position: relative; flex: none; width: 100px; height: 130px; background: var(--gold); border: 2px solid var(--g); color: var(--g); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; border-radius: 4px; }
+    
+    .big span { position: absolute; top: 6px; left: 8px; font: 700 1.2rem/1 var(--m); z-index: 3; background: rgba(0,0,0,.6); color: #fff; padding: 2px 7px; border-radius: 4px; }
+    
+    .big em { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); font: 700 .8rem var(--m); letter-spacing: .06em; z-index: 3; background: rgba(0,0,0,.6); color: #fff; padding: 2px 8px; border-radius: 4px; margin: 0; }
+
+    .big img.player-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+    
+    .big .photo-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--gold); }
+    .big .photo-fallback b { font: 700 3.5rem/.9 var(--c); color: var(--g); }
+    
     .pcard h3 { font: 700 clamp(2rem,4vw,2.6rem)/1 var(--c); text-transform: uppercase; color: var(--g); margin: 0 0 6px; }
     .pcard p { margin: 0 0 14px; color: var(--mute); }
     .pcard dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; margin: 0; font-size: .9rem; }
@@ -245,6 +261,7 @@
         <select id="sessionSelect"></select>
       </span>
       <span id="adminBadgeWrap" style="display:none"><span class="admin-badge">Admin</span></span>
+      <button class="login-btn out" id="registerBtn" style="margin-right: 8px;">Register</button>
       <button class="login-btn" id="loginBtn">Login</button>
     </nav>
   </div>
@@ -313,6 +330,17 @@
     <p class="note admin-only" style="margin-top:12px">As admin you can add new seasons, hide old ones, and edit any player row inline (double-click a row).</p>
   </section>
 
+  <section id="admin-requests-section" class="admin-only" style="display: none; border-top: 2px solid var(--line); padding: 40px 0;">
+    <h2>Admin Requests</h2>
+    <p class="sub">Approve or reject requests to join as admin.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="requestSheet"></tbody>
+      </table>
+    </div>
+  </section>
+
   <section id="fixtures">
     <h2>Fixtures <span class="tag" id="fixturesTag">Season</span></h2>
     <p class="sub">Upcoming matches. Kick-off times are announced in the department.</p>
@@ -355,6 +383,25 @@
         <button class="btn s" type="button" id="cancelLogin">Cancel</button>
       </div>
     </form>
+  </div>
+</div>
+
+<div class="modal-bg" id="registerModal">
+  <div class="modal">
+    <button class="close" id="closeRegister" aria-label="Close">&times;</button>
+    <h3>Request Admin Access</h3>
+    <p>Submit your details. Once the main admin approves, your account will be created.</p>
+    <label for="rName">Full Name</label>
+    <input id="rName" placeholder="e.g. Omar Faruk" required>
+    <label for="rEmail">Email</label>
+    <input id="rEmail" type="email" placeholder="you@example.com" required>
+    <label for="rPass">Password</label>
+    <input id="rPass" type="password" required>
+    <div class="error" id="registerError"></div>
+    <div class="row">
+      <button class="btn p" id="submitRegisterBtn" type="button">Submit Request</button>
+      <button class="btn s" type="button" id="cancelRegister">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -411,7 +458,6 @@
 const SUPABASE_URL = 'https://ophgkseuqwuhswaighmx.supabase.co'; 
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_7V80-o_20wk2xM2h_qYD4w_N7kb22d1'; 
 
-// এখানে supabase এর পরিবর্তে supabaseClient ব্যবহার করা হয়েছে
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 (function(){
@@ -472,7 +518,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   const footerSeason = $('#footerSeason');
 
   async function loadAllDataFromSupabase() {
-    // এখানে supabaseClient ব্যবহার করা হয়েছে
     const { data: sessionsData } = await supabaseClient.from('sessions').select('*').order('created_at', { ascending: true });
     const { data: playersData } = await supabaseClient.from('players').select('*');
     const { data: fixturesData } = await supabaseClient.from('fixtures').select('*');
@@ -520,7 +565,18 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       b.type = 'button'; b.className = 'tl'; b.dataset.n = p.n;
       b.style.left = slot.x + '%'; b.style.top = slot.y + '%';
       const isCaptain = p.n === CAPTAIN_NO;
-      b.innerHTML = `<span class="n">${p.n}</span><b>${sym(p.name)}</b><span class="r">${slot.r}</span><span class="nm">${(p.name.split(' ')[0] || '')}</span>` + (isCaptain ? '<span class="cap">C</span>' : '');
+      
+      const imgTag = p.img ? `<img src="${p.img}" class="tile-photo" alt="">` : '';
+      if(!p.img) b.classList.add('no-img');
+
+      b.innerHTML = 
+        imgTag +
+        `<span class="n">${p.n}</span>` +
+        `<b>${sym(p.name)}</b>` +
+        `<span class="r">${slot.r}</span>` +
+        `<span class="nm">${(p.name.split(' ')[0] || '')}</span>` +
+        (isCaptain ? '<span class="cap">C</span>' : '');
+        
       b.setAttribute('aria-label', `${p.name}, ${ROLE_NAMES[slot.r] || slot.r}, number ${p.n}`);
       b.setAttribute('aria-pressed', String(p.n === selectedPlayer));
       if (p.n === selectedPlayer) b.classList.add('on');
@@ -630,7 +686,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       const lnVal = editRow.querySelector('[data-edit="ln"]').value;
       const nVal = Number(editRow.querySelector('[data-edit="n"]').value);
       if (!nameVal) { alert('Player name required.'); return; }
-      // এখানে supabaseClient
       const { error } = await supabaseClient.from('players').update({ jersey_no: nVal, name: nameVal, position: posVal || 'Player', line: lnVal }).eq('id', dbId);
       if (error) { alert('Update failed: ' + error.message); return; }
       Object.keys(FORMATIONS).forEach(fk => { FORMATIONS[fk].forEach(slot => { if (slot.n === Number(editRow.dataset.editFor)) slot.n = nVal; }); });
@@ -642,7 +697,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (delBtn && isAdmin) {
       const dbId = Number(delBtn.dataset.delPlayer);
       if (!confirm('Remove this player from the session?')) return;
-      // এখানে supabaseClient
       const { error } = await supabaseClient.from('players').delete().eq('id', dbId);
       if (error) { alert('Delete failed: ' + error.message); return; }
       await loadAllDataFromSupabase(); return;
@@ -661,6 +715,84 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       if (editRow && !show) editRow.style.display = 'none';
     });
   });
+
+  // ---------- REGISTRATION LOGIC ----------
+  const registerModal = document.getElementById('registerModal');
+  const registerError = document.getElementById('registerError');
+
+  document.getElementById('registerBtn').addEventListener('click', () => {
+    registerError.textContent = '';
+    document.getElementById('rName').value = '';
+    document.getElementById('rEmail').value = '';
+    document.getElementById('rPass').value = '';
+    registerModal.classList.add('open');
+  });
+
+  document.getElementById('closeRegister').onclick = () => registerModal.classList.remove('open');
+  document.getElementById('cancelRegister').onclick = () => registerModal.classList.remove('open');
+
+  document.getElementById('submitRegisterBtn').addEventListener('click', async () => {
+    const name = document.getElementById('rName').value.trim();
+    const email = document.getElementById('rEmail').value.trim();
+    const pass = document.getElementById('rPass').value;
+
+    if (!name || !email || !pass) { registerError.textContent = 'All fields are required.'; return; }
+    if (pass.length < 6) { registerError.textContent = 'Password must be at least 6 characters.'; return; }
+
+    const { error } = await supabaseClient.from('admin_requests').insert({
+      name: name,
+      email: email,
+      status: 'pending_' + btoa(pass) 
+    });
+
+    if (error) {
+      registerError.textContent = error.message;
+    } else {
+      alert('Request submitted successfully! Please wait for the main admin to approve.');
+      registerModal.classList.remove('open');
+    }
+  });
+
+  // ---------- ADMIN REQUESTS HANDLING ----------
+  async function loadAdminRequests() {
+    const { data, error } = await supabaseClient.from('admin_requests').select('*').like('status', 'pending%').order('created_at', { ascending: false });
+    if (error) { console.error(error); return; }
+    
+    const sheet = document.getElementById('requestSheet');
+    if (!data || data.length === 0) {
+      sheet.innerHTML = '<tr><td colspan="4">No pending requests.</td></tr>';
+      return;
+    }
+
+    sheet.innerHTML = data.map(req => `
+      <tr>
+        <td>${req.name}</td>
+        <td>${req.email}</td>
+        <td style="color:var(--amber);font-weight:bold;">Pending</td>
+        <td>
+          <button class="btn p" style="padding:4px 10px;font-size:.8rem;" onclick="approveRequest(${req.id}, '${req.email}', '${req.status}')">Approve</button>
+          <button class="del-btn" onclick="rejectRequest(${req.id})">Reject</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  window.approveRequest = async function(reqId, email, encodedStatus) {
+    const password = atob(encodedStatus.replace('pending_', ''));
+    
+    alert(`✅ Approval Instructions:\n\n1. Go to your Supabase Dashboard.\n2. Navigate to Authentication > Users.\n3. Click "Add User" -> "Create User".\n4. Email: ${email}\n5. Password: ${password}\n6. Check "Auto Confirm User" and Save.\n\nAfter creating the user, click OK to mark this request as Approved.`);
+
+    if(!confirm("Have you created the user in Supabase?")) return;
+
+    await supabaseClient.from('admin_requests').update({ status: 'approved' }).eq('id', reqId);
+    loadAdminRequests();
+  }
+
+  window.rejectRequest = async function(reqId) {
+    if(!confirm("Reject this request?")) return;
+    await supabaseClient.from('admin_requests').update({ status: 'rejected' }).eq('id', reqId);
+    loadAdminRequests();
+  }
 
   function renderFixtures(){
     const fixtures = currentFixtures();
@@ -697,7 +829,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
         const v = editDiv.querySelector('[data-fx="v"]').value.trim();
         const w = editDiv.querySelector('[data-fx="w"]').value.trim();
         const c = editDiv.querySelector('[data-fx="c"]').value.trim();
-        // এখানে supabaseClient
         const { error } = await supabaseClient.from('fixtures').update({ day: d, month: mo, match_name: v, venue: w, competition: c }).eq('id', dbId);
         if (error) { alert('Failed: ' + error.message); return; }
         await loadAllDataFromSupabase();
@@ -711,7 +842,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
         if (!isAdmin) return;
         if (!confirm('Delete this fixture?')) return;
         const dbId = Number(this.dataset.delFixture);
-        // এখানে supabaseClient
         const { error } = await supabaseClient.from('fixtures').delete().eq('id', dbId);
         if (error) { alert('Delete failed: ' + error.message); return; }
         await loadAllDataFromSupabase();
@@ -722,7 +852,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   $('#addFixtureBtn').addEventListener('click', async function(){
     if (!isAdmin) return;
     const session = getActiveSession(); if (!session) return;
-    // এখানে supabaseClient
     const { error } = await supabaseClient.from('fixtures').insert({ session_id: session.id, day: '01', month: 'Jan', match_name: 'New match', venue: 'TBD', competition: 'Friendly' });
     if (error) { alert('Add failed: ' + error.message); return; }
     await loadAllDataFromSupabase();
@@ -749,16 +878,17 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     loginBtn.classList.toggle('out', isAdmin);
     $('#sessionControls').style.display = isAdmin ? 'flex' : 'none';
     $('#addFixtureBtn').style.display = isAdmin ? 'inline-block' : 'none';
+    
+    document.getElementById('admin-requests-section').style.display = isAdmin ? 'block' : 'none';
+    if(isAdmin) {
+      loadAdminRequests();
+    }
+
     renderSquad(); renderFixtures(); renderPlayerCard();
   }
 
   loginBtn.addEventListener('click', async function(){
-    if (isAdmin) { 
-      // এখানে supabaseClient
-      await supabaseClient.auth.signOut(); 
-      setAdmin(false); 
-      return; 
-    }
+    if (isAdmin) { await supabaseClient.auth.signOut(); setAdmin(false); return; }
     loginError.textContent = '';
     $('#luser').value = ''; $('#lpass').value = '';
     loginModal.classList.add('open');
@@ -771,7 +901,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     e.preventDefault();
     const email = $('#luser').value.trim();
     const p = $('#lpass').value;
-    // এখানে supabaseClient
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: p });
     if (error) { loginError.textContent = error.message; } 
     else { loginModal.classList.remove('open'); setAdmin(true); await loadAllDataFromSupabase(); }
@@ -788,7 +917,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   $('#createSessionBtn').addEventListener('click', async function(){
     const name = $('#sname').value.trim();
     if (!name) { sessionError.textContent = 'Please enter a season name.'; return; }
-    // এখানে supabaseClient
     const { error } = await supabaseClient.from('sessions').insert({ name, visible: true });
     if (error) { sessionError.textContent = error.message; return; }
     activeSessionName = name; sessionModal.classList.remove('open');
@@ -798,7 +926,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   $('#toggleSessionBtn').addEventListener('click', async function(){
     if (!isAdmin) return;
     const session = getActiveSession(); if (!session) return;
-    // এখানে supabaseClient
     const { error } = await supabaseClient.from('sessions').update({ visible: !session.visible }).eq('id', session.id);
     if (error) { alert('Failed: ' + error.message); return; }
     await loadAllDataFromSupabase();
@@ -825,7 +952,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     const ln = document.getElementById('pLn').value;
     if (!no || no < 1 || no > 99) { playerError.textContent = 'Jersey number 1–99.'; return; }
     if (!name) { playerError.textContent = 'Name required.'; return; }
-    // এখানে supabaseClient
     const { error } = await supabaseClient.from('players').insert({ session_id: session.id, jersey_no: no, name, position: pos, line: ln });
     if (error) { playerError.textContent = error.message; return; }
     const slot = { n: no, r: ln === 'gk' ? 'GK' : ln === 'def' ? 'CB' : ln === 'mid' ? 'CM' : 'ST', x: 50, y: 50 };
@@ -847,10 +973,8 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (!file || !pendingPhotoDbId) return;
     const fileExt = file.name.split('.').pop();
     const filePath = `players/${pendingPhotoDbId}/${Date.now()}.${fileExt}`;
-    // এখানে supabaseClient
     const { error: uploadError } = await supabaseClient.storage.from('player-photos').upload(filePath, file, { upsert: true });
     if (uploadError) { alert('Photo upload failed: ' + uploadError.message); return; }
-    // এখানে supabaseClient
     const { data: urlData } = supabaseClient.storage.from('player-photos').getPublicUrl(filePath);
     const { error: dbError } = await supabaseClient.from('players').update({ photo_url: urlData.publicUrl }).eq('id', pendingPhotoDbId);
     if (dbError) { alert('Database update failed: ' + dbError.message); return; }
@@ -859,7 +983,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   });
 
   function setupRealtime() {
-    // এখানে supabaseClient
     supabaseClient.channel('db-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadAllDataFromSupabase())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions' }, () => loadAllDataFromSupabase())
@@ -874,7 +997,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   }
 
   async function init(){
-    // এখানে supabaseClient
     const { data: { session } } = await supabaseClient.auth.getSession();
     setAdmin(!!session);
     await loadAllDataFromSupabase();
