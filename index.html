@@ -776,7 +776,12 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   });
 
   function renderSquad(){
-    const players = currentPlayers().slice().sort((a,b) => a.n - b.n);
+    const lineOrder = { gk: 0, def: 1, mid: 2, fwd: 3 };
+    const players = currentPlayers().slice().sort((a, b) => {
+      const lineA = lineOrder[String(a.ln || '').toLowerCase()] ?? 4;
+      const lineB = lineOrder[String(b.ln || '').toLowerCase()] ?? 4;
+      return lineA - lineB || a.n - b.n;
+    });
     const sessionName = getActiveSession()?.name || '';
     let html = '';
     players.forEach(p => {
