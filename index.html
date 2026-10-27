@@ -39,7 +39,9 @@
     
     .hamburger { display: none; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--ink); z-index: 25; padding: 0; }
     
-    nav { display: flex; gap: 16px; font-weight: 600; font-size: .94rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
+    nav { display: flex; gap: 16px; font-weight: 600; font-size: .94rem; align-items: center; justify-content: flex-end; flex-wrap: nowrap; }
+    #loggedOutBtns { display: flex; align-items: center; justify-content: center; gap: 8px; width: auto !important; flex: 0 0 auto; }
+    #loggedOutBtns .login-btn { flex: 0 0 auto !important; min-height: 38px; line-height: 1.2; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; }
     nav a { text-decoration: none; color: var(--mute); }
     nav a:hover { color: var(--ink); }
     .session-pill { background: var(--card); border: 1.5px solid var(--line); padding: 5px 12px; border-radius: 99px; font: 600 .8rem var(--m); display: inline-flex; align-items: center; gap: 6px; }
@@ -220,6 +222,8 @@
       }
       nav.open { display: flex; }
       .session-pill { width: 100%; justify-content: space-between; }
+      #loggedOutBtns { width: 100% !important; display: flex; flex-direction: row; align-items: stretch; }
+      #loggedOutBtns .login-btn { flex: 1 1 0 !important; }
       .profile-icon-btn { align-self: flex-start; margin-top: 10px; }
     }
     @media(max-width: 600px) {
@@ -616,73 +620,81 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   // ---------- রোটেশন ও প্লেয়ার সিলেকশন লজিক ----------
   function renderPitch(){
     pitch.querySelectorAll('.tl').forEach(el => el.remove());
-    const players = currentPlayers().slice().sort((a, b) => Number(a.n) - Number(b.n));
+    const players = currentPlayers();
     if (!players.length) return;
-
+    
     const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
-    const used = new Set();
-    const lineForRole = role => role === 'GK' ? 'gk' :
-      ['RB','LB','CB','LWB','RWB'].includes(role) ? 'def' :
-      ['ST','LW','RW','CF'].includes(role) ? 'fwd' : 'mid';
+    const renderedPlayerIds = new Set(); // একই প্লেয়ার যেন দুইবার মাঠে না আসে
 
-    function roleScore(p, role){
-      const pos = String(p.pos || '').toUpperCase().replace(/[^A-Z]/g, ' ');
-      const words = pos.split(/\s+/).filter(Boolean);
-      const line = String(p.ln || '').toLowerCase();
-      if (words.includes(role)) return 0;
-      if (role === 'GK' && (pos.includes('GOALKEEPER') || words.includes('GOALIE'))) return 1;
-      if (role === 'MID' && ['CM','DM','AM','LM','RM','CDM','CAM'].some(x => words.includes(x))) return 1;
-      if (role === 'CF' && ['ST','FW','STRIKER','FORWARD'].some(x => words.includes(x))) return 1;
-      if (['LB','RB','CB','LWB','RWB'].includes(role) &&
-          (words.includes('DEFENDER') || words.includes('BACK') || ['DEF','CB','LB','RB','LWB','RWB'].some(x => words.includes(x)))) return 2;
-      if (['LW','RW'].includes(role) && (words.includes('WINGER') || words.includes('FORWARD'))) return 2;
-      if (line === lineForRole(role)) return 10;
-      return 50;
-    }
+    formation.forEach(slot => {
+      // ১. এই স্লটের জন্য উপযুক্ত প্লেয়ার খুঁজে বের করা
+      let matchingPlayers = players.filter(p => {
+        // MID স্লটের জন্য CM, DM, LM, RM সবই ম্যাচ করবে
+        if (slot.r === 'MID') {
+          return p.pos.toUpperCase().includes('MID') || p.pos.toUpperCase().includes('CM') || p.pos.toUpperCase().includes('DM');
+        }
+        // CF স্লটের জন্য ST, CF, FW ম্যাচ করবে
+        if (slot.r === 'CF') {
+          return p.pos.toUpperCase().includes('ST') || p.pos.toUpperCase().includes('CF') || p.pos.toUpperCase().includes('FW');
+        }
+        // GK
+        if (slot.r === 'GK') {
+          return p.pos.toUpperCase().includes('GK') || p.pos.toUpperCase().includes('GOAL');
+        }
+        // Defender
+        if (['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(slot.r)) {
+          return p.pos.toUpperCase().includes(slot.r.toUpperCase()) || p.pos.toUpperCase().includes('DEFENDER') || p.pos.toUpperCase().includes('BACK');
+        }
+        // Winger
+        if (['LW', 'RW'].includes(slot.r)) {
+           return p.pos.toUpperCase().includes(slot.r.toUpperCase()) || p.pos.toUpperCase().includes('WINGER');
+        }
+        
+        return p.pos.toUpperCase().includes(slot.r.toUpperCase());
+      });
 
-    // Assign the most constrained positions first so a defender is not used by a CB slot
-    // before the LB/RB slot gets a chance to use them.
-    const orderedSlots = formation.slice().sort((a, b) => {
-      const aCount = players.filter(p => roleScore(p, a.r) < 10).length;
-      const bCount = players.filter(p => roleScore(p, b.r) < 10).length;
-      if (aCount !== bCount) return aCount - bCount;
-      const priority = { GK:0, LB:1, RB:1, LWB:1, RWB:1, CB:2, MID:3, LW:4, RW:4, CF:5, ST:5 };
-      return (priority[a.r] ?? 6) - (priority[b.r] ?? 6);
-    });
+      // যদি নির্দিষ্ট পজিশনের প্লেয়ার না পাওয়া যায়, তবে লাইন দিয়ে ফলব্যাক
+      if (matchingPlayers.length === 0) {
+        let lineFallback = 'mid';
+        if (['GK'].includes(slot.r)) lineFallback = 'gk';
+        else if (['RB','LB','CB','LWB','RWB'].includes(slot.r)) lineFallback = 'def';
+        else if (['ST','LW','RW', 'CF'].includes(slot.r)) lineFallback = 'fwd';
+        
+        matchingPlayers = players.filter(p => p.ln === lineFallback);
+      }
 
-    const assignments = [];
-    orderedSlots.forEach(slot => {
-      const slotKey = slot.r + '_' + slot.x + '_' + slot.y;
-      if (slotRotations[slotKey] == null) slotRotations[slotKey] = 0;
-      let candidates = players.filter(p => !used.has(p.dbId) && roleScore(p, slot.r) < 50);
-      if (!candidates.length) candidates = players.filter(p => !used.has(p.dbId) && roleScore(p, slot.r) >= 50);
-      if (!candidates.length) return;
-      candidates.sort((a, b) => roleScore(a, slot.r) - roleScore(b, slot.r) || Number(a.n) - Number(b.n));
-      const bestScore = roleScore(candidates[0], slot.r);
-      const best = candidates.filter(p => roleScore(p, slot.r) === bestScore);
-      const p = best[slotRotations[slotKey] % best.length];
-      used.add(p.dbId);
-      assignments.push({slot, p});
-    });
+      // ২. রোটেশন ইনডেক্স ও ইউনিক প্লেয়ার লজিক
+      const slotKey = slot.r + '_' + slot.x;
+      if (!slotRotations[slotKey]) slotRotations[slotKey] = 0;
 
-    // Draw in original formation order, keeping every card at its own coordinates.
-    assignments.sort((a, b) => formation.indexOf(a.slot) - formation.indexOf(b.slot));
-    assignments.forEach(({slot, p}) => {
+      // শুধু সেই প্লেয়ারদের নাও যারা আগে মাঠে বসেনি
+      let availablePlayers = matchingPlayers.filter(p => !renderedPlayerIds.has(p.dbId));
+      if (availablePlayers.length === 0) availablePlayers = matchingPlayers;
+
+      if (availablePlayers.length === 0) return; // কোনো প্লেয়ার নেই
+
+      const playerIndex = slotRotations[slotKey] % availablePlayers.length;
+      const p = availablePlayers[playerIndex];
+      
+      renderedPlayerIds.add(p.dbId);
+
+      // ৩. টাইল তৈরি করা
       const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'tl';
-      b.dataset.n = p.n;
-      b.style.left = slot.x + '%';
-      b.style.top = slot.y + '%';
+      b.type = 'button'; b.className = 'tl'; b.dataset.n = p.n;
+      b.style.left = slot.x + '%'; b.style.top = slot.y + '%';
       const isCaptain = p.n === CAPTAIN_NO;
-      if (!p.img) b.classList.add('no-img');
-      const img = p.img ? document.createElement('img') : null;
-      if (img) { img.src = p.img; img.className = 'tile-photo'; img.alt = ''; b.appendChild(img); }
-      const number = document.createElement('span'); number.className = 'n'; number.textContent = p.n; b.appendChild(number);
-      const initials = document.createElement('b'); initials.textContent = sym(p.name); b.appendChild(initials);
-      const role = document.createElement('span'); role.className = 'r'; role.textContent = slot.r; b.appendChild(role);
-      const name = document.createElement('span'); name.className = 'nm'; name.textContent = (p.name.split(' ')[0] || ''); b.appendChild(name);
-      if (isCaptain) { const cap = document.createElement('span'); cap.className = 'cap'; cap.textContent = 'C'; b.appendChild(cap); }
+      
+      const imgTag = p.img ? `<img src="${p.img}" class="tile-photo" alt="">` : '';
+      if(!p.img) b.classList.add('no-img');
+
+      b.innerHTML = 
+        imgTag +
+        `<span class="n">${p.n}</span>` +
+        `<b>${sym(p.name)}</b>` +
+        `<span class="r">${slot.r}</span>` +
+        `<span class="nm">${(p.name.split(' ')[0] || '')}</span>` +
+        (isCaptain ? '<span class="cap">C</span>' : '');
+        
       b.setAttribute('aria-label', `${p.name}, ${ROLE_NAMES[slot.r] || slot.r}, number ${p.n}`);
       b.setAttribute('aria-pressed', String(p.n === selectedPlayer));
       if (p.n === selectedPlayer) b.classList.add('on');
@@ -694,7 +706,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (rotationInterval) clearInterval(rotationInterval);
     if (currentPlayers().length > 11) {
       rotationInterval = setInterval(() => {
-        Object.keys(slotRotations).forEach(key => { slotRotations[key] = (slotRotations[key] || 0) + 1; });
+        Object.keys(slotRotations).forEach(key => { slotRotations[key]++; });
         renderPitch(); // শুধু মাঠের টাইল আপডেট হবে
       }, 3000);
     }
