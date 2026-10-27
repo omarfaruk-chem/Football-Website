@@ -135,10 +135,8 @@
 
     /* Fixtures & Results */
     .fx { list-style: none; margin: 0; padding: 0; }
-    .fx li { 
-      display: flex; align-items: center; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap;
-    }
-    .fx li.past-match { display: none; } /* অটোমেটিক লুকানোর ক্লাস */
+    .fx li { display: flex; align-items: center; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+    .fx li.past-match { display: none; }
     
     .fx-date { font-size: 2.3rem; line-height: .9; font-weight: 800; letter-spacing: -.04em; min-width: 60px; }
     .fx-date small { display: block; font-size: .9rem; font-weight: 600; color: var(--mute); letter-spacing: 0; margin-top: 4px; }
@@ -215,8 +213,7 @@
       
       .hamburger { display: block; }
       nav { 
-        display: none; 
-        position: absolute; top: 66px; left: 0; right: 0; 
+        display: none; position: absolute; top: 66px; left: 0; right: 0; 
         background: var(--card); flex-direction: column; padding: 20px; 
         border-bottom: 2px solid var(--ink); box-shadow: 0 10px 20px rgba(0,0,0,.1); 
         gap: 16px; align-items: flex-start; z-index: 15;
@@ -513,8 +510,10 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   let isAdmin = false;
   let currentFormation = '4-3-3';
   let selectedPlayer = 6;
+  
+  // রোটেশন ভেরিয়েবল
+  let slotRotations = {};
   let rotationInterval = null;
-  let rotationIndex = 0;
 
   const FORMATIONS = {
     '4-3-3': [
@@ -566,13 +565,9 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const mainNav = document.getElementById('mainNav');
-  hamburgerBtn.addEventListener('click', () => {
-    mainNav.classList.toggle('open');
-  });
+  hamburgerBtn.addEventListener('click', () => { mainNav.classList.toggle('open'); });
   mainNav.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      if(window.innerWidth <= 820) mainNav.classList.remove('open');
-    });
+    link.addEventListener('click', () => { if(window.innerWidth <= 820) mainNav.classList.remove('open'); });
   });
 
   function showToast(msg) {
@@ -618,29 +613,54 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   function currentPlayers(){ return getActiveSession()?.players || []; }
   function currentFixtures(){ return getActiveSession()?.fixtures || []; }
 
+  // ---------- রোটেশন ও প্লেয়ার সিলেকশন লজিক ----------
   function renderPitch(){
     pitch.querySelectorAll('.tl').forEach(el => el.remove());
     const players = currentPlayers();
     if (!players.length) return;
     
     const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
-    
-    const groupedByRole = { gk: [], def: [], mid: [], fwd: [] };
-    players.forEach(p => {
-      if (groupedByRole[p.ln]) groupedByRole[p.ln].push(p);
-    });
+    const renderedPlayerIds = new Set(); // একই প্লেয়ার যেন দুইবার মাঠে না আসে
 
     formation.forEach(slot => {
-      let line = 'mid';
-      if (['GK'].includes(slot.r)) line = 'gk';
-      else if (['RB','LB','CB','LWB','RWB'].includes(slot.r)) line = 'def';
-      else if (['ST','LW','RW'].includes(slot.r)) line = 'fwd';
+      // ১. এই স্লটের জন্য উপযুক্ত প্লেয়ার খুঁজে বের করা
+      let matchingPlayers = players.filter(p => {
+        let posMatch = p.pos.toUpperCase().includes(slot.r.toUpperCase());
+        
+        if (slot.r === 'GK') return p.pos.toUpperCase().includes('GK') || p.pos.toUpperCase().includes('GOAL');
+        if (['CM', 'DM'].includes(slot.r)) return posMatch || p.pos.toUpperCase().includes('MIDFIELDER');
+        if (['ST', 'LW', 'RW'].includes(slot.r)) return posMatch || p.pos.toUpperCase().includes('FORWARD') || p.pos.toUpperCase().includes('WINGER');
+        if (['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(slot.r)) return posMatch || p.pos.toUpperCase().includes('DEFENDER') || p.pos.toUpperCase().includes('BACK');
+        
+        return posMatch;
+      });
 
-      const rolePlayers = groupedByRole[line];
-      if (rolePlayers.length === 0) return;
+      // যদি নির্দিষ্ট পজিশনের প্লেয়ার না পাওয়া যায়, তবে লাইন দিয়ে ফলব্যাক
+      if (matchingPlayers.length === 0) {
+        let lineFallback = 'mid';
+        if (['GK'].includes(slot.r)) lineFallback = 'gk';
+        else if (['RB','LB','CB','LWB','RWB'].includes(slot.r)) lineFallback = 'def';
+        else if (['ST','LW','RW'].includes(slot.r)) lineFallback = 'fwd';
+        
+        matchingPlayers = players.filter(p => p.ln === lineFallback);
+      }
 
-      const p = rolePlayers[rotationIndex % rolePlayers.length];
+      // ২. রোটেশন ইনডেক্স ও ইউনিক প্লেয়ার লজিক
+      const slotKey = slot.r + '_' + slot.x;
+      if (!slotRotations[slotKey]) slotRotations[slotKey] = 0;
+
+      // শুধু সেই প্লেয়ারদের নাও যারা আগে মাঠে বসেনি
+      let availablePlayers = matchingPlayers.filter(p => !renderedPlayerIds.has(p.dbId));
+      if (availablePlayers.length === 0) availablePlayers = matchingPlayers;
+
+      if (availablePlayers.length === 0) return; // কোনো প্লেয়ার নেই
+
+      const playerIndex = slotRotations[slotKey] % availablePlayers.length;
+      const p = availablePlayers[playerIndex];
       
+      renderedPlayerIds.add(p.dbId);
+
+      // ৩. টাইল তৈরি করা
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'tl'; b.dataset.n = p.n;
       b.style.left = slot.x + '%'; b.style.top = slot.y + '%';
@@ -662,6 +682,21 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       if (p.n === selectedPlayer) b.classList.add('on');
       pitch.appendChild(b);
     });
+  }
+
+  function startRotation() {
+    if (rotationInterval) clearInterval(rotationInterval);
+    if (currentPlayers().length > 11) {
+      rotationInterval = setInterval(() => {
+        Object.keys(slotRotations).forEach(key => { slotRotations[key]++; });
+        renderPitch();
+      }, 3000);
+    }
+  }
+
+  function stopRotation() {
+    if (rotationInterval) clearInterval(rotationInterval);
+    rotationInterval = null;
   }
 
   function renderPlayerCard(){
@@ -711,21 +746,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     fmEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     refreshLineup();
   });
-
-  function startRotation() {
-    if (rotationInterval) clearInterval(rotationInterval);
-    if (currentPlayers().length > 11) {
-      rotationInterval = setInterval(() => {
-        rotationIndex++;
-        renderPitch();
-      }, 3000);
-    }
-  }
-
-  function stopRotation() {
-    if (rotationInterval) clearInterval(rotationInterval);
-    rotationInterval = null;
-  }
 
   function renderSquad(){
     const players = currentPlayers().slice().sort((a,b) => a.n - b.n);
@@ -816,9 +836,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   const registerError = document.getElementById('registerError');
 
   document.getElementById('goToRegister').addEventListener('click', (e) => {
-    e.preventDefault();
-    loginModal.classList.remove('open');
-    document.getElementById('registerBtn').click();
+    e.preventDefault(); loginModal.classList.remove('open'); document.getElementById('registerBtn').click();
   });
 
   document.getElementById('registerBtn').addEventListener('click', () => {
@@ -838,7 +856,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (pass.length < 6) { registerError.textContent = 'Password must be at least 6 characters.'; return; }
 
     const { data: existingData, error: checkError } = await supabaseClient.from('admin_requests').select('id, status').eq('email', email);
-
     if (checkError) { registerError.textContent = 'Something went wrong. Please try again.'; return; }
 
     if (existingData && existingData.length > 0) {
@@ -849,7 +866,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     }
 
     const { error } = await supabaseClient.from('admin_requests').insert({ name: name, email: email, status: 'pending_' + btoa(pass) });
-
     if (error) {
       if (error.code === '23505') { registerError.textContent = 'This email is already registered.'; }
       else { registerError.textContent = error.message; }
@@ -860,6 +876,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     }
   });
 
+  // ---------- ADMIN REQUESTS HANDLING ----------
   async function loadAdminRequests() {
     const { data, error } = await supabaseClient.from('admin_requests').select('*').like('status', 'pending%').order('created_at', { ascending: false });
     if (error) { console.error(error); return; }
@@ -883,7 +900,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if(!confirm(`Create admin account for ${email} and send credentials via email?`)) return;
 
     const { data, error } = await supabaseClient.functions.invoke('bright-worker', { body: { email: email, password: password, name: name } });
-
     if (error) {
       let msg = error.message;
       try { const errorBody = await error.context.json(); msg = errorBody.error || msg; } catch(e) {}
@@ -914,23 +930,19 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   // ---------- FIXTURES & AUTO REMOVE ----------
   function renderFixtures(){
     const fixtures = currentFixtures();
-    const today = new Date();
-    today.setHours(0,0,0,0); // আজকের তারিখের শুরু
-
+    const today = new Date(); today.setHours(0,0,0,0); 
     if (!fixtures.length) { fxList.innerHTML = '<li><span class="w">No fixtures yet.</span></li>'; return; }
     
     fxList.innerHTML = fixtures.map((f, i) => {
-      // তারিখ প্যার্স করা (Day and Month)
       const year = today.getFullYear();
       const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       let monthIndex = monthNames.findIndex(m => m.toLowerCase() === f.mo.toLowerCase());
-      if (monthIndex === -1) monthIndex = today.getMonth(); // ফলব্যাক
+      if (monthIndex === -1) monthIndex = today.getMonth();
       
       const matchDate = new Date(year, monthIndex, parseInt(f.d));
       const isPast = matchDate < today;
       const isPastClass = (isPast && f.match_status !== 'Completed') ? 'past-match' : '';
 
-      // ব্যাজ ডিজাইন (Next / Win / Loss / Draw / Upcoming)
       let badgeHtml = '';
       if (f.match_status === 'Completed') {
         const ourScore = parseInt(f.score_team) || 0;
@@ -1035,7 +1047,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     selectedPlayer = currentPlayers().length ? currentPlayers()[0].n : 1;
     currentFormation = '4-3-3';
     fmEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.f === '4-3-3')));
-    rotationIndex = 0; stopRotation(); refreshAll();
+    slotRotations = {}; stopRotation(); refreshAll();
   });
 
   function setAdmin(state){
