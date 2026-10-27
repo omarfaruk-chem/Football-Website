@@ -519,30 +519,30 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     '4-3-3': [
       { n:1, r:'GK', x:50, y:89 }, { n:2, r:'RB', x:86, y:71 },
       { n:3, r:'CB', x:63, y:74 }, { n:4, r:'CB', x:37, y:74 },
-      { n:5, r:'LB', x:14, y:71 }, { n:6, r:'DM', x:50, y:56 },
-      { n:7, r:'CM', x:76, y:44 }, { n:8, r:'CM', x:24, y:44 },
-      { n:9, r:'ST', x:50, y:17 }, { n:10, r:'LW', x:17, y:23 },
+      { n:5, r:'LB', x:14, y:71 }, { n:6, r:'MID', x:50, y:56 },
+      { n:7, r:'MID', x:76, y:44 }, { n:8, r:'MID', x:24, y:44 },
+      { n:9, r:'CF', x:50, y:17 }, { n:10, r:'LW', x:17, y:23 },
       { n:11, r:'RW', x:83, y:23 }
     ],
     '4-4-2': [
       { n:1, r:'GK', x:50, y:89 }, { n:2, r:'RB', x:86, y:71 },
       { n:3, r:'CB', x:63, y:74 }, { n:4, r:'CB', x:37, y:74 },
-      { n:5, r:'LB', x:14, y:71 }, { n:6, r:'CM', x:62, y:48 },
-      { n:7, r:'RM', x:86, y:40 }, { n:8, r:'CM', x:38, y:48 },
-      { n:10, r:'LM', x:14, y:40 }, { n:9, r:'ST', x:63, y:18 },
-      { n:11, r:'ST', x:37, y:18 }
+      { n:5, r:'LB', x:14, y:71 }, { n:6, r:'MID', x:62, y:48 },
+      { n:7, r:'MID', x:86, y:40 }, { n:8, r:'MID', x:38, y:48 },
+      { n:10, r:'LW', x:14, y:40 }, { n:9, r:'CF', x:63, y:18 },
+      { n:11, r:'RW', x:37, y:18 }
     ],
     '3-5-2': [
       { n:1, r:'GK', x:50, y:89 }, { n:3, r:'CB', x:73, y:73 },
       { n:4, r:'CB', x:50, y:75 }, { n:5, r:'CB', x:27, y:73 },
-      { n:2, r:'RWB', x:88, y:52 }, { n:6, r:'DM', x:50, y:58 },
-      { n:7, r:'CM', x:70, y:43 }, { n:8, r:'CM', x:30, y:43 },
-      { n:10, r:'LWB', x:12, y:52 }, { n:9, r:'ST', x:63, y:18 },
-      { n:11, r:'ST', x:37, y:18 }
+      { n:2, r:'RB', x:88, y:52 }, { n:6, r:'MID', x:50, y:58 },
+      { n:7, r:'MID', x:70, y:43 }, { n:8, r:'MID', x:30, y:43 },
+      { n:10, r:'LW', x:12, y:52 }, { n:9, r:'CF', x:63, y:18 },
+      { n:11, r:'RW', x:37, y:18 }
     ]
   };
 
-  const ROLE_NAMES = { GK:'Goalkeeper', RB:'Right back', LB:'Left back', CB:'Centre-back', DM:'Defensive midfielder', CM:'Central midfielder', LM:'Left midfielder', RM:'Right midfielder', LW:'Left winger', RW:'Right winger', ST:'Striker', LWB:'Left wing-back', RWB:'Right wing-back' };
+  const ROLE_NAMES = { GK:'Goalkeeper', RB:'Right back', LB:'Left back', CB:'Centre-back', DM:'Defensive midfielder', CM:'Central midfielder', MID:'Midfielder', LM:'Left midfielder', RM:'Right midfielder', LW:'Left winger', RW:'Right winger', CF:'Centre forward', ST:'Striker', LWB:'Left wing-back', RWB:'Right wing-back' };
   const CAPTAIN_NO = 6;
 
   const $ = s => document.querySelector(s);
@@ -613,82 +613,117 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   function currentPlayers(){ return getActiveSession()?.players || []; }
   function currentFixtures(){ return getActiveSession()?.fixtures || []; }
 
-  // ---------- রোটেশন ও প্লেয়ার সিলেকশন লজিক ----------
+  // ---------- Automatic same-position player rotation ----------
   function renderPitch(){
     pitch.querySelectorAll('.tl').forEach(el => el.remove());
     const players = currentPlayers();
     if (!players.length) return;
-    
+
     const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
-    const renderedPlayerIds = new Set(); // একই প্লেয়ার যেন দুইবার মাঠে না আসে
+    const renderedPlayerIds = new Set();
+
+    // Match players to the role of a pitch slot. Prefer exact role matches;
+    // use the broad squad line only when no exact-role players are available.
+    function candidatesFor(slot) {
+      const role = String(slot.r || '').toUpperCase();
+      const exact = players.filter(p => {
+        const pos = String(p.pos || '').toUpperCase();
+        if (role === 'MID') return /\b(MID|CM|DM|LM|RM)\b/.test(pos) || pos.includes('MIDFIELDER');
+        if (role === 'CF') return /\b(ST|CF|FW|FWD)\b/.test(pos) || pos.includes('STRIKER') || pos.includes('FORWARD');
+        if (role === 'GK') return /\bGK\b/.test(pos) || pos.includes('GOALKEEPER') || pos.includes('GOAL KEEPER');
+        if (['CB','LB','RB','LWB','RWB'].includes(role)) {
+          if (role === 'CB') return /\bCB\b/.test(pos) || pos.includes('CENTRE-BACK') || pos.includes('CENTER-BACK') || pos.includes('CENTRE BACK') || pos.includes('CENTER BACK');
+          return new RegExp('\\b' + role + '\\b').test(pos) || pos.includes('DEFENDER') || pos.includes('BACK');
+        }
+        if (['LW','RW'].includes(role)) return new RegExp('\\b' + role + '\\b').test(pos) || pos.includes('WINGER');
+        return pos.includes(role);
+      });
+      if (exact.length) return exact.slice().sort((a,b) => Number(a.n) - Number(b.n));
+
+      let line = 'mid';
+      if (role === 'GK') line = 'gk';
+      else if (['RB','LB','CB','LWB','RWB'].includes(role)) line = 'def';
+      else if (['ST','LW','RW','CF'].includes(role)) line = 'fwd';
+      return players.filter(p => p.ln === line).slice().sort((a,b) => Number(a.n) - Number(b.n));
+    }
 
     formation.forEach(slot => {
-      // ১. এই স্লটের জন্য উপযুক্ত প্লেয়ার খুঁজে বের করা
-      let matchingPlayers = players.filter(p => {
-        let posMatch = p.pos.toUpperCase().includes(slot.r.toUpperCase());
-        
-        if (slot.r === 'GK') return p.pos.toUpperCase().includes('GK') || p.pos.toUpperCase().includes('GOAL');
-        if (['CM', 'DM'].includes(slot.r)) return posMatch || p.pos.toUpperCase().includes('MIDFIELDER');
-        if (['ST', 'LW', 'RW'].includes(slot.r)) return posMatch || p.pos.toUpperCase().includes('FORWARD') || p.pos.toUpperCase().includes('WINGER');
-        if (['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(slot.r)) return posMatch || p.pos.toUpperCase().includes('DEFENDER') || p.pos.toUpperCase().includes('BACK');
-        
-        return posMatch;
-      });
+      const slotKey = slot.r + '_' + slot.x;
+      if (typeof slotRotations[slotKey] !== 'number') slotRotations[slotKey] = 0;
+      const candidates = candidatesFor(slot);
+      if (!candidates.length) return;
 
-      // যদি নির্দিষ্ট পজিশনের প্লেয়ার না পাওয়া যায়, তবে লাইন দিয়ে ফলব্যাক
-      if (matchingPlayers.length === 0) {
-        let lineFallback = 'mid';
-        if (['GK'].includes(slot.r)) lineFallback = 'gk';
-        else if (['RB','LB','CB','LWB','RWB'].includes(slot.r)) lineFallback = 'def';
-        else if (['ST','LW','RW'].includes(slot.r)) lineFallback = 'fwd';
-        
-        matchingPlayers = players.filter(p => p.ln === lineFallback);
+      // Start at this slot's rotation offset, but never place one player twice.
+      let chosen = null;
+      const offset = ((slotRotations[slotKey] % candidates.length) + candidates.length) % candidates.length;
+      for (let i = 0; i < candidates.length; i++) {
+        const candidate = candidates[(offset + i) % candidates.length];
+        if (!renderedPlayerIds.has(candidate.dbId ?? candidate.n)) {
+          chosen = candidate;
+          break;
+        }
+      }
+      if (!chosen) return;
+      renderedPlayerIds.add(chosen.dbId ?? chosen.n);
+
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tl';
+      b.dataset.n = chosen.n;
+      b.style.left = slot.x + '%';
+      b.style.top = slot.y + '%';
+      const isCaptain = chosen.n === CAPTAIN_NO;
+      if (chosen.img) {
+        const img = document.createElement('img');
+        img.src = chosen.img;
+        img.className = 'tile-photo';
+        img.alt = '';
+        b.appendChild(img);
+      } else {
+        b.classList.add('no-img');
       }
 
-      // ২. রোটেশন ইনডেক্স ও ইউনিক প্লেয়ার লজিক
-      const slotKey = slot.r + '_' + slot.x;
-      if (!slotRotations[slotKey]) slotRotations[slotKey] = 0;
+      const number = document.createElement('span');
+      number.className = 'n';
+      number.textContent = chosen.n;
+      b.appendChild(number);
 
-      // শুধু সেই প্লেয়ারদের নাও যারা আগে মাঠে বসেনি
-      let availablePlayers = matchingPlayers.filter(p => !renderedPlayerIds.has(p.dbId));
-      if (availablePlayers.length === 0) availablePlayers = matchingPlayers;
+      const initials = document.createElement('b');
+      initials.textContent = sym(chosen.name);
+      b.appendChild(initials);
 
-      if (availablePlayers.length === 0) return; // কোনো প্লেয়ার নেই
+      const role = document.createElement('span');
+      role.className = 'r';
+      role.textContent = slot.r;
+      b.appendChild(role);
 
-      const playerIndex = slotRotations[slotKey] % availablePlayers.length;
-      const p = availablePlayers[playerIndex];
-      
-      renderedPlayerIds.add(p.dbId);
+      const name = document.createElement('span');
+      name.className = 'nm';
+      name.textContent = (chosen.name || '').split(' ')[0] || '';
+      b.appendChild(name);
 
-      // ৩. টাইল তৈরি করা
-      const b = document.createElement('button');
-      b.type = 'button'; b.className = 'tl'; b.dataset.n = p.n;
-      b.style.left = slot.x + '%'; b.style.top = slot.y + '%';
-      const isCaptain = p.n === CAPTAIN_NO;
-      
-      const imgTag = p.img ? `<img src="${p.img}" class="tile-photo" alt="">` : '';
-      if(!p.img) b.classList.add('no-img');
+      if (isCaptain) {
+        const cap = document.createElement('span');
+        cap.className = 'cap';
+        cap.textContent = 'C';
+        b.appendChild(cap);
+      }
 
-      b.innerHTML = 
-        imgTag +
-        `<span class="n">${p.n}</span>` +
-        `<b>${sym(p.name)}</b>` +
-        `<span class="r">${slot.r}</span>` +
-        `<span class="nm">${(p.name.split(' ')[0] || '')}</span>` +
-        (isCaptain ? '<span class="cap">C</span>' : '');
-        
-      b.setAttribute('aria-label', `${p.name}, ${ROLE_NAMES[slot.r] || slot.r}, number ${p.n}`);
-      b.setAttribute('aria-pressed', String(p.n === selectedPlayer));
-      if (p.n === selectedPlayer) b.classList.add('on');
+      b.setAttribute('aria-label', `${chosen.name}, ${ROLE_NAMES[slot.r] || slot.r}, number ${chosen.n}`);
+      b.setAttribute('aria-pressed', String(chosen.n === selectedPlayer));
+      if (chosen.n === selectedPlayer) b.classList.add('on');
       pitch.appendChild(b);
     });
   }
 
   function startRotation() {
     if (rotationInterval) clearInterval(rotationInterval);
+    // Rotate only when the active session has more than the starting eleven.
     if (currentPlayers().length > 11) {
       rotationInterval = setInterval(() => {
-        Object.keys(slotRotations).forEach(key => { slotRotations[key]++; });
+        Object.keys(slotRotations).forEach(key => {
+          slotRotations[key] = (slotRotations[key] || 0) + 1;
+        });
         renderPitch();
       }, 3000);
     }
@@ -1205,7 +1240,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (!name) { playerError.textContent = 'Name required.'; return; }
     const { error } = await supabaseClient.from('players').insert({ session_id: session.id, jersey_no: no, name, position: pos, line: ln });
     if (error) { playerError.textContent = error.message; return; }
-    const slot = { n: no, r: ln === 'gk' ? 'GK' : ln === 'def' ? 'CB' : ln === 'mid' ? 'CM' : 'ST', x: 50, y: 50 };
+    const slot = { n: no, r: ln === 'gk' ? 'GK' : ln === 'def' ? 'CB' : ln === 'mid' ? 'MID' : 'CF', x: 50, y: 50 };
     Object.keys(FORMATIONS).forEach(fk => FORMATIONS[fk].push({ ...slot }));
     playerModal.classList.remove('open');
     await loadAllDataFromSupabase();
