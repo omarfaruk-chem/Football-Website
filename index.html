@@ -50,6 +50,15 @@
     .login-btn:hover { background: #1b3a99; }
     .login-btn.out { background: transparent; color: var(--ink) !important; border-color: var(--ink); }
     .login-btn.out:hover { background: var(--ink); color: #fff !important; }
+    
+    /* Circular Profile Button */
+    .profile-icon-btn {
+      width: 42px; height: 42px; border-radius: 50%; background: var(--cobalt); color: #fff; border: 2px solid var(--ink);
+      display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;
+    }
+    .profile-icon-btn:hover { transform: scale(1.05); }
+    .profile-icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
+
     a:focus-visible, button:focus-visible, select:focus-visible { outline: 3px solid var(--pink); outline-offset: 3px; }
 
     /* Hero & Layouts */
@@ -154,6 +163,14 @@
     .modal .close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--mute); line-height: 1; padding: 0; }
     .error { color: var(--pink); font-size: .85rem; margin-top: 8px; min-height: 1.2em; }
 
+    /* Account Modal Specific Styles */
+    .profile-header { text-align: center; margin-bottom: 24px; }
+    .profile-header .avatar { width: 80px; height: 80px; background: var(--cobalt); color: #fff; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 12px; border: 3px solid var(--ink); }
+    .profile-header .avatar svg { width: 40px; height: 40px; fill: currentColor; }
+    .profile-header h4 { margin: 0 0 4px; font-size: 1.2rem; }
+    .profile-header p { margin: 0; font-size: .9rem; }
+    .profile-actions { display: flex; flex-direction: column; gap: 10px; }
+
     /* Admin Controls */
     .admin-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--amber); color: var(--ink); font: 700 .7rem var(--m); padding: 4px 10px; border-radius: 99px; letter-spacing: .1em; text-transform: uppercase; }
     .session-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
@@ -184,7 +201,6 @@
       .lineup, .two { grid-template-columns: 1fr; gap: 36px; }
       .tile { width: min(250px, 100%); }
       
-      /* Hamburger Menu Implementation */
       .hamburger { display: block; }
       nav { 
         display: none; 
@@ -203,6 +219,7 @@
       }
       nav.open { display: flex; }
       .session-pill { width: 100%; justify-content: space-between; }
+      .profile-icon-btn { align-self: flex-start; margin-top: 10px; }
     }
     @media(max-width: 600px) {
       .fx li { grid-template-columns: 62px 1fr; }
@@ -224,7 +241,6 @@
       <span>Chemistry Football XI<small>Gopalganj Science &amp; Technology University</small></span>
     </a>
     
-    <!-- Hamburger Button -->
     <button class="hamburger" id="hamburgerBtn">☰</button>
 
     <nav id="mainNav">
@@ -237,12 +253,17 @@
         <select id="sessionSelect"></select>
       </span>
       <span id="adminBadgeWrap" style="display:none"><span class="admin-badge">Admin</span></span>
-      <div style="display: flex; gap: 8px; width: 100%;">
+      
+      <!-- Standard Buttons (Logged Out) -->
+      <div id="loggedOutBtns" style="display: flex; gap: 8px; width: 100%;">
         <button class="login-btn out" id="registerBtn" style="flex: 1;">Register</button>
         <button class="login-btn" id="loginBtn" style="flex: 1;">Login</button>
-        <!-- Account Button (Admin only) -->
-        <button class="login-btn out admin-only" id="accountBtn" style="flex: 1;">Account</button>
       </div>
+
+      <!-- Circular Profile Icon (Logged In) -->
+      <button class="profile-icon-btn" id="accountBtn" style="display: none;" title="My Account">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </button>
     </nav>
   </div>
 </header>
@@ -399,18 +420,28 @@
   </div>
 </div>
 
-<!-- Account Settings Modal (New) -->
+<!-- Account Modal -->
 <div class="modal-bg" id="accountModal">
   <div class="modal">
     <button class="close" id="closeAccount" aria-label="Close">&times;</button>
-    <h3>Account Settings</h3>
-    <p>Change your admin password here.</p>
-    <label for="newPass">New Password</label>
-    <input id="newPass" type="password" placeholder="Enter new password" required>
-    <div class="error" id="accountError"></div>
-    <div class="row">
-      <button class="btn p" id="updatePassBtn" type="button">Update Password</button>
-      <button class="btn s" type="button" id="cancelAccount">Cancel</button>
+    
+    <div class="profile-header">
+      <div class="avatar">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
+      <h4>Admin Account</h4>
+      <p id="accountEmail">loading...</p>
+    </div>
+
+    <div class="profile-actions">
+      <div style="margin-bottom: 10px;">
+        <label for="newPass">New Password</label>
+        <input id="newPass" type="password" placeholder="Enter new password" required>
+        <div class="error" id="accountError"></div>
+        <button class="btn p" id="updatePassBtn" type="button" style="width: 100%; margin-top: 10px;">Update Password</button>
+      </div>
+      
+      <button class="btn s" id="logoutBtn" type="button" style="border-color: var(--pink); color: var(--pink);">Logout</button>
     </div>
   </div>
 </div>
@@ -478,6 +509,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   let isAdmin = false;
   let currentFormation = '4-3-3';
   let selectedPlayer = 6;
+  let currentUserEmail = '';
 
   const FORMATIONS = {
     '4-3-3': [
@@ -533,7 +565,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   hamburgerBtn.addEventListener('click', () => {
     mainNav.classList.toggle('open');
   });
-  // মেনু লিংকে ক্লিক করলে মোবাইল মেনু বন্ধ হবে
   mainNav.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', () => {
       if(window.innerWidth <= 820) mainNav.classList.remove('open');
@@ -848,7 +879,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     
     if(!confirm(`Create admin account for ${email} and send credentials via email?`)) return;
 
-    // ব্রাইট-ওয়ার্কার এজ ফাংশন কল
     const { data, error } = await supabaseClient.functions.invoke('bright-worker', {
       body: { email: email, password: password, name: name }
     });
@@ -974,20 +1004,15 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     document.body.classList.toggle('is-admin', isAdmin);
     adminBadgeWrap.style.display = isAdmin ? '' : 'none';
     
-    // Account and Login buttons toggling
-    const loginBtnEl = document.getElementById('loginBtn');
-    const registerBtnEl = document.getElementById('registerBtn');
-    const accountBtnEl = document.getElementById('accountBtn');
+    const loggedOutBtns = document.getElementById('loggedOutBtns');
+    const accountBtn = document.getElementById('accountBtn');
 
     if (isAdmin) {
-      loginBtnEl.style.display = 'none';
-      registerBtnEl.style.display = 'none';
-      accountBtnEl.style.display = 'block';
-      accountBtnEl.textContent = 'Account (Logout)';
+      loggedOutBtns.style.display = 'none';
+      accountBtn.style.display = 'flex';
     } else {
-      loginBtnEl.style.display = 'block';
-      registerBtnEl.style.display = 'block';
-      accountBtnEl.style.display = 'none';
+      loggedOutBtns.style.display = 'flex';
+      accountBtn.style.display = 'none';
     }
 
     $('#sessionControls').style.display = isAdmin ? 'flex' : 'none';
@@ -1005,25 +1030,29 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   const accountModal = document.getElementById('accountModal');
   const accountError = document.getElementById('accountError');
 
-  document.getElementById('accountBtn').addEventListener('click', () => {
-    if (isAdmin) {
-      if(confirm("Do you want to Logout?")) {
-         supabaseClient.auth.signOut().then(() => { setAdmin(false); showToast('Logged out successfully'); });
-      }
-    }
-  });
-
-  // অ্যাকাউন্ট বাটনে ডাবল ক্লিক করলে পাসওয়ার্ড রিসেট অপশন আসবে (যাতে ভুল করে লগআউট না হয়ে যায়)
-  document.getElementById('accountBtn').addEventListener('dblclick', () => {
+  document.getElementById('accountBtn').addEventListener('click', async () => {
     if (isAdmin) {
       accountError.textContent = '';
       document.getElementById('newPass').value = '';
+      
+      // Fetch User info
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (user) {
+        document.getElementById('accountEmail').textContent = user.email;
+      }
+      
       accountModal.classList.add('open');
     }
   });
 
   document.getElementById('closeAccount').onclick = () => accountModal.classList.remove('open');
-  document.getElementById('cancelAccount').onclick = () => accountModal.classList.remove('open');
+  
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    setAdmin(false);
+    accountModal.classList.remove('open');
+    showToast('Logged out successfully');
+  });
 
   document.getElementById('updatePassBtn').addEventListener('click', async () => {
     const newPass = document.getElementById('newPass').value;
