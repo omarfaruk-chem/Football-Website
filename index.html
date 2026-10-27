@@ -34,7 +34,17 @@
     .brand small { display: block; font-weight: 400; font-size: .74rem; color: var(--mute); }
     .logo { flex: none; width: 40px; height: 40px; border-radius: 8px; background: var(--cobalt); display: grid; place-items: center; }
     .logo svg { width: 23px; height: 23px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    nav { display: flex; gap: 22px; font-weight: 600; font-size: .94rem; align-items: center; }
+    
+    /* মেনু এবং নেভিগেশন অ্যালাইনমেন্ট ঠিক করা হয়েছে */
+    nav { 
+      display: flex; 
+      gap: 16px; 
+      font-weight: 600; 
+      font-size: .94rem; 
+      align-items: center; 
+      flex-wrap: wrap; 
+      justify-content: flex-end;
+    }
     nav a { text-decoration: none; color: var(--mute); }
     nav a:hover { color: var(--ink); }
     .session-pill { background: var(--card); border: 1.5px solid var(--line); padding: 5px 12px; border-radius: 99px; font: 600 .8rem var(--m); display: inline-flex; align-items: center; gap: 6px; }
@@ -131,9 +141,9 @@
     footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
 
     /* Modal / admin */
-    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(4px); }
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(4px); padding: 20px; }
     .modal-bg.open { display: flex; }
-    .modal { background: var(--card); border-radius: 10px; padding: 32px; max-width: 420px; width: 92%; border: 2px solid var(--ink); box-shadow: 0 20px 60px rgba(0,0,0,.3); position: relative; }
+    .modal { background: var(--card); border-radius: 10px; padding: 32px; max-width: 420px; width: 100%; border: 2px solid var(--ink); box-shadow: 0 20px 60px rgba(0,0,0,.3); position: relative; max-height: 90vh; overflow-y: auto; }
     .modal h3 { margin: 0 0 8px; font-size: 1.5rem; }
     .modal p { color: var(--mute); margin: 0 0 20px; font-size: .92rem; }
     .modal label { display: block; font: 600 .8rem var(--m); letter-spacing: .1em; text-transform: uppercase; margin: 14px 0 4px; color: var(--mute); }
@@ -163,20 +173,27 @@
     .add-fixture-btn { margin-top: 16px; }
 
     /* Notification Toast */
-    .toast { position: fixed; bottom: 20px; right: 20px; background: var(--ink); color: #fff; padding: 15px 25px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.3); z-index: 999; display: none; align-items: center; gap: 10px; font-weight: 600; animation: slideIn 0.3s ease-out; }
+    .toast { position: fixed; bottom: 20px; right: 20px; background: var(--ink); color: #fff; padding: 15px 25px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.3); z-index: 999; display: none; align-items: center; gap: 10px; font-weight: 600; animation: slideIn 0.3s ease-out; max-width: 90%; }
     @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
+    /* Responsive Design */
     @media(max-width: 820px) {
       .hero { grid-template-columns: 1fr; padding: 44px 0 60px; gap: 44px; }
       .lineup, .two { grid-template-columns: 1fr; gap: 36px; }
       .tile { width: min(250px, 100%); }
+      .bar { height: auto; padding: 10px 0; flex-direction: column; align-items: flex-start; gap: 12px; }
+      nav { width: 100%; justify-content: flex-start; gap: 12px; }
     }
     @media(max-width: 600px) {
-      nav { display: none; }
+      nav a { display: none; }
+      .session-pill { font-size: .75rem; padding: 4px 8px; }
+      .login-btn { padding: 6px 12px; font-size: .82rem; }
       .fx li { grid-template-columns: 62px 1fr; }
       .fx .c { grid-column: 2; justify-self: start; }
       section { padding: 52px 0; }
-      .bar { height: auto; padding: 10px 0; }
+      .modal { padding: 24px; }
+      .modal .row { flex-direction: column; }
+      .modal .row .btn { width: 100%; }
     }
     @media(prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .tile { animation: none; } }
   </style>
@@ -705,7 +722,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (!name || !email || !pass) { registerError.textContent = 'All fields are required.'; return; }
     if (pass.length < 6) { registerError.textContent = 'Password must be at least 6 characters.'; return; }
 
-    // নতুন চেকিং লজিক (ডুপ্লিকেট ইমেইল সুন্দরভাবে দেখানোর জন্য)
     const { data: existingData, error: checkError } = await supabaseClient
       .from('admin_requests')
       .select('id, status')
@@ -778,8 +794,8 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     
     if(!confirm(`Create admin account for ${email} and send credentials via email?`)) return;
 
-    // Supabase Edge Function-এ কল করা
-    const { data, error } = await supabaseClient.functions.invoke('create-admin-user', {
+    // এখানে 'bright-worker' ব্যবহার করা হয়েছে
+    const { data, error } = await supabaseClient.functions.invoke('bright-worker', {
       body: { email: email, password: password, name: name }
     });
 
