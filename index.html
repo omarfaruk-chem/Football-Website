@@ -91,8 +91,16 @@
     .pitch { position: relative; container-type: inline-size; aspect-ratio: 3/4; border: 3px solid var(--g); background: repeating-linear-gradient(180deg, #1f6e4a 0 12.5%, #1a6244 12.5% 25%); }
     .pitch svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: rgba(255,255,255,.6); stroke-width: .5; }
     .tl { position: absolute; width: 13.6%; aspect-ratio: 1; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; border: 2px solid var(--g); background: #f3f7f5; color: var(--g); cursor: pointer; transition: left .5s cubic-bezier(.3,.8,.3,1), top .5s cubic-bezier(.3,.8,.3,1); overflow: hidden; }
-    .manager-tile { position:absolute; top:4%; left:50%; transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:5px; max-width:70%; padding:3px 7px; border:2px solid #f2a900; border-radius:4px; background:#f6f7f8; color:#123f36; font:700 clamp(8px,2.4cqw,12px)/1.1 var(--m); white-space:nowrap; box-shadow:0 2px 5px rgba(0,0,0,.25); }
-    .manager-tile .manager-initials { display:grid; place-items:center; width:20px; height:20px; flex:none; border-radius:50%; background:#123f36; color:#fff; font-size:10px; }
+    .manager-tile { position:absolute; top:3.2%; left:50%; transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:clamp(5px,1.5cqw,9px); max-width:86%; min-width:0; padding:clamp(4px,1.2cqw,7px) clamp(7px,2cqw,12px) clamp(4px,1.2cqw,7px) clamp(4px,1.2cqw,7px); border:2px solid #f2c14e; border-radius:999px; background:linear-gradient(135deg,#082f27 0%,#145743 70%,#1d6b50 100%); color:#fff; font:700 clamp(8px,2.4cqw,12px)/1.1 var(--m); white-space:nowrap; box-shadow:0 5px 16px rgba(0,0,0,.3),0 0 0 2px rgba(255,255,255,.18); overflow:hidden; }
+    .manager-tile .manager-photo, .manager-tile .manager-initials { display:grid; place-items:center; width:clamp(25px,7cqw,38px); height:clamp(25px,7cqw,38px); flex:none; border-radius:50%; border:2px solid #f2c14e; background:#f2c14e; color:#123f36; font-size:clamp(9px,2.4cqw,12px); object-fit:cover; box-shadow:0 1px 5px rgba(0,0,0,.25); }
+    .manager-tile .manager-copy { display:flex; flex-direction:column; min-width:0; gap:3px; overflow:hidden; text-align:left; }
+    .manager-tile .manager-role { color:#f8d979; font-size:clamp(6px,1.55cqw,8px); letter-spacing:.16em; font-weight:700; }
+    .manager-tile .manager-name { overflow:hidden; text-overflow:ellipsis; max-width:42cqw; }
+    .manager-tile.manager-editable { cursor:pointer; }
+    .manager-tile.manager-editable:hover { transform:translateX(-50%) translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,.35),0 0 0 3px rgba(242,193,78,.25); }
+    .manager-tile .manager-photo-hint { display:none; color:#fff; font-size:clamp(6px,1.4cqw,8px); opacity:.8; }
+    .manager-tile.manager-editable .manager-photo-hint { display:block; }
+    @media (max-width:520px) { .manager-tile { max-width:92%; } .manager-tile .manager-name { max-width:35cqw; } }
     .tl:hover { box-shadow: 0 0 0 3px rgba(255,255,255,.55); z-index: 5; }
     .tl img.tile-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
     .tl .n, .tl b, .tl .r { position: relative; z-index: 3; }
@@ -639,9 +647,13 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     const players = allPlayers.filter(p => p !== manager);
     if (manager) {
       const badge = document.createElement('div');
-      badge.className = 'manager-tile';
-      badge.title = 'Team manager: ' + manager.name;
-      badge.innerHTML = `<span class="manager-initials">${sym(manager.name)}</span><span>MANAGER · ${manager.name}</span>`;
+      badge.className = 'manager-tile' + (isAdmin && manager.dbId ? ' manager-editable' : '');
+      badge.title = isAdmin ? 'Team manager: ' + manager.name + ' — click to add or replace photo' : 'Team manager: ' + manager.name;
+      const photo = manager.img
+        ? `<img class="manager-photo" src="${manager.img}" alt="${manager.name.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" onerror="this.style.display='none'">`
+        : `<span class="manager-initials">${sym(manager.name)}</span>`;
+      badge.innerHTML = `${photo}<span class="manager-copy"><span class="manager-role">TEAM MANAGER</span><span class="manager-name">${manager.name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span>${isAdmin ? '<span class="manager-photo-hint">Click to add / change photo</span>' : ''}</span>`;
+      if (isAdmin && manager.dbId) badge.addEventListener('click', () => openPhotoPicker(manager.dbId));
       pitch.appendChild(badge);
     }
     if (!players.length) return;
@@ -831,7 +843,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
             <option value="def"${p.ln==='def'?' selected':''}>Defender</option>
             <option value="mid"${p.ln==='mid'?' selected':''}>Midfielder</option>
             <option value="fwd"${p.ln==='fwd'?' selected':''}>Forward</option>
-            <option value="manager"${p.ln==='manager'?' selected':''}>Manager</option>
+            <option value="manager"${(p.ln==='manager' || String(p.pos || '').toLowerCase()==='manager')?' selected':''}>Manager</option>
           </select>
         </td>
         <td><button data-save="${p.dbId}" type="button">Save</button> <button class="cancel" data-cancel="${p.dbId}" type="button">Cancel</button></td>
@@ -860,7 +872,9 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       const lnVal = editRow.querySelector('[data-edit="ln"]').value;
       const nVal = Number(editRow.querySelector('[data-edit="n"]').value);
       if (!nameVal) { alert('Player name required.'); return; }
-      const { error } = await supabaseClient.from('players').update({ jersey_no: nVal, name: nameVal, position: posVal || 'Player', line: lnVal }).eq('id', dbId);
+      const safeLine = lnVal === 'manager' ? 'mid' : lnVal;
+      const safePosition = lnVal === 'manager' ? 'Manager' : (posVal || 'Player');
+      const { error } = await supabaseClient.from('players').update({ jersey_no: nVal, name: nameVal, position: safePosition, line: safeLine }).eq('id', dbId);
       if (error) { alert('Update failed: ' + error.message); return; }
       Object.keys(FORMATIONS).forEach(fk => { FORMATIONS[fk].forEach(slot => { if (slot.n === Number(editRow.dataset.editFor)) slot.n = nVal; }); });
       await loadAllDataFromSupabase(); return;
@@ -1281,10 +1295,14 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     const pos = ln === 'manager' ? 'Manager' : (document.getElementById('pPos').value.trim() || 'Player');
     if (!no || no < 1 || no > 99) { playerError.textContent = 'Jersey number 1–99.'; return; }
     if (!name) { playerError.textContent = 'Name required.'; return; }
-    const { error } = await supabaseClient.from('players').insert({ session_id: session.id, jersey_no: no, name, position: pos, line: ln });
+    // The database players_line_check constraint allows player lines only; store managers with an allowed line and identify them by position.
+    const safeLine = ln === 'manager' ? 'mid' : ln;
+    const { error } = await supabaseClient.from('players').insert({ session_id: session.id, jersey_no: no, name, position: pos, line: safeLine });
     if (error) { playerError.textContent = error.message; return; }
-    const slot = { n: no, r: ln === 'gk' ? 'GK' : ln === 'def' ? 'CB' : ln === 'mid' ? 'MID' : 'CF', x: 50, y: 50 };
-    Object.keys(FORMATIONS).forEach(fk => FORMATIONS[fk].push({ ...slot }));
+    if (ln !== 'manager') {
+      const slot = { n: no, r: ln === 'gk' ? 'GK' : ln === 'def' ? 'CB' : ln === 'mid' ? 'MID' : 'CF', x: 50, y: 50 };
+      Object.keys(FORMATIONS).forEach(fk => FORMATIONS[fk].push({ ...slot }));
+    }
     playerModal.classList.remove('open');
     await loadAllDataFromSupabase();
   });
