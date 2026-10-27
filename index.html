@@ -635,23 +635,18 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     // ম্যানেজারকে বাদ দিয়ে বাকি প্লেয়ারদের মাঠে দেখানো
     const players = allPlayers.filter(p => p !== manager);
     
-    // ম্যানেজার থাকলে মাঠের উপরে বাম দিকে ছোট ছবি ও নামসহ কার্ড দেখানো
+    // ম্যানেজার থাকলে মাঠের উপরে বাম দিকে তার ছবি ও নামসহ ব্যাজ দেখানো
     if (manager) {
       const badge = document.createElement('div');
-      badge.className = 'manager-tile';
-      badge.style.cssText = 'position:absolute; top:8px; left:8px; background:rgba(255,255,255,0.95); border:2px solid var(--gold); border-radius:6px; padding:4px; display:flex; align-items:center; gap:6px; z-index:10; box-shadow:0 2px 6px rgba(0,0,0,0.3); cursor:pointer;';
+      badge.style.cssText = 'position:absolute; top:8px; left:8px; background:var(--card); border:2px solid var(--gold); border-radius:30px; padding:4px 12px 4px 4px; display:flex; align-items:center; gap:8px; z-index:10; box-shadow:0 4px 10px rgba(0,0,0,0.3);';
       
       const imgHtml = manager.img 
-        ? `<img src="${manager.img}" style="width:28px; height:28px; border-radius:4px; object-fit:cover; border:1.5px solid var(--g);">` 
-        : `<div style="width:28px; height:28px; border-radius:4px; background:var(--gold); color:var(--g); display:grid; place-items:center; font:800 0.9rem var(--c); border:1.5px solid var(--g);">${sym(manager.name)}</div>`;
+        ? `<img src="${manager.img}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid var(--g);">` 
+        : `<div style="width:32px; height:32px; border-radius:50%; background:var(--gold); color:var(--g); display:grid; place-items:center; font:700 0.9rem var(--c); border:2px solid var(--g);">${sym(manager.name)}</div>`;
         
-      badge.innerHTML = `
-        ${imgHtml}
-        <div style="display:flex; flex-direction:column; line-height:1.1;">
-          <span style="font:700 0.5rem var(--m); color:var(--gold); text-transform:uppercase; letter-spacing:0.5px;">Manager</span>
-          <span style="font:800 0.7rem var(--f); color:var(--ink); white-space:nowrap; max-width:80px; overflow:hidden; text-overflow:ellipsis;">${manager.name}</span>
-        </div>
-      `;
+      badge.innerHTML = `${imgHtml}<div style="display:flex; flex-direction:column; line-height:1.1;"><span style="font:600 0.6rem var(--m); color:var(--mute); text-transform:uppercase; letter-spacing:1px;">Manager</span><span style="font:700 0.9rem var(--f); color:var(--ink);">${manager.name}</span></div>`;
+      pitch.appendChild(badge);
+    }
       
       // ম্যানেজারকে ক্লিক করলে ছবি আপলোড বা পরিবর্তনের অপশন পাবেন
       badge.addEventListener('click', () => {
