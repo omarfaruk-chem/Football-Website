@@ -10,7 +10,7 @@
   <style>
     :root {
       --bg: #e8eaed; --card: #f6f7f8; --ink: #1b2430; --mute: #586272; --line: #ccd1d8;
-      --cobalt: #2447b8; --pink: #e0467c; --teal: #0f8b8d; --amber: #e8890c;
+      --cobalt: #2447b8; --pink: #e0467c; --teal: #0f8b8d; --amber: #e8890c; --green: #16a34a;
       --f: "Bricolage Grotesque", "Segoe UI", system-ui, -apple-system, sans-serif;
       --m: "JetBrains Mono", ui-monospace, Menlo, monospace;
       --c: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
@@ -37,7 +37,6 @@
     .logo { flex: none; width: 40px; height: 40px; border-radius: 8px; background: var(--cobalt); display: grid; place-items: center; }
     .logo svg { width: 23px; height: 23px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     
-    /* Hamburger Icon */
     .hamburger { display: none; background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--ink); z-index: 25; padding: 0; }
     
     nav { display: flex; gap: 16px; font-weight: 600; font-size: .94rem; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
@@ -51,7 +50,6 @@
     .login-btn.out { background: transparent; color: var(--ink) !important; border-color: var(--ink); }
     .login-btn.out:hover { background: var(--ink); color: #fff !important; }
     
-    /* Circular Profile Button */
     .profile-icon-btn {
       width: 42px; height: 42px; border-radius: 50%; background: var(--cobalt); color: #fff; border: 2px solid var(--ink);
       display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s;
@@ -135,15 +133,32 @@
     #squad td.mono { font: 400 13px var(--m); }
     #squad td .cn { font: 400 11px/1 var(--m); letter-spacing: .08em; margin-left: 8px; padding: 2px 6px; background: var(--gold); color: var(--ink); }
 
-    /* Fixtures */
+    /* Fixtures & Results */
     .fx { list-style: none; margin: 0; padding: 0; }
-    .fx li { display: grid; grid-template-columns: 76px 1fr auto; gap: 6px 22px; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--line); }
-    .fx .d { font-size: 2.3rem; line-height: .9; font-weight: 800; letter-spacing: -.04em; }
-    .fx .d small { display: block; font-size: .9rem; font-weight: 600; color: var(--mute); letter-spacing: 0; }
-    .fx .v { font-size: 1.2rem; font-weight: 800; line-height: 1.25; }
-    .fx .w { color: var(--mute); font-size: .92rem; }
-    .fx .c { font-size: .88rem; font-weight: 600; padding: 5px 12px; border: 1.5px solid var(--ink); border-radius: 99px; white-space: nowrap; }
-    .fx .next .c { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .fx li { 
+      display: flex; align-items: center; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap;
+    }
+    .fx li.past-match { display: none; } /* অটোমেটিক লুকানোর ক্লাস */
+    
+    .fx-date { font-size: 2.3rem; line-height: .9; font-weight: 800; letter-spacing: -.04em; min-width: 60px; }
+    .fx-date small { display: block; font-size: .9rem; font-weight: 600; color: var(--mute); letter-spacing: 0; margin-top: 4px; }
+    
+    .fx-info { flex: 1; min-width: 200px; }
+    .fx-info .v { font-size: 1.2rem; font-weight: 800; line-height: 1.25; margin-bottom: 4px; }
+    .fx-info .w { color: var(--mute); font-size: .92rem; }
+    
+    .fx-badge { font-size: .88rem; font-weight: 600; padding: 5px 12px; border: 1.5px solid var(--ink); border-radius: 99px; white-space: nowrap; text-align: center; }
+    .fx-badge.next { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .fx-badge.win { background: var(--green); border-color: var(--green); color: #fff; }
+    .fx-badge.loss { background: var(--pink); border-color: var(--pink); color: #fff; }
+    .fx-badge.draw { background: var(--amber); border-color: var(--amber); color: #fff; }
+    .fx-badge.upcoming { background: var(--card); }
+
+    .fx-edit-box { width: 100%; display: none; margin-top: 15px; padding: 15px; background: #fef9e7; border: 1.5px solid var(--line); border-radius: 6px; gap: 10px; }
+    body.is-admin .fx-edit-box { display: grid; grid-template-columns: 1fr 1fr; }
+    .fx-edit-box input, .fx-edit-box select { padding: 8px; border: 1.5px solid var(--line); border-radius: 4px; font-family: var(--f); width: 100%; }
+    .fx-edit-box .full-width { grid-column: span 2; }
+    .fx-edit-box .btn-row { grid-column: span 2; display: flex; gap: 10px; margin-top: 10px; }
 
     .two { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
     .two p { margin: 0 0 16px; max-width: 34em; }
@@ -183,11 +198,6 @@
     .edit-row input, .edit-row select { width: 100%; padding: 6px 8px; border: 1.5px solid var(--line); border-radius: 4px; font: 400 .9rem var(--f); background: #fff; }
     .edit-row button { padding: 6px 14px; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--ink); color: #fff; font: 600 .8rem var(--f); cursor: pointer; }
     .edit-row .cancel { background: transparent; color: var(--ink); }
-    .fixture-item.editable { position: relative; padding-right: 40px; }
-    .fixture-edit { display: none; margin-top: 12px; padding: 14px; background: #fef9e7; border: 1.5px solid var(--line); border-radius: 6px; }
-    body.is-admin .fixture-edit { display: grid; gap: 10px; }
-    .fixture-edit input { padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 4px; font: 400 .9rem var(--f); }
-    .fixture-edit .btn-row { display: flex; gap: 8px; }
     .del-btn { background: var(--pink); color: #fff; border: none; border-radius: 4px; padding: 4px 10px; font: 600 .75rem var(--f); cursor: pointer; }
     .add-fixture-btn { margin-top: 16px; }
 
@@ -200,34 +210,27 @@
       .hero { grid-template-columns: 1fr; padding: 44px 0 60px; gap: 44px; }
       .lineup, .two { grid-template-columns: 1fr; gap: 36px; }
       .tile { width: min(250px, 100%); }
+      body.is-admin .fx-edit-box { grid-template-columns: 1fr; }
+      .fx-edit-box .full-width, .fx-edit-box .btn-row { grid-column: span 1; }
       
       .hamburger { display: block; }
       nav { 
         display: none; 
-        position: absolute; 
-        top: 66px; 
-        left: 0; 
-        right: 0; 
-        background: var(--card); 
-        flex-direction: column; 
-        padding: 20px; 
-        border-bottom: 2px solid var(--ink); 
-        box-shadow: 0 10px 20px rgba(0,0,0,.1); 
-        gap: 16px; 
-        align-items: flex-start;
-        z-index: 15;
+        position: absolute; top: 66px; left: 0; right: 0; 
+        background: var(--card); flex-direction: column; padding: 20px; 
+        border-bottom: 2px solid var(--ink); box-shadow: 0 10px 20px rgba(0,0,0,.1); 
+        gap: 16px; align-items: flex-start; z-index: 15;
       }
       nav.open { display: flex; }
       .session-pill { width: 100%; justify-content: space-between; }
       .profile-icon-btn { align-self: flex-start; margin-top: 10px; }
     }
     @media(max-width: 600px) {
-      .fx li { grid-template-columns: 62px 1fr; }
-      .fx .c { grid-column: 2; justify-self: start; }
       section { padding: 52px 0; }
       .modal { padding: 24px; }
       .modal .row { flex-direction: column; }
       .modal .row .btn { width: 100%; }
+      .fx li { align-items: flex-start; }
     }
     @media(prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .tile { animation: none; } }
   </style>
@@ -254,13 +257,11 @@
       </span>
       <span id="adminBadgeWrap" style="display:none"><span class="admin-badge">Admin</span></span>
       
-      <!-- Standard Buttons (Logged Out) -->
       <div id="loggedOutBtns" style="display: flex; gap: 8px; width: 100%;">
         <button class="login-btn out" id="registerBtn" style="flex: 1;">Register</button>
         <button class="login-btn" id="loginBtn" style="flex: 1;">Login</button>
       </div>
 
-      <!-- Circular Profile Icon (Logged In) -->
       <button class="profile-icon-btn" id="accountBtn" style="display: none;" title="My Account">
         <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
       </button>
@@ -343,8 +344,8 @@
   </section>
 
   <section id="fixtures">
-    <h2>Fixtures <span class="tag" id="fixturesTag">Season</span></h2>
-    <p class="sub">Upcoming matches. Kick-off times are announced in the department.</p>
+    <h2>Fixtures & Results <span class="tag" id="fixturesTag">Season</span></h2>
+    <p class="sub">Upcoming matches and past results. Past matches are automatically hidden from the main view.</p>
     <ul class="fx" id="fx"></ul>
     <button class="btn s add-fixture-btn admin-only" id="addFixtureBtn" type="button">+ Add fixture</button>
   </section>
@@ -420,7 +421,6 @@
   </div>
 </div>
 
-<!-- Account Modal -->
 <div class="modal-bg" id="accountModal">
   <div class="modal">
     <button class="close" id="closeAccount" aria-label="Close">&times;</button>
@@ -435,8 +435,12 @@
 
     <div class="profile-actions">
       <div style="margin-bottom: 10px;">
+        <label for="currentPass">Current Password</label>
+        <input id="currentPass" type="password" placeholder="Enter current password" required>
+        
         <label for="newPass">New Password</label>
         <input id="newPass" type="password" placeholder="Enter new password" required>
+        
         <div class="error" id="accountError"></div>
         <button class="btn p" id="updatePassBtn" type="button" style="width: 100%; margin-top: 10px;">Update Password</button>
       </div>
@@ -509,7 +513,8 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   let isAdmin = false;
   let currentFormation = '4-3-3';
   let selectedPlayer = 6;
-  let currentUserEmail = '';
+  let rotationInterval = null;
+  let rotationIndex = 0;
 
   const FORMATIONS = {
     '4-3-3': [
@@ -559,7 +564,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   const fixturesTag = $('#fixturesTag');
   const footerSeason = $('#footerSeason');
 
-  // Mobile Menu Logic
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const mainNav = document.getElementById('mainNav');
   hamburgerBtn.addEventListener('click', () => {
@@ -571,7 +575,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     });
   });
 
-  // Toast Notification Helper
   function showToast(msg) {
     const toast = document.getElementById('toast');
     document.getElementById('toastMsg').textContent = msg;
@@ -591,7 +594,10 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       name: s.name,
       visible: s.visible,
       players: (playersData || []).filter(p => p.session_id === s.id).map(p => ({ dbId: p.id, n: p.jersey_no, name: p.name, pos: p.position, ln: p.line, img: p.photo_url || '' })),
-      fixtures: (fixturesData || []).filter(f => f.session_id === s.id).map(f => ({ dbId: f.id, d: f.day, mo: f.month, v: f.match_name, w: f.venue, c: f.competition }))
+      fixtures: (fixturesData || []).filter(f => f.session_id === s.id).map(f => ({ 
+        dbId: f.id, d: f.day, mo: f.month, v: f.match_name, w: f.venue, c: f.competition,
+        score_team: f.score_team, score_opp: f.score_opp, match_status: f.match_status 
+      }))
     }));
 
     const visible = sessions.filter(s => s.visible);
@@ -616,13 +622,25 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     pitch.querySelectorAll('.tl').forEach(el => el.remove());
     const players = currentPlayers();
     if (!players.length) return;
+    
     const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
-    const lookup = {};
-    players.forEach(p => { lookup[p.n] = p; });
+    
+    const groupedByRole = { gk: [], def: [], mid: [], fwd: [] };
+    players.forEach(p => {
+      if (groupedByRole[p.ln]) groupedByRole[p.ln].push(p);
+    });
 
     formation.forEach(slot => {
-      const p = lookup[slot.n];
-      if (!p) return;
+      let line = 'mid';
+      if (['GK'].includes(slot.r)) line = 'gk';
+      else if (['RB','LB','CB','LWB','RWB'].includes(slot.r)) line = 'def';
+      else if (['ST','LW','RW'].includes(slot.r)) line = 'fwd';
+
+      const rolePlayers = groupedByRole[line];
+      if (rolePlayers.length === 0) return;
+
+      const p = rolePlayers[rotationIndex % rolePlayers.length];
+      
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'tl'; b.dataset.n = p.n;
       b.style.left = slot.x + '%'; b.style.top = slot.y + '%';
@@ -693,6 +711,21 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     fmEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     refreshLineup();
   });
+
+  function startRotation() {
+    if (rotationInterval) clearInterval(rotationInterval);
+    if (currentPlayers().length > 11) {
+      rotationInterval = setInterval(() => {
+        rotationIndex++;
+        renderPitch();
+      }, 3000);
+    }
+  }
+
+  function stopRotation() {
+    if (rotationInterval) clearInterval(rotationInterval);
+    rotationInterval = null;
+  }
 
   function renderSquad(){
     const players = currentPlayers().slice().sort((a,b) => a.n - b.n);
@@ -789,10 +822,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   });
 
   document.getElementById('registerBtn').addEventListener('click', () => {
-    registerError.textContent = '';
-    document.getElementById('rName').value = '';
-    document.getElementById('rEmail').value = '';
-    document.getElementById('rPass').value = '';
+    registerError.textContent = ''; document.getElementById('rName').value = ''; document.getElementById('rEmail').value = ''; document.getElementById('rPass').value = '';
     registerModal.classList.add('open');
   });
 
@@ -807,42 +837,22 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (!name || !email || !pass) { registerError.textContent = 'All fields are required.'; return; }
     if (pass.length < 6) { registerError.textContent = 'Password must be at least 6 characters.'; return; }
 
-    const { data: existingData, error: checkError } = await supabaseClient
-      .from('admin_requests')
-      .select('id, status')
-      .eq('email', email);
+    const { data: existingData, error: checkError } = await supabaseClient.from('admin_requests').select('id, status').eq('email', email);
 
-    if (checkError) {
-      registerError.textContent = 'Something went wrong. Please try again.';
-      return;
-    }
+    if (checkError) { registerError.textContent = 'Something went wrong. Please try again.'; return; }
 
     if (existingData && existingData.length > 0) {
       const status = existingData[0].status;
-      if (status.startsWith('pending')) {
-        registerError.textContent = 'This email is already registered and pending approval.';
-        return;
-      } else if (status === 'approved') {
-        registerError.textContent = 'This email is already approved! Please go to Login.';
-        return;
-      } else if (status === 'rejected') {
-        registerError.textContent = 'This email was previously rejected. Please contact the admin.';
-        return;
-      }
+      if (status.startsWith('pending')) { registerError.textContent = 'This email is already registered and pending approval.'; return; }
+      else if (status === 'approved') { registerError.textContent = 'This email is already approved! Please go to Login.'; return; }
+      else if (status === 'rejected') { registerError.textContent = 'This email was previously rejected. Please contact the admin.'; return; }
     }
 
-    const { error } = await supabaseClient.from('admin_requests').insert({
-      name: name,
-      email: email,
-      status: 'pending_' + btoa(pass) 
-    });
+    const { error } = await supabaseClient.from('admin_requests').insert({ name: name, email: email, status: 'pending_' + btoa(pass) });
 
     if (error) {
-      if (error.code === '23505') {
-         registerError.textContent = 'This email is already registered.';
-      } else {
-         registerError.textContent = error.message;
-      }
+      if (error.code === '23505') { registerError.textContent = 'This email is already registered.'; }
+      else { registerError.textContent = error.message; }
     } else {
       showToast('Request submitted! Waiting for admin approval.');
       registerModal.classList.remove('open');
@@ -850,21 +860,15 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     }
   });
 
-  // ---------- ADMIN REQUESTS HANDLING ----------
   async function loadAdminRequests() {
     const { data, error } = await supabaseClient.from('admin_requests').select('*').like('status', 'pending%').order('created_at', { ascending: false });
     if (error) { console.error(error); return; }
-    
     const sheet = document.getElementById('requestSheet');
-    if (!data || data.length === 0) {
-      sheet.innerHTML = '<tr><td colspan="4">No pending requests.</td></tr>';
-      return;
-    }
+    if (!data || data.length === 0) { sheet.innerHTML = '<tr><td colspan="4">No pending requests.</td></tr>'; return; }
 
     sheet.innerHTML = data.map(req => `
       <tr>
-        <td>${req.name}</td>
-        <td>${req.email}</td>
+        <td>${req.name}</td><td>${req.email}</td>
         <td style="color:var(--amber);font-weight:bold;">Pending</td>
         <td>
           <button class="btn p" style="padding:4px 10px;font-size:.8rem;" onclick="approveRequest(${req.id}, '${req.email}', '${req.status}', '${req.name}')">Approve</button>
@@ -876,21 +880,14 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
   window.approveRequest = async function(reqId, email, encodedStatus, name) {
     const password = atob(encodedStatus.replace('pending_', ''));
-    
     if(!confirm(`Create admin account for ${email} and send credentials via email?`)) return;
 
-    const { data, error } = await supabaseClient.functions.invoke('bright-worker', {
-      body: { email: email, password: password, name: name }
-    });
+    const { data, error } = await supabaseClient.functions.invoke('bright-worker', { body: { email: email, password: password, name: name } });
 
     if (error) {
       let msg = error.message;
-      try {
-        const errorBody = await error.context.json();
-        msg = errorBody.error || msg;
-      } catch(e) {}
-      alert('Failed to create user: ' + msg);
-      return;
+      try { const errorBody = await error.context.json(); msg = errorBody.error || msg; } catch(e) {}
+      alert('Failed to create user: ' + msg); return;
     }
 
     await supabaseClient.from('admin_requests').update({ status: 'approved' }).eq('id', reqId);
@@ -904,50 +901,82 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     loadAdminRequests();
   }
 
-  // ---------- NOTIFICATION CHECKER (For Users) ----------
   async function checkUserNotification() {
     const savedEmail = localStorage.getItem('chem_pending_email');
     if (!savedEmail) return;
-
     const { data } = await supabaseClient.from('admin_requests').select('status').eq('email', savedEmail).maybeSingle();
-    
     if (data) {
-      if (data.status === 'approved') {
-        showToast('🎉 Your admin request has been approved! You can now login.');
-        localStorage.removeItem('chem_pending_email');
-      } else if (data.status === 'rejected') {
-        showToast('❌ Your admin request was rejected.');
-        localStorage.removeItem('chem_pending_email');
-      }
+      if (data.status === 'approved') { showToast('🎉 Your admin request has been approved! You can now login.'); localStorage.removeItem('chem_pending_email'); }
+      else if (data.status === 'rejected') { showToast('❌ Your admin request was rejected.'); localStorage.removeItem('chem_pending_email'); }
     }
   }
 
-  // ---------- FIXTURES ----------
+  // ---------- FIXTURES & AUTO REMOVE ----------
   function renderFixtures(){
     const fixtures = currentFixtures();
+    const today = new Date();
+    today.setHours(0,0,0,0); // আজকের তারিখের শুরু
+
     if (!fixtures.length) { fxList.innerHTML = '<li><span class="w">No fixtures yet.</span></li>'; return; }
-    fxList.innerHTML = fixtures.map((f, i) =>
-      `<li class="fixture-item${i===0 ? ' next' : ''}">
-        <div class="d">${f.d}<small>${f.mo}</small></div>
-        <div>
+    
+    fxList.innerHTML = fixtures.map((f, i) => {
+      // তারিখ প্যার্স করা (Day and Month)
+      const year = today.getFullYear();
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      let monthIndex = monthNames.findIndex(m => m.toLowerCase() === f.mo.toLowerCase());
+      if (monthIndex === -1) monthIndex = today.getMonth(); // ফলব্যাক
+      
+      const matchDate = new Date(year, monthIndex, parseInt(f.d));
+      const isPast = matchDate < today;
+      const isPastClass = (isPast && f.match_status !== 'Completed') ? 'past-match' : '';
+
+      // ব্যাজ ডিজাইন (Next / Win / Loss / Draw / Upcoming)
+      let badgeHtml = '';
+      if (f.match_status === 'Completed') {
+        const ourScore = parseInt(f.score_team) || 0;
+        const oppScore = parseInt(f.score_opp) || 0;
+        if (ourScore > oppScore) badgeHtml = `<span class="fx-badge win">Won ${ourScore}-${oppScore}</span>`;
+        else if (ourScore < oppScore) badgeHtml = `<span class="fx-badge loss">Lost ${ourScore}-${oppScore}</span>`;
+        else badgeHtml = `<span class="fx-badge draw">Draw ${ourScore}-${oppScore}</span>`;
+      } else {
+        badgeHtml = i === 0 ? `<span class="fx-badge next">Next: ${f.c}</span>` : `<span class="fx-badge upcoming">${f.c}</span>`;
+      }
+
+      return `<li class="fixture-item ${isPastClass}">
+        <div class="fx-date">${f.d}<small>${f.mo}</small></div>
+        <div class="fx-info">
           <div class="v">${f.v}</div>
           <div class="w">${f.w}</div>
-          <div class="fixture-edit admin-only" data-fixture-edit="${f.dbId}">
-            <input data-fx="d" value="${f.d}" placeholder="Day" style="width:70px">
-            <input data-fx="mo" value="${f.mo}" placeholder="Month" style="width:90px">
-            <input data-fx="v" value="${f.v.replace(/"/g,'&quot;')}" placeholder="Match">
-            <input data-fx="w" value="${f.w.replace(/"/g,'&quot;')}" placeholder="Venue">
-            <input data-fx="c" value="${f.c.replace(/"/g,'&quot;')}" placeholder="Competition">
-            <div class="btn-row">
-              <button class="btn p" data-save-fixture="${f.dbId}" type="button" style="padding:6px 14px;font-size:.82rem">Save</button>
-              <button class="btn s" data-cancel-fixture="${f.dbId}" type="button" style="padding:6px 14px;font-size:.82rem">Cancel</button>
-              <button class="del-btn" data-del-fixture="${f.dbId}" type="button">Delete</button>
+        </div>
+        ${badgeHtml}
+        
+        <div class="fx-edit-box" data-fixture-edit="${f.dbId}">
+          <input data-fx="d" value="${f.d}" placeholder="Day (e.g. 14)" style="width:70px">
+          <input data-fx="mo" value="${f.mo}" placeholder="Month (e.g. Nov)" style="width:90px">
+          <input data-fx="v" value="${f.v.replace(/"/g,'&quot;')}" placeholder="Match (A vs B)" class="full-width">
+          <input data-fx="w" value="${f.w.replace(/"/g,'&quot;')}" placeholder="Venue">
+          <input data-fx="c" value="${f.c.replace(/"/g,'&quot;')}" placeholder="Competition">
+          
+          <div class="full-width" style="border-top: 1px solid var(--line); margin-top: 10px; padding-top: 10px;">
+            <label style="display:block; font-size: 0.8rem; margin-bottom: 5px;">Update Result (if completed)</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="number" data-fx="score_team" value="${f.score_team || ''}" placeholder="Our Score" style="flex:1;">
+              <input type="number" data-fx="score_opp" value="${f.score_opp || ''}" placeholder="Opp Score" style="flex:1;">
+              <select data-fx="status" style="flex:1;">
+                <option value="Upcoming" ${f.match_status !== 'Completed' ? 'selected' : ''}>Upcoming</option>
+                <option value="Completed" ${f.match_status === 'Completed' ? 'selected' : ''}>Completed</option>
+              </select>
             </div>
           </div>
+
+          <div class="btn-row">
+            <button class="btn p" data-save-fixture="${f.dbId}" type="button" style="padding:6px 14px;font-size:.82rem">Save</button>
+            <button class="btn s" data-cancel-fixture="${f.dbId}" type="button" style="padding:6px 14px;font-size:.82rem">Cancel</button>
+            <button class="del-btn" data-del-fixture="${f.dbId}" type="button">Delete</button>
+          </div>
         </div>
-        <span class="c">${i ? f.c : 'Next: ' + f.c}</span>
-      </li>`
-    ).join('');
+      </li>`;
+    }).join('');
 
     fxList.querySelectorAll('[data-save-fixture]').forEach(btn => {
       btn.addEventListener('click', async function(){
@@ -958,14 +987,24 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
         const v = editDiv.querySelector('[data-fx="v"]').value.trim();
         const w = editDiv.querySelector('[data-fx="w"]').value.trim();
         const c = editDiv.querySelector('[data-fx="c"]').value.trim();
-        const { error } = await supabaseClient.from('fixtures').update({ day: d, month: mo, match_name: v, venue: w, competition: c }).eq('id', dbId);
+        const score_team = editDiv.querySelector('[data-fx="score_team"]').value.trim() || null;
+        const score_opp = editDiv.querySelector('[data-fx="score_opp"]').value.trim() || null;
+        const match_status = editDiv.querySelector('[data-fx="status"]').value;
+
+        const { error } = await supabaseClient.from('fixtures').update({ 
+          day: d, month: mo, match_name: v, venue: w, competition: c,
+          score_team: score_team, score_opp: score_opp, match_status: match_status
+        }).eq('id', dbId);
+        
         if (error) { alert('Failed: ' + error.message); return; }
         await loadAllDataFromSupabase();
       });
     });
+
     fxList.querySelectorAll('[data-cancel-fixture]').forEach(btn => {
       btn.addEventListener('click', function(){ fxList.querySelector(`[data-fixture-edit="${Number(this.dataset.cancelFixture)}"]`).style.display = 'none'; });
     });
+    
     fxList.querySelectorAll('[data-del-fixture]').forEach(btn => {
       btn.addEventListener('click', async function(){
         if (!isAdmin) return;
@@ -981,7 +1020,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   $('#addFixtureBtn').addEventListener('click', async function(){
     if (!isAdmin) return;
     const session = getActiveSession(); if (!session) return;
-    const { error } = await supabaseClient.from('fixtures').insert({ session_id: session.id, day: '01', month: 'Jan', match_name: 'New match', venue: 'TBD', competition: 'Friendly' });
+    const { error } = await supabaseClient.from('fixtures').insert({ session_id: session.id, day: '01', month: 'Jan', match_name: 'New match', venue: 'TBD', competition: 'Friendly', match_status: 'Upcoming' });
     if (error) { alert('Add failed: ' + error.message); return; }
     await loadAllDataFromSupabase();
   });
@@ -996,7 +1035,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     selectedPlayer = currentPlayers().length ? currentPlayers()[0].n : 1;
     currentFormation = '4-3-3';
     fmEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.f === '4-3-3')));
-    refreshAll();
+    rotationIndex = 0; stopRotation(); refreshAll();
   });
 
   function setAdmin(state){
@@ -1017,16 +1056,12 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
     $('#sessionControls').style.display = isAdmin ? 'flex' : 'none';
     $('#addFixtureBtn').style.display = isAdmin ? 'inline-block' : 'none';
-    
     document.getElementById('admin-requests-section').style.display = isAdmin ? 'block' : 'none';
-    if(isAdmin) {
-      loadAdminRequests();
-    }
-
+    
+    if(isAdmin) { loadAdminRequests(); }
     renderSquad(); renderFixtures(); renderPlayerCard();
   }
 
-  // ---------- ACCOUNT & RESET PASSWORD LOGIC ----------
   const accountModal = document.getElementById('accountModal');
   const accountError = document.getElementById('accountError');
 
@@ -1034,12 +1069,10 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (isAdmin) {
       accountError.textContent = '';
       document.getElementById('newPass').value = '';
+      document.getElementById('currentPass').value = '';
       
-      // Fetch User info
       const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
-        document.getElementById('accountEmail').textContent = user.email;
-      }
+      if (user) { document.getElementById('accountEmail').textContent = user.email; }
       
       accountModal.classList.add('open');
     }
@@ -1049,25 +1082,40 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   
   document.getElementById('logoutBtn').addEventListener('click', async () => {
     await supabaseClient.auth.signOut();
-    setAdmin(false);
-    accountModal.classList.remove('open');
-    showToast('Logged out successfully');
+    setAdmin(false); accountModal.classList.remove('open'); showToast('Logged out successfully');
   });
 
   document.getElementById('updatePassBtn').addEventListener('click', async () => {
+    const currentPass = document.getElementById('currentPass').value;
     const newPass = document.getElementById('newPass').value;
-    if (newPass.length < 6) { accountError.textContent = 'Password must be at least 6 characters.'; return; }
-    
-    const { error } = await supabaseClient.auth.updateUser({ password: newPass });
-    if (error) {
-      accountError.textContent = error.message;
-    } else {
+    const errorEl = document.getElementById('accountError');
+    const btn = document.getElementById('updatePassBtn');
+
+    if (!currentPass) { errorEl.textContent = 'Current password is required.'; return; }
+    if (newPass.length < 6) { errorEl.textContent = 'New password must be at least 6 characters.'; return; }
+
+    btn.textContent = 'Verifying...'; btn.disabled = true; errorEl.textContent = '';
+
+    try {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) throw new Error("User not found. Please log in again.");
+
+      const { error: signInError } = await supabaseClient.auth.signInWithPassword({ email: user.email, password: currentPass });
+      if (signInError) { throw new Error('Current password is incorrect.'); }
+
+      const { error: updateError } = await supabaseClient.auth.updateUser({ password: newPass });
+      if (updateError) throw updateError;
+
       showToast('Password updated successfully!');
+      document.getElementById('currentPass').value = ''; document.getElementById('newPass').value = '';
       accountModal.classList.remove('open');
+    } catch (err) {
+      errorEl.textContent = err.message;
+    } finally {
+      btn.textContent = 'Update Password'; btn.disabled = false;
     }
   });
 
-  // ---------- LOGIN ----------
   loginBtn.addEventListener('click', async function(){
     if (isAdmin) return;
     loginError.textContent = '';
@@ -1088,18 +1136,11 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
     const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: p });
     
-    if (error) { 
-      loginError.textContent = error.message; 
-    } 
+    if (error) { loginError.textContent = error.message; } 
     else { 
-      if (remember) {
-        localStorage.setItem('chem_admin_email', email);
-      } else {
-        localStorage.removeItem('chem_admin_email');
-      }
-      loginModal.classList.remove('open'); 
-      setAdmin(true); 
-      await loadAllDataFromSupabase(); 
+      if (remember) { localStorage.setItem('chem_admin_email', email); } 
+      else { localStorage.removeItem('chem_admin_email'); }
+      loginModal.classList.remove('open'); setAdmin(true); await loadAllDataFromSupabase(); 
       if(window.innerWidth <= 820) mainNav.classList.remove('open');
     }
   });
@@ -1192,6 +1233,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     renderSessionSelect(); refreshLineup(); renderSquad(); renderFixtures();
     document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.f === 'all')));
     sheetBody.querySelectorAll('tr[data-l]').forEach(r => r.hidden = false);
+    startRotation();
   }
 
   async function init(){
