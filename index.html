@@ -91,6 +91,8 @@
     .pitch { position: relative; container-type: inline-size; aspect-ratio: 3/4; border: 3px solid var(--g); background: repeating-linear-gradient(180deg, #1f6e4a 0 12.5%, #1a6244 12.5% 25%); }
     .pitch svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: rgba(255,255,255,.6); stroke-width: .5; }
     .tl { position: absolute; width: 13.6%; aspect-ratio: 1; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; border: 2px solid var(--g); background: #f3f7f5; color: var(--g); cursor: pointer; transition: left .5s cubic-bezier(.3,.8,.3,1), top .5s cubic-bezier(.3,.8,.3,1); overflow: hidden; }
+    .manager-tile { position:absolute; top:4%; left:50%; transform:translateX(-50%); z-index:6; display:flex; align-items:center; gap:5px; max-width:70%; padding:3px 7px; border:2px solid #f2a900; border-radius:4px; background:#f6f7f8; color:#123f36; font:700 clamp(8px,2.4cqw,12px)/1.1 var(--m); white-space:nowrap; box-shadow:0 2px 5px rgba(0,0,0,.25); }
+    .manager-tile .manager-initials { display:grid; place-items:center; width:20px; height:20px; flex:none; border-radius:50%; background:#123f36; color:#fff; font-size:10px; }
     .tl:hover { box-shadow: 0 0 0 3px rgba(255,255,255,.55); z-index: 5; }
     .tl img.tile-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
     .tl .n, .tl b, .tl .r { position: relative; z-index: 3; }
@@ -328,6 +330,7 @@
       <button class="chip" data-f="def" aria-pressed="false">Defenders</button>
       <button class="chip" data-f="mid" aria-pressed="false">Midfielders</button>
       <button class="chip" data-f="fwd" aria-pressed="false">Forwards</button>
+      <button class="chip" data-f="manager" aria-pressed="false">Manager</button>
     </div>
     <div class="table-wrap">
       <table>
@@ -486,13 +489,14 @@
     <label>Full name</label>
     <input id="pName" required>
     <label>Position label (e.g. Striker)</label>
-    <input id="pPos" placeholder="e.g. CMF, LMF, RMF, CB1, CB2, CB3, GK, Striker">
-    <label>Line</label>
+    <input id="pPos" placeholder="e.g. CMF, CB, GK, Striker (ignored for Manager)">
+    <label>Role / line</label>
     <select id="pLn">
       <option value="gk">Goalkeeper</option>
       <option value="def">Defender</option>
       <option value="mid">Midfielder</option>
       <option value="fwd">Forward</option>
+      <option value="manager">Manager</option>
     </select>
     <div class="error" id="playerError"></div>
     <div class="row">
@@ -630,7 +634,16 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   // ---------- রোটেশন ও প্লেয়ার সিলেকশন লজিক ----------
   function renderPitch(){
     pitch.querySelectorAll('.tl').forEach(el => el.remove());
-    const players = currentPlayers();
+    const allPlayers = currentPlayers();
+    const manager = allPlayers.find(p => String(p.ln || '').toLowerCase() === 'manager' || String(p.pos || '').toLowerCase() === 'manager');
+    const players = allPlayers.filter(p => p !== manager);
+    if (manager) {
+      const badge = document.createElement('div');
+      badge.className = 'manager-tile';
+      badge.title = 'Team manager: ' + manager.name;
+      badge.innerHTML = `<span class="manager-initials">${sym(manager.name)}</span><span>MANAGER · ${manager.name}</span>`;
+      pitch.appendChild(badge);
+    }
     if (!players.length) return;
     
     const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
@@ -639,6 +652,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     formation.forEach(slot => {
       // ১. এই স্লটের জন্য উপযুক্ত প্লেয়ার খুঁজে বের করা
       let matchingPlayers = players.filter(p => {
+        if (String(p.ln || '').toLowerCase() === 'manager' || String(p.pos || '').toLowerCase() === 'manager') return false;
         // Midfield slots are distinct: CMF, LMF and RMF. Generic MID is a fallback only.
         const pos = (p.pos || '').toUpperCase().replace(/[^A-Z]/g, '');
         if (['CMF','LMF','RMF'].includes(slot.r)) {
@@ -740,7 +754,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   function renderPlayerCard(){
     const players = currentPlayers();
     if (!players.length) { pcard.innerHTML = '<p class="note">No players in this session.</p>'; return; }
-    let p = players.find(x => x.n === selectedPlayer);
+    let p = players.find(x => x.n === selectedPlayer && String(x.ln || '').toLowerCase() !== 'manager');
     if (!p) { p = players[0]; selectedPlayer = p.n; }
     const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
     const slot = formation.find(s => s.n === p.n);
@@ -788,21 +802,22 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   function renderSquad(){
     const lineOrder = { gk: 0, def: 1, mid: 2, fwd: 3 };
     const players = currentPlayers().slice().sort((a, b) => {
-      const lineA = lineOrder[String(a.ln || '').toLowerCase()] ?? 4;
-      const lineB = lineOrder[String(b.ln || '').toLowerCase()] ?? 4;
+      const lineA = String(a.ln || '').toLowerCase() === 'manager' ? -1 : (lineOrder[String(a.ln || '').toLowerCase()] ?? 4);
+      const lineB = String(b.ln || '').toLowerCase() === 'manager' ? -1 : (lineOrder[String(b.ln || '').toLowerCase()] ?? 4);
       return lineA - lineB || a.n - b.n;
     });
     const sessionName = getActiveSession()?.name || '';
     let html = '';
     players.forEach(p => {
-      const isCaptain = p.n === CAPTAIN_NO;
+      const isManager = String(p.ln || '').toLowerCase() === 'manager' || String(p.pos || '').toLowerCase() === 'manager';
+      const isCaptain = !isManager && p.n === CAPTAIN_NO;
       const photoCell = p.img ? `<img src="${p.img}" alt="" style="width:34px;height:30px;object-fit:cover;border:2px solid var(--ink)">` : `<span>${sym(p.name)}</span>`;
 
-      html += `<tr data-l="${p.ln}" data-n="${p.n}">
-        <td class="num">${p.n}</td>
+      html += `<tr data-l="${isManager ? 'manager' : p.ln}" data-n="${p.n}">
+        <td class="num">${isManager ? '—' : p.n}</td>
         <td class="sym">${photoCell}</td>
         <td>${p.name}${isCaptain ? '<span class="cn">C</span>' : ''}</td>
-        <td>${p.pos}</td>
+        <td>${isManager ? 'Manager' : p.pos}</td>
         <td class="mono">${sessionName}</td>
         <td class="admin-only" style="text-align:right"><button class="del-btn" data-del-player="${p.dbId}" type="button">Del</button></td>
       </tr>`;
@@ -816,6 +831,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
             <option value="def"${p.ln==='def'?' selected':''}>Defender</option>
             <option value="mid"${p.ln==='mid'?' selected':''}>Midfielder</option>
             <option value="fwd"${p.ln==='fwd'?' selected':''}>Forward</option>
+            <option value="manager"${p.ln==='manager'?' selected':''}>Manager</option>
           </select>
         </td>
         <td><button data-save="${p.dbId}" type="button">Save</button> <button class="cancel" data-cancel="${p.dbId}" type="button">Cancel</button></td>
@@ -1261,8 +1277,8 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (!session) { alert('Please create a session first.'); return; }
     const no = Number(document.getElementById('pNo').value);
     const name = document.getElementById('pName').value.trim();
-    const pos = document.getElementById('pPos').value.trim() || 'Player';
     const ln = document.getElementById('pLn').value;
+    const pos = ln === 'manager' ? 'Manager' : (document.getElementById('pPos').value.trim() || 'Player');
     if (!no || no < 1 || no > 99) { playerError.textContent = 'Jersey number 1–99.'; return; }
     if (!name) { playerError.textContent = 'Name required.'; return; }
     const { error } = await supabaseClient.from('players').insert({ session_id: session.id, jersey_no: no, name, position: pos, line: ln });
@@ -1320,7 +1336,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     setInterval(checkUserNotification, 10000);
 
     fmEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.f === '4-3-3')));
-    const players = currentPlayers();
+    const players = currentPlayers().filter(p => String(p.ln || '').toLowerCase() !== 'manager' && String(p.pos || '').toLowerCase() !== 'manager');
     const cap = players.find(p => p.n === CAPTAIN_NO);
     selectedPlayer = cap ? cap.n : (players.length ? players[0].n : 1);
     refreshAll();
