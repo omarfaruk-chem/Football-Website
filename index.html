@@ -330,6 +330,7 @@
     </div>
     <div class="session-controls admin-only" id="sessionControls">
       <button class="btn s" id="newSessionBtn" type="button">+ New session</button>
+      <button class="btn s" id="deleteSessionBtn" type="button" style="color: var(--pink); border-color: var(--pink);">Delete current session</button>
       <button class="btn s" id="toggleSessionBtn" type="button">Hide/Show current session</button>
       <button class="btn s" id="addPlayerBtn" type="button">+ Add player</button>
     </div>
@@ -631,7 +632,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     const allPlayers = currentPlayers();
     const manager = allPlayers.find(p => String(p.ln || '').toLowerCase() === 'manager' || String(p.pos || '').toLowerCase() === 'manager');
     
-    // ম্যানেজারকে বাদ দিয়ে বাকি প্লেয়ারদের মাঠে দেখানো
+    // ম্যানেজারকে বাদ দিয়ে বাকি প্লেয়ারদের মাঠে দেখানো
     const players = allPlayers.filter(p => p !== manager);
     
     // ম্যানেজার থাকলে মাঠের উপরে বাম দিকে তার ছবি ও নামসহ কার্ড দেখানো
@@ -1272,6 +1273,34 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     const { error } = await supabaseClient.from('sessions').update({ visible: !session.visible }).eq('id', session.id);
     if (error) { alert('Failed: ' + error.message); return; }
     await loadAllDataFromSupabase();
+  });
+
+  // ---------- DELETE SESSION LOGIC ----------
+  $('#deleteSessionBtn').addEventListener('click', async function(){
+    if (!isAdmin) return;
+    const session = getActiveSession();
+    if (!session) { showToast('No active session to delete.'); return; }
+
+    const confirmDelete = confirm(`Are you sure you want to delete the "${session.name}" session?\n\nWARNING: This will permanently delete ALL players and fixtures under this session!`);
+    if (!confirmDelete) return;
+
+    this.disabled = true;
+    this.textContent = 'Deleting...';
+
+    const { error } = await supabaseClient.from('sessions').delete().eq('id', session.id);
+    
+    if (error) {
+      alert('Failed to delete session: ' + error.message);
+      this.disabled = false;
+      this.textContent = 'Delete current session';
+      return;
+    }
+
+    activeSessionName = null; 
+    await loadAllDataFromSupabase();
+    showToast('Session deleted successfully.');
+    this.disabled = false;
+    this.textContent = 'Delete current session';
   });
 
   const playerModal = document.getElementById('playerModal');
