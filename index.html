@@ -632,22 +632,16 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     // ম্যানেজারকে বাদ দিয়ে বাকি প্লেয়ারদের মাঠে দেখানো
     const players = allPlayers.filter(p => p !== manager);
     
-    // ম্যানেজার থাকলে মাঠের উপরে বাম দিকে বড় ছবি ও নামসহ কার্ড দেখানো
+    // ম্যানেজার থাকলে মাঠের উপরে বাম দিকে তার ছবি ও নামসহ ব্যাজ দেখানো
     if (manager) {
       const badge = document.createElement('div');
-      badge.style.cssText = 'position:absolute; top:10px; left:10px; background:rgba(255,255,255,0.95); border:2px solid var(--gold); border-radius:8px; padding:6px; display:flex; flex-direction:column; align-items:center; gap:6px; z-index:10; box-shadow:0 4px 12px rgba(0,0,0,0.4); width:80px; backdrop-filter: blur(4px);';
+      badge.style.cssText = 'position:absolute; top:8px; left:8px; background:var(--card); border:2px solid var(--gold); border-radius:30px; padding:4px 12px 4px 4px; display:flex; align-items:center; gap:8px; z-index:10; box-shadow:0 4px 10px rgba(0,0,0,0.3);';
       
       const imgHtml = manager.img 
-        ? `<img src="${manager.img}" style="width:68px; height:68px; border-radius:6px; object-fit:cover; border:2px solid var(--g); box-shadow: 0 2px 4px rgba(0,0,0,0.2);">` 
-        : `<div style="width:68px; height:68px; border-radius:6px; background:var(--gold); color:var(--g); display:grid; place-items:center; font:800 1.8rem var(--c); border:2px solid var(--g);">${sym(manager.name)}</div>`;
+        ? `<img src="${manager.img}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid var(--g);">` 
+        : `<div style="width:32px; height:32px; border-radius:50%; background:var(--gold); color:var(--g); display:grid; place-items:center; font:700 0.9rem var(--c); border:2px solid var(--g);">${sym(manager.name)}</div>`;
         
-      badge.innerHTML = `
-        ${imgHtml}
-        <div style="display:flex; flex-direction:column; align-items:center; line-height:1.1; text-align:center;">
-          <span style="font:700 0.55rem var(--m); color:var(--gold); text-transform:uppercase; letter-spacing:1px; background:var(--g); padding:2px 6px; border-radius:4px; margin-bottom:4px;">Manager</span>
-          <span style="font:800 0.75rem var(--f); color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:70px;">${manager.name}</span>
-        </div>
-      `;
+      badge.innerHTML = `${imgHtml}<div style="display:flex; flex-direction:column; line-height:1.1;"><span style="font:600 0.6rem var(--m); color:var(--mute); text-transform:uppercase; letter-spacing:1px;">Manager</span><span style="font:700 0.9rem var(--f); color:var(--ink);">${manager.name}</span></div>`;
       pitch.appendChild(badge);
     }
 
