@@ -476,7 +476,7 @@
     <label>Full name</label>
     <input id="pName" required>
     <label>Position label (e.g. Striker)</label>
-    <input id="pPos" placeholder="e.g. CMF, LMF, RMF, CB, GK, Striker">
+    <input id="pPos" placeholder="e.g. CMF, LMF, RMF, CB1, CB2, CB3, GK, Striker">
     <label>Line</label>
     <select id="pLn">
       <option value="gk">Goalkeeper</option>
@@ -522,7 +522,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   const FORMATIONS = {
     '4-3-3': [
       { n:1, r:'GK', x:50, y:89 }, { n:2, r:'RB', x:86, y:71 },
-      { n:3, r:'CB', x:63, y:74 }, { n:4, r:'CB', x:37, y:74 },
+      { n:3, r:'CB1', x:63, y:74 }, { n:4, r:'CB2', x:37, y:74 },
       { n:5, r:'LB', x:14, y:71 }, { n:6, r:'CMF', x:50, y:56 },
       { n:7, r:'RMF', x:76, y:44 }, { n:8, r:'LMF', x:24, y:44 },
       { n:9, r:'CF', x:50, y:17 }, { n:10, r:'LW', x:17, y:23 },
@@ -530,15 +530,15 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     ],
     '4-4-2': [
       { n:1, r:'GK', x:50, y:89 }, { n:2, r:'RB', x:86, y:71 },
-      { n:3, r:'CB', x:63, y:74 }, { n:4, r:'CB', x:37, y:74 },
+      { n:3, r:'CB1', x:63, y:74 }, { n:4, r:'CB2', x:37, y:74 },
       { n:5, r:'LB', x:14, y:71 }, { n:6, r:'CMF', x:62, y:48 },
       { n:7, r:'RMF', x:86, y:40 }, { n:8, r:'LMF', x:38, y:48 },
       { n:10, r:'LW', x:14, y:40 }, { n:9, r:'CF', x:63, y:18 },
       { n:11, r:'RW', x:37, y:18 }
     ],
     '3-5-2': [
-      { n:1, r:'GK', x:50, y:89 }, { n:3, r:'CB', x:73, y:73 },
-      { n:4, r:'CB', x:50, y:75 }, { n:5, r:'CB', x:27, y:73 },
+      { n:1, r:'GK', x:50, y:89 }, { n:3, r:'CB1', x:73, y:73 },
+      { n:4, r:'CB2', x:50, y:75 }, { n:5, r:'CB3', x:27, y:73 },
       { n:2, r:'RB', x:88, y:52 }, { n:6, r:'CMF', x:50, y:58 },
       { n:7, r:'RMF', x:70, y:43 }, { n:8, r:'LMF', x:30, y:43 },
       { n:10, r:'LW', x:12, y:52 }, { n:9, r:'CF', x:63, y:18 },
@@ -546,7 +546,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     ]
   };
 
-  const ROLE_NAMES = { GK:'Goalkeeper', RB:'Right back', LB:'Left back', CB:'Centre-back', DM:'Defensive midfielder', CM:'Central midfielder', MID:'Midfielder', CMF:'Central midfielder', LMF:'Left midfielder', RMF:'Right midfielder', LM:'Left midfielder', RM:'Right midfielder', LW:'Left winger', RW:'Right winger', CF:'Centre forward', ST:'Striker', LWB:'Left wing-back', RWB:'Right wing-back' };
+  const ROLE_NAMES = { GK:'Goalkeeper', RB:'Right back', LB:'Left back', CB:'Centre-back', CB1:'Centre-back 1', CB2:'Centre-back 2', CB3:'Centre-back 3', DM:'Defensive midfielder', CM:'Central midfielder', MID:'Midfielder', CMF:'Central midfielder', LMF:'Left midfielder', RMF:'Right midfielder', LM:'Left midfielder', RM:'Right midfielder', LW:'Left winger', RW:'Right winger', CF:'Centre forward', ST:'Striker', LWB:'Left wing-back', RWB:'Right wing-back' };
   const CAPTAIN_NO = 6;
 
   const $ = s => document.querySelector(s);
@@ -646,8 +646,14 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
           return p.pos.toUpperCase().includes('GK') || p.pos.toUpperCase().includes('GOAL');
         }
         // Defender
-        if (['CB', 'LB', 'RB', 'LWB', 'RWB'].includes(slot.r)) {
-          return p.pos.toUpperCase().includes(slot.r.toUpperCase()) || p.pos.toUpperCase().includes('DEFENDER') || p.pos.toUpperCase().includes('BACK');
+        if (['CB','CB1','CB2','CB3','LB','RB','LWB','RWB'].includes(slot.r)) {
+          const rawPos = (p.pos || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+          if (['CB1','CB2','CB3'].includes(slot.r)) {
+            const exactCB = players.some(q => { const qp=(q.pos||'').toUpperCase().replace(/[^A-Z0-9]/g,''); return qp === slot.r; });
+            if (exactCB) return rawPos === slot.r;
+            return rawPos === 'CB' || rawPos.includes('CENTREBACK') || rawPos.includes('CENTERBACK') || rawPos.includes('CENTRALDEFENDER');
+          }
+          return rawPos.includes(slot.r) || rawPos.includes('DEFENDER') || rawPos.includes('BACK') || rawPos === 'CB';
         }
         // Winger
         if (['LW', 'RW'].includes(slot.r)) {
@@ -661,7 +667,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       if (matchingPlayers.length === 0) {
         let lineFallback = 'mid';
         if (['GK'].includes(slot.r)) lineFallback = 'gk';
-        else if (['RB','LB','CB','LWB','RWB'].includes(slot.r)) lineFallback = 'def';
+        else if (['RB','LB','CB','CB1','CB2','CB3','LWB','RWB'].includes(slot.r)) lineFallback = 'def';
         else if (['ST','LW','RW', 'CF'].includes(slot.r)) lineFallback = 'fwd';
         
         matchingPlayers = players.filter(p => p.ln === lineFallback);
