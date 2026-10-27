@@ -705,17 +705,27 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (!name || !email || !pass) { registerError.textContent = 'All fields are required.'; return; }
     if (pass.length < 6) { registerError.textContent = 'Password must be at least 6 characters.'; return; }
 
-    const { data: existing } = await supabaseClient.from('admin_requests').select('id, status').eq('email', email).maybeSingle();
+    // নতুন চেকিং লজিক (ডুপ্লিকেট ইমেইল সুন্দরভাবে দেখানোর জন্য)
+    const { data: existingData, error: checkError } = await supabaseClient
+      .from('admin_requests')
+      .select('id, status')
+      .eq('email', email);
 
-    if (existing) {
-      if (existing.status.startsWith('pending')) {
-        registerError.textContent = 'You have already submitted a request. Please wait for approval.';
+    if (checkError) {
+      registerError.textContent = 'Something went wrong. Please try again.';
+      return;
+    }
+
+    if (existingData && existingData.length > 0) {
+      const status = existingData[0].status;
+      if (status.startsWith('pending')) {
+        registerError.textContent = 'This email is already registered and pending approval.';
         return;
-      } else if (existing.status === 'approved') {
+      } else if (status === 'approved') {
         registerError.textContent = 'This email is already approved! Please go to Login.';
         return;
-      } else if (existing.status === 'rejected') {
-        registerError.textContent = 'Your request was previously rejected. Please contact the admin.';
+      } else if (status === 'rejected') {
+        registerError.textContent = 'This email was previously rejected. Please contact the admin.';
         return;
       }
     }
@@ -727,11 +737,15 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     });
 
     if (error) {
-      registerError.textContent = error.message;
+      if (error.code === '23505') {
+         registerError.textContent = 'This email is already registered.';
+      } else {
+         registerError.textContent = error.message;
+      }
     } else {
       showToast('Request submitted! Waiting for admin approval.');
       registerModal.classList.remove('open');
-      localStorage.setItem('chem_pending_email', email); // নোটিফিকেশনের জন্য সেভ
+      localStorage.setItem('chem_pending_email', email);
     }
   });
 
