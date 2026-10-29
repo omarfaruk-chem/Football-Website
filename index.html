@@ -78,7 +78,13 @@
     .tile .top { display: flex; justify-content: space-between; }
     .tile b { font-size: clamp(5.5rem, 16vw, 8.5rem); line-height: .95; letter-spacing: -.05em; font-weight: 800; margin-top: auto; }
     .tile .t { font-size: 1.5rem; font-weight: 800; line-height: 1.1; }
-    .tile .u { font-size: .9rem; opacity: .85; }
+    .tile .u { font-size: .9rem; opacity: .95; position:relative; z-index:2; }
+    .hero-photo { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.42; z-index:0; border-radius:6px; }
+    .tile .top,.tile > b,.tile .t { position:relative; z-index:2; }
+    .tile.has-hero-photo .top, .tile.has-hero-photo > b, .tile.has-hero-photo .t, .tile.has-hero-photo .u { display:none !important; }
+    .tile.has-hero-photo > .top, .tile.has-hero-photo > b, .tile.has-hero-photo > .t, .tile.has-hero-photo > .u { display:none; }
+    .tile.has-hero-photo .hero-photo { opacity:1; }
+    .hero-photo-btn { position:relative; z-index:3; margin-top:10px; padding:6px 9px; border:1px solid #fff; border-radius:4px; background:rgba(0,0,0,.55); color:#fff; cursor:pointer; font:600 .72rem var(--f); }
 
     section { padding: 68px 0; border-top: 1px solid var(--line); }
     h2 { font-size: clamp(1.9rem, 4.4vw, 2.9rem); line-height: 1.05; letter-spacing: -.03em; font-weight: 800; margin: 0 0 10px; }
@@ -90,17 +96,17 @@
     .tag { margin-left: 12px; padding: 6px 10px; border: 1px solid var(--line); background: var(--card); font: 400 .68rem/1 var(--m); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); vertical-align: middle; white-space: nowrap; }
     .pitch { position: relative; container-type: inline-size; aspect-ratio: 3/4; border: 3px solid var(--g); background: repeating-linear-gradient(180deg, #1f6e4a 0 12.5%, #1a6244 12.5% 25%); }
     .pitch svg { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: rgba(255,255,255,.6); stroke-width: .5; }
-    .tl { position: absolute; width: 13.6%; aspect-ratio: 1; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; border: 2px solid var(--g); background: #f3f7f5; color: var(--g); cursor: pointer; transition: left .5s cubic-bezier(.3,.8,.3,1), top .5s cubic-bezier(.3,.8,.3,1); overflow: hidden; }
+    .tl { position: absolute; width: 13.6%; aspect-ratio: 1; transform: translate(-50%,-50%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0; border: 2px solid var(--g); background: #f3f7f5; color: var(--g); cursor: pointer; transition: left .5s cubic-bezier(.3,.8,.3,1), top .5s cubic-bezier(.3,.8,.3,1); overflow: visible; }
     .tl:hover { box-shadow: 0 0 0 3px rgba(255,255,255,.55); z-index: 5; }
-    .tl img.tile-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+    .tl img.tile-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; clip-path: inset(0); }
     .tl .n, .tl b, .tl .r { position: relative; z-index: 3; }
     .tl .n { position: absolute; top: 4px; left: 4px; font: 600 max(9px,2.3cqw)/1 var(--m); background: rgba(0,0,0,.6); color: #fff; padding: 1px 4px; border-radius: 3px; }
     .tl b { font: 700 max(21px,7.4cqw)/.85 var(--c); text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-    .tl .r { font: 400 max(8px,2cqw)/1 var(--m); margin-top: 3px; background: rgba(0,0,0,.6); color: #fff; padding: 2px 6px; border-radius: 3px; }
+    .tl .r { position:absolute; bottom:3px; left:50%; transform:translateX(-50%); font: 400 max(8px,2cqw)/1 var(--m); margin-top: 0; background: rgba(0,0,0,.6); color: #fff; padding: 2px 6px; border-radius: 3px; }
     .tl.no-img b { color: var(--g); text-shadow: none; }
     /* When a player photo exists, hide the surname-derived symbol; keep number and position visible. */
     .tl:has(img.tile-photo) > b { display: none; }
-    .tl .nm { position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%); background: var(--g); color: #fff; font: 600 max(9px,2.3cqw)/1 var(--f); padding: 3px 6px; white-space: nowrap; }
+    .tl .nm { position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%); max-width: 180%; overflow: hidden; text-overflow: ellipsis; background: var(--g); color: #fff; font: 600 max(9px,2.3cqw)/1.1 var(--f); padding: 3px 5px; white-space: nowrap; border-radius: 3px; z-index: 8; }
     .tl.on { background: var(--gold); box-shadow: 0 0 0 3px var(--g); z-index: 2; }
     .tl .cap { position: absolute; top: -8px; right: -8px; width: 17px; height: 17px; border-radius: 50%; background: #fff; border: 2px solid var(--g); font: 700 9px/13px var(--m); text-align: center; z-index: 4; }
     .lb { font: 400 .74rem var(--m); letter-spacing: .16em; text-transform: uppercase; color: var(--mute); margin: 0 0 10px; }
@@ -126,7 +132,7 @@
     .chip { font: 600 .9rem var(--f); padding: 8px 16px; border-radius: 99px; border: 1.5px solid var(--ink); background: transparent; color: var(--ink); cursor: pointer; }
     .chip[aria-pressed="true"] { background: var(--ink); color: #fff; }
     .table-wrap { overflow-x: auto; border: 2px solid var(--ink); background: var(--card); }
-    .table-wrap table { border-collapse: collapse; width: 100%; min-width: 520px; }
+    .table-wrap table { border-collapse: collapse; width: 100%; min-width: 760px; }
     #squad th { text-align: left; font: 500 11px/1.2 var(--m); letter-spacing: .12em; text-transform: uppercase; color: var(--mute); padding: 12px 16px; border-bottom: 2px solid var(--ink); }
     #squad td { padding: 11px 16px; border-bottom: 1px solid var(--line); }
     #squad tr:last-child td { border-bottom: 0; }
@@ -136,6 +142,19 @@
     #squad td.sym img { width: 34px; height: 30px; object-fit: cover; border: 2px solid var(--ink); }
     #squad td.mono { font: 400 13px var(--m); }
     #squad td .cn { font: 400 11px/1 var(--m); letter-spacing: .08em; margin-left: 8px; padding: 2px 6px; background: var(--gold); color: var(--ink); }
+    #squad .squad-status { display:inline-flex; align-items:center; border-radius:99px; padding:5px 9px; font:700 .68rem var(--m); white-space:nowrap; }
+    #squad .squad-status.starter { background:var(--green); color:#fff; }
+    #squad .squad-status.extra { background:var(--line); color:var(--ink); }
+    #squad tr.extra-row { background:rgba(0,0,0,.025); }
+    .squad-edit-fields { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+    .squad-edit-fields input, .squad-edit-fields select { padding:8px; border:1px solid var(--line); border-radius:4px; min-width:100px; max-width:180px; }
+    #squad td.actions-cell { min-width:150px; text-align:right; vertical-align:middle; white-space:nowrap; }
+    .squad-actions { display:flex; justify-content:flex-end; align-items:center; gap:8px; }
+    .edit-player-btn { padding:5px 12px; border:1px solid var(--cobalt); border-radius:4px; background:var(--cobalt); color:#fff; font:600 .75rem var(--f); cursor:pointer; }
+    #squad .squad-actions button { line-height:1.2; flex:0 0 auto; }
+    #squad td.actions-cell { text-align:right; white-space:nowrap; vertical-align:middle; }
+    .squad-actions { display:flex; justify-content:flex-end; align-items:center; gap:6px; }
+    .edit-player-btn { background:var(--cobalt); color:#fff; border:0; border-radius:4px; padding:5px 10px; font:600 .75rem var(--f); cursor:pointer; }
 
     /* Fixtures & Results */
     .fx { list-style: none; margin: 0; padding: 0; }
@@ -164,8 +183,23 @@
 
     .two { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; }
     .two p { margin: 0 0 16px; max-width: 34em; }
-    footer { border-top: 1px solid var(--line); padding: 30px 0 40px; color: var(--mute); font-size: .9rem; }
-    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+    footer { background: #131b27; color: #aab3c0; font-size: .92rem; border-top: 4px solid var(--cobalt); }
+    .footer-main { padding: 56px 0 40px; }
+    .footer-grid { display: grid; grid-template-columns: minmax(0,1.6fr) repeat(2, minmax(160px,1fr)); gap: 48px; align-items: start; }
+    .footer-brand { display: flex; align-items: center; gap: 12px; color: #fff; font: 800 1.1rem/1.2 var(--f); letter-spacing: -.01em; margin-bottom: 14px; }
+    .footer-brand .logo { width: 36px; height: 36px; border-radius: 8px; background: var(--cobalt); display: grid; place-items: center; flex: none; }
+    .footer-brand .logo svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .footer-copy { max-width: 34em; line-height: 1.7; margin: 0; }
+    .footer-heading { color: #fff; font: 600 .74rem var(--m); text-transform: uppercase; letter-spacing: .14em; margin-bottom: 16px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: #aab3c0; text-decoration: none; width: fit-content; transition: color .15s; }
+    .footer-links a:hover { color: #fff; }
+    .footer-meta { display: flex; flex-direction: column; gap: 6px; line-height: 1.5; }
+    .footer-meta strong { color: #fff; font-weight: 600; }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.1); }
+    .footer-bottom .wrap { display: flex; justify-content: space-between; align-items: center; gap: 8px 24px; flex-wrap: wrap; padding-top: 18px; padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); font: 400 .78rem/1.5 var(--f); color: #8892a2; }
+    .footer-credit strong { color: #d5dae2; font-weight: 600; }
+    @media (max-width:760px) { .footer-main { padding: 40px 0 28px; } .footer-grid { grid-template-columns: 1fr; gap: 28px; } .footer-bottom .wrap { flex-direction: column; align-items: flex-start; } }
 
     /* Modals */
     .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: none; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(4px); padding: 20px; }
@@ -196,6 +230,8 @@
     body.is-admin .admin-only { display: inline-block; }
     .edit-row { display: none; }
     body.is-admin .edit-row { display: table-row; }
+    body.is-admin #sheet tr[data-l] { cursor: grab; }
+    body.is-admin #sheet tr.dragging { opacity:.45; }
     .edit-row td { background: #fef9e7; padding: 8px 12px; }
     .edit-row input, .edit-row select { width: 100%; padding: 6px 8px; border: 1.5px solid var(--line); border-radius: 4px; font: 400 .9rem var(--f); background: #fff; }
     .edit-row button { padding: 6px 14px; border: 1.5px solid var(--ink); border-radius: 4px; background: var(--ink); color: #fff; font: 600 .8rem var(--f); cursor: pointer; }
@@ -282,11 +318,13 @@
         <a class="btn s" href="#squad">Meet the squad</a>
       </div>
     </div>
-    <div class="tile" aria-hidden="true">
+    <div class="tile" id="heroTile">
+      <img id="heroPhoto" class="hero-photo" alt="Team hero photo" hidden>
       <div class="top"><span class="n">11</span><span class="m">4-3-3</span></div>
       <b>Fb</b>
       <span class="t">Football XI</span>
       <span class="u">Department of Chemistry</span>
+      <button type="button" id="heroPhotoBtn" class="admin-only hero-photo-btn">Upload hero photo</button>
     </div>
   </div>
 
@@ -313,7 +351,7 @@
 
   <section id="squad">
     <h2>The squad <span class="tag" id="squadTag">Season</span></h2>
-    <p class="sub">Starting eleven in jersey order. Each player gets an element symbol taken from the surname.</p>
+    <p class="sub">Starting XI appears first; all remaining registered players are listed as extra squad members. The student session (e.g., 2021-22) is shown for every player.</p>
     <div class="chips" id="chips" role="group" aria-label="Filter by position">
       <button class="chip" data-f="all" aria-pressed="true">All</button>
       <button class="chip" data-f="gk" aria-pressed="false">Goalkeeper</button>
@@ -324,7 +362,7 @@
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>No.</th><th>Photo / Sym</th><th>Player</th><th>Role</th><th>Season</th><th class="admin-only" style="text-align:right">Actions</th></tr></thead>
+        <thead><tr><th>SL No.</th><th>Jersey</th><th>Photo / Sym</th><th>Player</th><th>Role</th><th>Session</th><th class="admin-only" style="text-align:right">Actions</th></tr></thead>
         <tbody id="sheet"></tbody>
       </table>
     </div>
@@ -334,7 +372,7 @@
       <button class="btn s" id="toggleSessionBtn" type="button">Hide/Show current session</button>
       <button class="btn s" id="addPlayerBtn" type="button">+ Add player</button>
     </div>
-    <p class="note admin-only" style="margin-top:12px">As admin you can add new seasons, hide old ones, and edit any player row inline (double-click a row).</p>
+    <p class="note admin-only" style="margin-top:12px">As admin you can add new seasons, hide old ones, and edit any player row inline (double-click a row or use the Edit button).</p>
   </section>
 
   <section id="admin-requests-section" class="admin-only" style="display: none; border-top: 2px solid var(--line); padding: 40px 0;">
@@ -350,7 +388,7 @@
 
   <section id="fixtures">
     <h2>Fixtures & Results <span class="tag" id="fixturesTag">Season</span></h2>
-    <p class="sub">Upcoming matches and past results. Past matches are automatically hidden from the main view.</p>
+    <p class="sub">Upcoming fixtures are listed first. When a match date and time pass, it moves to Results; enter the actual score to show the final result.</p>
     <ul class="fx" id="fx"></ul>
     <button class="btn s add-fixture-btn admin-only" id="addFixtureBtn" type="button">+ Add fixture</button>
   </section>
@@ -367,9 +405,38 @@
 </main>
 
 <footer>
-  <div class="wrap">
-    <span>Department of Chemistry, Gopalganj Science &amp; Technology University, Gopalganj, Bangladesh</span>
-    <span>Football XI · <span id="footerSeason">season</span></span>
+  <div class="footer-main">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">
+            <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/></svg></span>
+            Chemistry Football XI
+          </div>
+          <p class="footer-copy">Official squad, formation, fixtures and match results of the Department of Chemistry, Gopalganj Science &amp; Technology University.</p>
+        </div>
+        <div>
+          <div class="footer-heading">Explore</div>
+          <nav class="footer-links" aria-label="Footer navigation">
+            <a href="#lineup">Starting XI</a><a href="#squad">Full squad</a><a href="#fixtures">Fixtures &amp; results</a><a href="#about">About the team</a>
+          </nav>
+        </div>
+        <div>
+          <div class="footer-heading">Team</div>
+          <div class="footer-meta">
+            <span><strong id="footerSeason">Season</strong></span>
+            <span>Department of Chemistry</span>
+            <span>Gopalganj, Bangladesh</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="wrap">
+      <span>&copy; <span id="footerYear"></span> Chemistry Football XI. All rights reserved.</span>
+      <span class="footer-credit" role="note">Website developed by <strong>Omar Faruk</strong> (2021&ndash;22)</span>
+    </div>
   </div>
 </footer>
 
@@ -479,6 +546,8 @@
     <input id="pNo" type="number" min="1" max="99" required>
     <label>Full name</label>
     <input id="pName" required>
+    <label>Student session (e.g. 2021-22)</label>
+    <input id="pStudentSession" placeholder="2021-22" maxlength="20">
     <label>Position label (e.g. Striker)</label>
     <input id="pPos" placeholder="e.g. CMF, CB, GK, Striker (ignored for Manager)">
     <label>Role / line</label>
@@ -498,6 +567,7 @@
 </div>
 
 <input type="file" id="photoInput" accept="image/*" hidden>
+<input type="file" id="heroPhotoInput" accept="image/*" hidden>
 
 <!-- Supabase লাইব্রেরি -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -520,8 +590,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   let currentFormation = '4-3-3';
   let selectedPlayer = 6;
   
-  // রোটেশন ভেরিয়েবল
-  let slotRotations = {};
+  // Every 3 seconds, an eligible substitute rotates into one matching role.
   let rotationInterval = null;
 
   const FORMATIONS = {
@@ -571,6 +640,8 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   const squadTag = $('#squadTag');
   const fixturesTag = $('#fixturesTag');
   const footerSeason = $('#footerSeason');
+  const footerYear = $('#footerYear');
+  if (footerYear) footerYear.textContent = String(new Date().getFullYear());
 
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const mainNav = document.getElementById('mainNav');
@@ -586,6 +657,28 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     setTimeout(() => { toast.style.display = 'none'; }, 4000);
   }
 
+  function localDateString(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  // পুরোনো রেকর্ডে বছর না থাকলে বর্তমান বছরের আনুমানিক তারিখ দেখায়; নতুন রেকর্ডে match_date-ই নির্ভরযোগ্য।
+  function legacyFixtureDate(day, month) {
+    const monthNames = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+    const monthIndex = monthNames.findIndex(m => m === String(month || '').slice(0,3).toLowerCase());
+    const dayNum = parseInt(day, 10);
+    if (monthIndex < 0 || !Number.isFinite(dayNum) || dayNum < 1 || dayNum > 31) return localDateString();
+    const now = new Date();
+    return `${now.getFullYear()}-${String(monthIndex + 1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
+  }
+
+  function isCentreBack(player) {
+    const pos = String(player?.pos || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    return ['CB','CB1','CB2','CB3','CENTREBACK','CENTERBACK','CENTRALDEFENDER'].includes(pos) || pos.includes('CENTREBACK') || pos.includes('CENTERBACK') || pos.includes('CENTRALDEFENDER');
+  }
+
   async function loadAllDataFromSupabase() {
     const { data: sessionsData } = await supabaseClient.from('sessions').select('*').order('created_at', { ascending: true });
     const { data: playersData } = await supabaseClient.from('players').select('*');
@@ -597,9 +690,9 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       id: s.id,
       name: s.name,
       visible: s.visible,
-      players: (playersData || []).filter(p => p.session_id === s.id).map(p => ({ dbId: p.id, n: p.jersey_no, name: p.name, pos: p.position, ln: p.line, img: p.photo_url || '' })),
+      players: (playersData || []).filter(p => p.session_id === s.id).map(p => ({ dbId: p.id, n: p.jersey_no, name: p.name, pos: p.position, ln: p.line, img: p.photo_url || '', studentSession: p.student_session || '' })),
       fixtures: (fixturesData || []).filter(f => f.session_id === s.id).map(f => ({ 
-        dbId: f.id, d: f.day, mo: f.month, v: f.match_name, w: f.venue, c: f.competition,
+        dbId: f.id, d: f.day, mo: f.month, date: f.match_date || legacyFixtureDate(f.day, f.month), time: (f.match_time || '').slice(0,5), v: f.match_name, w: f.venue, c: f.competition,
         score_team: f.score_team, score_opp: f.score_opp, match_status: f.match_status 
       }))
     }));
@@ -623,129 +716,173 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   function currentPlayers(){ return getActiveSession()?.players || []; }
   function currentFixtures(){ return getActiveSession()?.fixtures || []; }
 
-  // ---------- ম্যানেজার ও রোটেশন লজিক ----------
+  // ---------- Starting XI, substitutes and all-position rotation ----------
+  let rotationStep = 0;
+
+  function playerId(p) { return String(p?.dbId ?? `jersey-${p?.n}`); }
+  function normPos(p) { return String(p?.pos || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+  function isManagerPlayer(p) { return String(p?.ln || '').toLowerCase() === 'manager' || String(p?.pos || '').toLowerCase() === 'manager'; }
+  function lineKey(p) { return String(p?.ln || '').toLowerCase(); }
+  function isDefenderSlot(r) { return ['RB','LB','CB','CB1','CB2','CB3','LWB','RWB'].includes(r); }
+  function isMidfieldSlot(r) { return ['DM','CM','MID','CMF','LMF','RMF','LM','RM'].includes(r); }
+  function isForwardSlot(r) { return ['LW','RW','CF','ST','FW'].includes(r); }
+
+  function matchesSlot(p, slot, roster) {
+    const pos = normPos(p), r = String(slot?.r || '').toUpperCase();
+    if (!pos) return false;
+    if (['CB','CB1','CB2','CB3'].includes(r)) return isCentreBack(p) || ['DEF','DEFENDER','DEFENCE','DEFENSE','CENTREBACK','CENTERBACK'].includes(pos) && lineKey(p)==='def';
+    if (r === 'GK') return pos === 'GK' || pos.includes('GOALKEEPER') || pos === 'KEEPER';
+    if (['LB','RB','LWB','RWB'].includes(r)) {
+      if (pos === r || pos.includes(r)) return true;
+      return ['DEF','DEFENDER','DEFENCE','DEFENSE'].includes(pos) && lineKey(p) === 'def';
+    }
+    const aliases = {
+      CMF:['CMF','CM','CENTRALMIDFIELDER','MIDFIELDER'], LMF:['LMF','LM','LEFTMIDFIELDER'],
+      RMF:['RMF','RM','RIGHTMIDFIELDER'], DM:['DM','CDM','DEFENSIVEMIDFIELDER'],
+      CM:['CM','CMF','CENTRALMIDFIELDER'], MID:['MID','MIDFIELDER'],
+      LW:['LW','LEFTWINGER','WINGER'], RW:['RW','RIGHTWINGER','WINGER'],
+      CF:['CF','CENTREFORWARD','CENTERFORWARD','ST','STRIKER','FORWARD'],
+      ST:['ST','STRIKER','CF','CENTREFORWARD','CENTERFORWARD','FORWARD'],
+      FW:['FW','FORWARD','ST','STRIKER','CF']
+    };
+    const list = aliases[r] || [r];
+    const exact = list.some(a => pos === a || pos.includes(a));
+    if (exact) {
+      // A generic "WINGER" can fill either wing, but prefer exact labels when available.
+      if (['LW','RW'].includes(r) && pos === 'WINGER') {
+        const hasExact = (roster || []).some(q => q !== p && (r === 'LW' ? ['LW','LEFTWINGER'].includes(normPos(q)) : ['RW','RIGHTWINGER'].includes(normPos(q))));
+        return !hasExact;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  function slotLine(r) {
+    if (r === 'GK') return 'gk';
+    if (isDefenderSlot(r)) return 'def';
+    if (isMidfieldSlot(r)) return 'mid';
+    if (isForwardSlot(r)) return 'fwd';
+    return '';
+  }
+
+  function canRotateIntoSlot(p, slot, roster) {
+    if (matchesSlot(p, slot, roster)) return true;
+    const line = lineKey(p), r = slot.r;
+    if (line === 'def' && isDefenderSlot(r)) {
+      const pos = normPos(p);
+      return ['DEF','DEFENDER','DEFENCE','DEFENSE'].includes(pos) && !['RB','LB','LWB','RWB'].includes(pos);
+    }
+    if (!line || line !== slotLine(r)) return false;
+    const generic = ['PLAYER','DEF','DEFENDER','DEFENCE','DEFENSE','MID','MIDFIELDER','FORWARD','FW','STRIKER','GOALKEEPER'];
+    return generic.includes(normPos(p)) || !normPos(p);
+  }
+
+  function getLineupData() {
+    const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
+    const roster = currentPlayers().filter(p => !isManagerPlayer(p)).slice().sort((a,b) => Number(a.n || 0) - Number(b.n || 0));
+    const used = new Set();
+    const assignments = new Map();
+    // Pass 1: reserve exact/compatible-position players for their matching slots.
+    formation.forEach(slot => {
+      const candidate = roster.find(p => !used.has(playerId(p)) && matchesSlot(p, slot, roster));
+      if (candidate) { assignments.set(slot, candidate); used.add(playerId(candidate)); }
+    });
+    // Pass 2: fill still-empty slots with players from the same broad line (GK/DEF/MID/FWD).
+    formation.forEach(slot => {
+      if (assignments.has(slot)) return;
+      const expectedLine = slotLine(slot.r);
+      const candidate = roster.find(p => !used.has(playerId(p)) && lineKey(p) === expectedLine);
+      if (candidate) { assignments.set(slot, candidate); used.add(playerId(candidate)); }
+    });
+    // Pass 3: only if positions/lines are incomplete, fill remaining slots with any unused player.
+    formation.forEach(slot => {
+      if (assignments.has(slot)) return;
+      const candidate = roster.find(p => !used.has(playerId(p)));
+      if (candidate) { assignments.set(slot, candidate); used.add(playerId(candidate)); }
+    });
+    const bench = roster.filter(p => !used.has(playerId(p)));
+    const rotationPairs = [];
+    const rotationSlots = formation.slice().sort((a,b) => a.x - b.x); // rotate left-to-right, then restore the starter
+    bench.forEach(sub => {
+      rotationSlots.forEach(slot => {
+        const starter = assignments.get(slot);
+        if (starter && canRotateIntoSlot(sub, slot, roster)) rotationPairs.push({ sub, slot, starter });
+      });
+    });
+    return { formation, roster, assignments, bench, rotationPairs };
+  }
+
   function renderPitch(){
     pitch.querySelectorAll('.tl').forEach(el => el.remove());
     pitch.querySelectorAll('.manager-tile').forEach(el => el.remove());
-    
-    // ম্যানেজারকে আলাদা করা
     const allPlayers = currentPlayers();
-    const manager = allPlayers.find(p => String(p.ln || '').toLowerCase() === 'manager' || String(p.pos || '').toLowerCase() === 'manager');
-    
-    // ম্যানেজারকে বাদ দিয়ে বাকি প্লেয়ারদের মাঠে দেখানো
-    const players = allPlayers.filter(p => p !== manager);
-    
-    // ম্যানেজার থাকলে মাঠের উপরে বাম দিকে তার ছবি ও নামসহ ব্যাজ দেখানো
+    const manager = allPlayers.find(isManagerPlayer);
     if (manager) {
       const badge = document.createElement('div');
       badge.className = 'manager-tile';
       badge.style.cssText = 'position:absolute; top:8px; left:8px; background:var(--card); border:2px solid var(--gold); border-radius:30px; padding:4px 12px 4px 4px; display:flex; align-items:center; gap:8px; z-index:10; box-shadow:0 4px 10px rgba(0,0,0,0.3); cursor:pointer;';
-      
-      const imgHtml = manager.img 
-        ? `<img src="${manager.img}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid var(--g);">` 
-        : `<div style="width:32px; height:32px; border-radius:50%; background:var(--gold); color:var(--g); display:grid; place-items:center; font:700 0.9rem var(--c); border:2px solid var(--g);">${sym(manager.name)}</div>`;
-        
-      badge.innerHTML = `${imgHtml}<div style="display:flex; flex-direction:column; line-height:1.1;"><span style="font:600 0.6rem var(--m); color:var(--mute); text-transform:uppercase; letter-spacing:1px;">Manager</span><span style="font:700 0.9rem var(--f); color:var(--ink);">${manager.name}</span></div>`;
-      
-      // ম্যানেজারকে ক্লিক করলে ছবি আপলোড বা পরিবর্তনের অপশন পাবেন
-      badge.addEventListener('click', () => {
-        if (isAdmin) {
-          openPhotoPicker(manager.dbId);
-        } else {
-          selectedPlayer = manager.n;
-          renderPlayerCard(); // ভিজিটর হলে শুধু কার্ড দেখাবে
-        }
-      });
+      const imgHtml = manager.img
+        ? `<img src="${manager.img}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--g);">`
+        : `<div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:var(--g);display:grid;place-items:center;font:700 .9rem var(--c);border:2px solid var(--g);">${sym(manager.name)}</div>`;
+      badge.innerHTML = `${imgHtml}<div style="display:flex;flex-direction:column;line-height:1.1;"><span style="font:600 .6rem var(--m);color:var(--mute);text-transform:uppercase;letter-spacing:1px;">Manager</span><span style="font:700 .9rem var(--f);color:var(--ink);">${manager.name}</span></div>`;
+      badge.addEventListener('click', () => { if (isAdmin) openPhotoPicker(manager.dbId); else { selectedPlayer = manager.n; renderPlayerCard(); } });
       pitch.appendChild(badge);
     }
+    const { formation, roster, assignments, rotationPairs } = getLineupData();
+    if (!roster.length) return;
 
-    if (!players.length) return;
-    
-    const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
-    const renderedPlayerIds = new Set();
-
-    formation.forEach(slot => {
-      let matchingPlayers = players.filter(p => {
-        const pos = (p.pos || '').toUpperCase().replace(/[^A-Z]/g, '');
-        if (['CMF','LMF','RMF'].includes(slot.r)) {
-          const aliases = { CMF:['CMF','CM','CENTRALMIDFIELDER'], LMF:['LMF','LM','LEFTMIDFIELDER'], RMF:['RMF','RM','RIGHTMIDFIELDER'] };
-          const exact = players.filter(q => { const qp=(q.pos||'').toUpperCase().replace(/[^A-Z]/g,''); return aliases[slot.r].some(a => qp === a || qp.includes(a)); });
-          if (exact.length) return aliases[slot.r].some(a => pos === a || pos.includes(a));
-          return pos === 'MID' || pos.includes('MIDFIELDER') || pos.includes('DM') || pos.includes('CM');
-        }
-        if (slot.r === 'CF') {
-          return p.pos.toUpperCase().includes('ST') || p.pos.toUpperCase().includes('CF') || p.pos.toUpperCase().includes('FW');
-        }
-        if (slot.r === 'GK') {
-          return p.pos.toUpperCase().includes('GK') || p.pos.toUpperCase().includes('GOAL');
-        }
-        if (['CB','CB1','CB2','CB3','LB','RB','LWB','RWB'].includes(slot.r)) {
-          const rawPos = (p.pos || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-          if (['CB1','CB2','CB3'].includes(slot.r)) {
-            const exactCB = players.some(q => { const qp=(q.pos||'').toUpperCase().replace(/[^A-Z0-9]/g,''); return qp === slot.r; });
-            if (exactCB) return rawPos === slot.r;
-            return rawPos === 'CB' || rawPos.includes('CENTREBACK') || rawPos.includes('CENTERBACK') || rawPos.includes('CENTRALDEFENDER');
-          }
-          return rawPos.includes(slot.r) || rawPos.includes('DEFENDER') || rawPos.includes('BACK') || rawPos === 'CB';
-        }
-        if (['LW', 'RW'].includes(slot.r)) {
-           return p.pos.toUpperCase().includes(slot.r.toUpperCase()) || p.pos.toUpperCase().includes('WINGER');
-        }
-        return p.pos.toUpperCase().includes(slot.r.toUpperCase());
+    // Every 3-second cycle rotates all eligible positions simultaneously.
+    // Odd steps show substitutes; even steps restore the starting XI.
+    const activePairs = new Map();
+    if (rotationStep > 0 && rotationStep % 2 === 1 && rotationPairs.length) {
+      const bySlot = new Map();
+      rotationPairs.forEach(pair => {
+        if (!bySlot.has(pair.slot)) bySlot.set(pair.slot, []);
+        bySlot.get(pair.slot).push(pair);
       });
-
-      if (matchingPlayers.length === 0) {
-        let lineFallback = 'mid';
-        if (['GK'].includes(slot.r)) lineFallback = 'gk';
-        else if (['RB','LB','CB','CB1','CB2','CB3','LWB','RWB'].includes(slot.r)) lineFallback = 'def';
-        else if (['ST','LW','RW', 'CF'].includes(slot.r)) lineFallback = 'fwd';
-        
-        matchingPlayers = players.filter(p => p.ln === lineFallback);
-      }
-
-      const slotKey = slot.r + '_' + slot.x;
-      if (!slotRotations[slotKey]) slotRotations[slotKey] = 0;
-
-      let availablePlayers = matchingPlayers.filter(p => !renderedPlayerIds.has(p.dbId));
-      if (availablePlayers.length === 0) availablePlayers = matchingPlayers;
-
-      if (availablePlayers.length === 0) return;
-
-      const playerIndex = slotRotations[slotKey] % availablePlayers.length;
-      const p = availablePlayers[playerIndex];
-      
-      renderedPlayerIds.add(p.dbId);
-
+      const usedSubs = new Set();
+      formation.forEach(slot => {
+        const options = bySlot.get(slot) || [];
+        if (!options.length) return;
+        const cycleIndex = Math.floor((rotationStep - 1) / 2);
+        for (let offset = 0; offset < options.length; offset++) {
+          const candidate = options[(cycleIndex + offset) % options.length];
+          if (!usedSubs.has(playerId(candidate.sub))) {
+            activePairs.set(slot, candidate);
+            usedSubs.add(playerId(candidate.sub));
+            break;
+          }
+        }
+      });
+    }
+    const renderedIds = new Set();
+    formation.forEach(slot => {
+      const activePair = activePairs.get(slot);
+      const p = activePair ? activePair.sub : assignments.get(slot);
+      if (!p || renderedIds.has(playerId(p))) return;
+      renderedIds.add(playerId(p));
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'tl'; b.dataset.n = p.n;
       b.style.left = slot.x + '%'; b.style.top = slot.y + '%';
-      const isCaptain = p.n === CAPTAIN_NO;
-      
+      const isCaptain = Number(p.n) === CAPTAIN_NO;
       const imgTag = p.img ? `<img src="${p.img}" class="tile-photo" alt="">` : '';
-      if(!p.img) b.classList.add('no-img');
-
-      b.innerHTML = 
-        imgTag +
-        `<span class="n">${p.n}</span>` +
-        `<b>${sym(p.name)}</b>` +
-        `<span class="r">${slot.r}</span>` +
-        `<span class="nm">${(p.name.split(' ')[0] || '')}</span>` +
-        (isCaptain ? '<span class="cap">C</span>' : '');
-        
+      if (!p.img) b.classList.add('no-img');
+      b.innerHTML = imgTag + `<span class="n">${p.n}</span><b>${sym(p.name)}</b><span class="r">${slot.r}</span><span class="nm">${(String(p.name || '').split(' ')[0] || '')}</span>` + (isCaptain ? '<span class="cap">C</span>' : '');
       b.setAttribute('aria-label', `${p.name}, ${ROLE_NAMES[slot.r] || slot.r}, number ${p.n}`);
-      b.setAttribute('aria-pressed', String(p.n === selectedPlayer));
-      if (p.n === selectedPlayer) b.classList.add('on');
+      b.setAttribute('aria-pressed', String(Number(p.n) === Number(selectedPlayer)));
+      if (Number(p.n) === Number(selectedPlayer)) b.classList.add('on');
+      if (activePair) b.title = `Rotation: ${p.name} replaces ${activePair.starter.name}`;
       pitch.appendChild(b);
     });
   }
 
   function startRotation() {
     if (rotationInterval) clearInterval(rotationInterval);
-    if (currentPlayers().length > 11) {
-      rotationInterval = setInterval(() => {
-        Object.keys(slotRotations).forEach(key => { slotRotations[key]++; });
-        renderPitch(); 
-      }, 3000);
+    rotationStep = 0;
+    const { rotationPairs } = getLineupData();
+    if (rotationPairs.length) {
+      rotationInterval = setInterval(() => { rotationStep += 1; renderPitch(); }, 3000);
     }
   }
 
@@ -767,7 +904,8 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     
     const isManager = String(p.ln || '').toLowerCase() === 'manager' || String(p.pos || '').toLowerCase() === 'manager';
     const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
-    const slot = formation.find(s => s.n === p.n);
+    const lineup = getLineupData();
+    const slot = [...lineup.assignments.entries()].find(([s, assigned]) => playerId(assigned) === playerId(p))?.[0];
     const roleLabel = isManager ? 'Manager' : (slot ? (ROLE_NAMES[slot.r] || slot.r) : p.pos);
     const isCaptain = !isManager && p.n === CAPTAIN_NO;
 
@@ -791,7 +929,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     lineupTag.textContent = 'Season ' + (getActiveSession()?.name || '—');
     squadTag.textContent = 'Season ' + (getActiveSession()?.name || '—');
     fixturesTag.textContent = 'Season ' + (getActiveSession()?.name || '—');
-    footerSeason.textContent = 'season ' + (getActiveSession()?.name || '—');
+    footerSeason.textContent = 'Season ' + (getActiveSession()?.name || '—');
   }
 
   pitch.addEventListener('click', function(e){
@@ -805,49 +943,57 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     const b = e.target.closest('button');
     if (!b) return;
     currentFormation = b.dataset.f;
+    startRotation();
     fmEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     refreshLineup();
   });
 
   function renderSquad(){
-    const lineOrder = { manager: -1, gk: 0, def: 1, mid: 2, fwd: 3 };
-    const players = currentPlayers().slice().sort((a, b) => {
-      const lineA = lineOrder[String(a.ln || '').toLowerCase()] ?? 4;
-      const lineB = lineOrder[String(b.ln || '').toLowerCase()] ?? 4;
-      return lineA - lineB || a.n - b.n;
-    });
-    const sessionName = getActiveSession()?.name || '';
+    const { roster, assignments } = getLineupData();
+    const startingIds = new Set(Array.from(assignments.values()).map(playerId));
+    const managers = currentPlayers().filter(isManagerPlayer);
+    const savedOrder = JSON.parse(localStorage.getItem('chem_squad_order_' + (getActiveSession()?.name || 'default')) || '[]');
+    const orderIndex = id => { const i = savedOrder.indexOf(playerId(id)); return i < 0 ? 999999 : i; };
+    const starters = roster.filter(p => startingIds.has(playerId(p))).sort((a,b) => orderIndex(a)-orderIndex(b) || Number(a.n || 0)-Number(b.n || 0));
+    const extras = roster.filter(p => !startingIds.has(playerId(p))).sort((a,b) => orderIndex(a)-orderIndex(b) || Number(a.n || 0)-Number(b.n || 0));
+    const players = [...starters, ...extras, ...managers];
+    const sessionName = getActiveSession()?.name || '—';
     let html = '';
-    players.forEach(p => {
-      const isManager = String(p.ln || '').toLowerCase() === 'manager' || String(p.pos || '').toLowerCase() === 'manager';
-      const isCaptain = !isManager && p.n === CAPTAIN_NO;
+    players.forEach((p, index) => {
+      const isManager = isManagerPlayer(p);
+      const isStarter = !isManager && startingIds.has(playerId(p));
+      const isCaptain = !isManager && Number(p.n) === CAPTAIN_NO;
       const photoCell = p.img ? `<img src="${p.img}" alt="" style="width:34px;height:30px;object-fit:cover;border:2px solid var(--ink)">` : `<span>${sym(p.name)}</span>`;
-
-      html += `<tr data-l="${isManager ? 'manager' : p.ln}" data-n="${p.n}">
-        <td class="num">${isManager ? '—' : p.n}</td>
+        const line = String(p.ln || '').toLowerCase();
+      html += `<tr draggable="${isAdmin ? 'true' : 'false'}" class="${isStarter ? 'starter-row' : 'extra-row'}" data-l="${isManager ? 'manager' : p.ln}" data-n="${p.n}" data-player-id="${playerId(p)}">
+        <td class="num">${index + 1}</td>
+        <td class="num">${isManager ? '—' : (p.n ?? '—')}</td>
         <td class="sym">${photoCell}</td>
-        <td>${p.name}${isCaptain ? '<span class="cn">C</span>' : ''}</td>
-        <td>${isManager ? 'Manager' : p.pos}</td>
-        <td class="mono">${sessionName}</td>
-        <td class="admin-only" style="text-align:right"><button class="del-btn" data-del-player="${p.dbId}" type="button">Del</button></td>
+        <td>${p.name || 'Unnamed'}${isCaptain ? '<span class="cn">C</span>' : ''}</td>
+        <td>${isManager ? 'Manager' : (p.pos || '—')}</td>
+        <td class="mono">${p.studentSession || '—'}</td>
+        <td class="admin-only actions-cell"><div class="squad-actions"><button class="edit-player-btn" data-edit-player="${p.n}" type="button">Edit</button><button class="del-btn" data-del-player="${p.dbId}" type="button">Del</button></div></td>
       </tr>`;
-      html += `<tr class="edit-row" data-edit-for="${p.n}">
-        <td><input data-edit="n" value="${p.n}" type="number" min="1" max="99" style="width:60px"></td>
-        <td><input data-edit="name" value="${p.name.replace(/"/g,'&quot;')}" style="min-width:140px"></td>
-        <td><input data-edit="pos" value="${p.pos.replace(/"/g,'&quot;')}" style="min-width:120px"></td>
-        <td>
-          <select data-edit="ln">
-            <option value="gk"${p.ln==='gk'?' selected':''}>Goalkeeper</option>
-            <option value="def"${p.ln==='def'?' selected':''}>Defender</option>
-            <option value="mid"${p.ln==='mid'?' selected':''}>Midfielder</option>
-            <option value="fwd"${p.ln==='fwd'?' selected':''}>Forward</option>
-            <option value="manager"${p.ln==='manager'?' selected':''}>Manager</option>
-          </select>
-        </td>
-        <td><button data-save="${p.dbId}" type="button">Save</button> <button class="cancel" data-cancel="${p.dbId}" type="button">Cancel</button></td>
-      </tr>`;
+      html += `<tr class="edit-row" data-edit-for="${p.n}" style="display:none"><td colspan="7"><div class="squad-edit-fields">
+        <label>Jersey <input data-edit="n" value="${p.n ?? ''}" type="number" min="1" max="99" style="width:75px"></label>
+        <label>Name <input data-edit="name" value="${String(p.name || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" style="min-width:140px"></label>
+        <label>Position <input data-edit="pos" value="${String(p.pos || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" style="min-width:120px"></label>
+        <label>Session <input data-edit="studentSession" value="${String(p.studentSession || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" placeholder="2021-22" maxlength="20" style="width:110px"></label>
+        <label>Line <select data-edit="ln"><option value="gk"${line==='gk'?' selected':''}>Goalkeeper</option><option value="def"${line==='def'?' selected':''}>Defender</option><option value="mid"${line==='mid'?' selected':''}>Midfielder</option><option value="fwd"${line==='fwd'?' selected':''}>Forward</option><option value="manager"${line==='manager'?' selected':''}>Manager</option></select></label>
+        <button data-save="${p.dbId}" type="button">Save</button><button class="cancel" data-cancel="${p.dbId}" type="button">Cancel</button>
+      </div></td></tr>`;
     });
     sheetBody.innerHTML = html;
+
+    if (isAdmin) {
+      let draggedRow = null;
+      sheetBody.querySelectorAll('tr[data-l]').forEach(row => {
+        row.addEventListener('dragstart', e => { draggedRow = row; row.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+        row.addEventListener('dragend', () => { if (draggedRow) draggedRow.classList.remove('dragging'); draggedRow = null; });
+        row.addEventListener('dragover', e => { e.preventDefault(); if (!draggedRow || draggedRow === row) return; const box = row.getBoundingClientRect(); sheetBody.insertBefore(draggedRow, e.clientY < box.top + box.height/2 ? row : row.nextSibling); });
+        row.addEventListener('drop', e => { e.preventDefault(); const rows = [...sheetBody.querySelectorAll('tr[data-l]')]; const order = rows.map(r => r.dataset.playerId); localStorage.setItem('chem_squad_order_' + (getActiveSession()?.name || 'default'), JSON.stringify(order)); showToast('Squad order saved in this browser.'); });
+      });
+    }
 
     if (isAdmin) {
       sheetBody.querySelectorAll('tr[data-l]').forEach(row => {
@@ -860,125 +1006,73 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     }
   }
 
-  sheetBody.addEventListener('click', async function(e){
-    const saveBtn = e.target.closest('[data-save]');
-    if (saveBtn) {
-      const dbId = Number(saveBtn.dataset.save);
-      const editRow = saveBtn.closest('tr');
-      const nameVal = editRow.querySelector('[data-edit="name"]').value.trim();
-      const posVal = editRow.querySelector('[data-edit="pos"]').value.trim();
-      const lnVal = editRow.querySelector('[data-edit="ln"]').value;
-      const nVal = Number(editRow.querySelector('[data-edit="n"]').value);
-      if (!nameVal) { alert('Player name required.'); return; }
-      const { error } = await supabaseClient.from('players').update({ jersey_no: nVal, name: nameVal, position: posVal || 'Player', line: lnVal }).eq('id', dbId);
-      if (error) { alert('Update failed: ' + error.message); return; }
-      Object.keys(FORMATIONS).forEach(fk => { FORMATIONS[fk].forEach(slot => { if (slot.n === Number(editRow.dataset.editFor)) slot.n = nVal; }); });
-      await loadAllDataFromSupabase(); return;
+  // Squad table actions are delegated because the table rows are rebuilt after each update.
+  sheetBody.addEventListener('click', async function(e) {
+    const editBtn = e.target.closest('[data-edit-player]');
+    if (editBtn) {
+      if (!isAdmin) return;
+      const editRow = sheetBody.querySelector(`tr[data-edit-for="${editBtn.dataset.editPlayer}"]`);
+      if (editRow) editRow.style.display = editRow.style.display === 'table-row' ? 'none' : 'table-row';
+      return;
     }
     const cancelBtn = e.target.closest('[data-cancel]');
-    if (cancelBtn) { cancelBtn.closest('tr').style.display = 'none'; return; }
-    const delBtn = e.target.closest('[data-del-player]');
-    if (delBtn && isAdmin) {
-      const dbId = Number(delBtn.dataset.delPlayer);
-      if (!confirm('Remove this player from the session?')) return;
-      const { error } = await supabaseClient.from('players').delete().eq('id', dbId);
-      if (error) { alert('Delete failed: ' + error.message); return; }
-      await loadAllDataFromSupabase(); return;
+    if (cancelBtn) {
+      const row = cancelBtn.closest('.edit-row');
+      if (row) row.style.display = 'none';
+      return;
+    }
+
+    const saveBtn = e.target.closest('[data-save]');
+    if (saveBtn) {
+      if (!isAdmin) return;
+      const dbId = saveBtn.dataset.save;
+      const row = saveBtn.closest('.edit-row');
+      if (!row) return;
+      const no = Number(row.querySelector('[data-edit="n"]').value);
+      const name = row.querySelector('[data-edit="name"]').value.trim();
+      const posValue = row.querySelector('[data-edit="pos"]').value.trim();
+      const sessionValue = row.querySelector('[data-edit="studentSession"]').value.trim();
+      const line = row.querySelector('[data-edit="ln"]').value;
+      if (!name) { showToast('Player name is required.'); return; }
+      if (line !== 'manager' && (!no || no < 1 || no > 99)) { showToast('Jersey number must be between 1 and 99.'); return; }
+      saveBtn.disabled = true;
+      const { error } = await supabaseClient.from('players').update({ 
+        jersey_no: line === 'manager' ? null : no, 
+        name, 
+        position: line === 'manager' ? 'Manager' : (posValue || 'Player'), 
+        line,
+        student_session: sessionValue || null
+      }).eq('id', dbId);
+      if (error) { showToast('Player update failed: ' + error.message); saveBtn.disabled = false; return; }
+      await loadAllDataFromSupabase();
+      showToast('Player updated.');
+      return;
+    }
+
+    const deleteBtn = e.target.closest('[data-del-player]');
+    if (deleteBtn) {
+      if (!isAdmin) return;
+      if (!confirm('Remove this player from the current session?')) return;
+      const { error } = await supabaseClient.from('players').delete().eq('id', deleteBtn.dataset.delPlayer);
+      if (error) { showToast('Player delete failed: ' + error.message); return; }
+      await loadAllDataFromSupabase();
+      showToast('Player removed.');
     }
   });
 
-  $('#chips').addEventListener('click', function(e){
-    const b = e.target.closest('.chip');
-    if (!b) return;
-    document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-    const filter = b.dataset.f;
+  document.getElementById('chips').addEventListener('click', function(e) {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    const filter = chip.dataset.f;
+    document.querySelectorAll('#chips .chip').forEach(button => button.setAttribute('aria-pressed', String(button === chip)));
     sheetBody.querySelectorAll('tr[data-l]').forEach(row => {
-      const show = filter === 'all' || row.dataset.l === filter;
+      const line = String(row.dataset.l || '').toLowerCase();
+      const show = filter === 'all' || line === filter;
       row.hidden = !show;
       const editRow = sheetBody.querySelector(`tr[data-edit-for="${row.dataset.n}"]`);
-      if (editRow && !show) editRow.style.display = 'none';
+      if (editRow && !show) editRow.hidden = true;
     });
   });
-
-  // ---------- REGISTRATION LOGIC ----------
-  const registerModal = document.getElementById('registerModal');
-  const registerError = document.getElementById('registerError');
-
-  document.getElementById('goToRegister').addEventListener('click', (e) => {
-    e.preventDefault(); loginModal.classList.remove('open'); document.getElementById('registerBtn').click();
-  });
-
-  document.getElementById('registerBtn').addEventListener('click', () => {
-    registerError.textContent = ''; document.getElementById('rName').value = ''; document.getElementById('rEmail').value = ''; document.getElementById('rPass').value = '';
-    registerModal.classList.add('open');
-  });
-
-  document.getElementById('closeRegister').onclick = () => registerModal.classList.remove('open');
-  document.getElementById('cancelRegister').onclick = () => registerModal.classList.remove('open');
-
-  document.getElementById('submitRegisterBtn').addEventListener('click', async () => {
-    const name = document.getElementById('rName').value.trim();
-    const email = document.getElementById('rEmail').value.trim();
-    const pass = document.getElementById('rPass').value;
-
-    if (!name || !email || !pass) { registerError.textContent = 'All fields are required.'; return; }
-    if (pass.length < 6) { registerError.textContent = 'Password must be at least 6 characters.'; return; }
-
-    const { data: existingData, error: checkError } = await supabaseClient.from('admin_requests').select('id, status').eq('email', email);
-    if (checkError) { registerError.textContent = 'Something went wrong. Please try again.'; return; }
-
-    if (existingData && existingData.length > 0) {
-      const status = existingData[0].status;
-      if (status.startsWith('pending')) { registerError.textContent = 'This email is already registered and pending approval.'; return; }
-      else if (status === 'approved') { registerError.textContent = 'This email is already approved! Please go to Login.'; return; }
-      else if (status === 'rejected') { registerError.textContent = 'This email was previously rejected. Please contact the admin.'; return; }
-    }
-
-    const { error } = await supabaseClient.from('admin_requests').insert({ name: name, email: email, status: 'pending_' + btoa(pass) });
-    if (error) {
-      if (error.code === '23505') { registerError.textContent = 'This email is already registered.'; }
-      else { registerError.textContent = error.message; }
-    } else {
-      showToast('Request submitted! Waiting for admin approval.');
-      registerModal.classList.remove('open');
-      localStorage.setItem('chem_pending_email', email);
-    }
-  });
-
-  // ---------- ADMIN REQUESTS HANDLING ----------
-  async function loadAdminRequests() {
-    const { data, error } = await supabaseClient.from('admin_requests').select('*').like('status', 'pending%').order('created_at', { ascending: false });
-    if (error) { console.error(error); return; }
-    const sheet = document.getElementById('requestSheet');
-    if (!data || data.length === 0) { sheet.innerHTML = '<tr><td colspan="4">No pending requests.</td></tr>'; return; }
-
-    sheet.innerHTML = data.map(req => `
-      <tr>
-        <td>${req.name}</td><td>${req.email}</td>
-        <td style="color:var(--amber);font-weight:bold;">Pending</td>
-        <td>
-          <button class="btn p" style="padding:4px 10px;font-size:.8rem;" onclick="approveRequest(${req.id}, '${req.email}', '${req.status}', '${req.name}')">Approve</button>
-          <button class="del-btn" onclick="rejectRequest(${req.id})">Reject</button>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  window.approveRequest = async function(reqId, email, encodedStatus, name) {
-    const password = atob(encodedStatus.replace('pending_', ''));
-    if(!confirm(`Create admin account for ${email} and send credentials via email?`)) return;
-
-    const { data, error } = await supabaseClient.functions.invoke('bright-worker', { body: { email: email, password: password, name: name } });
-    if (error) {
-      let msg = error.message;
-      try { const errorBody = await error.context.json(); msg = errorBody.error || msg; } catch(e) {}
-      alert('Failed to create user: ' + msg); return;
-    }
-
-    await supabaseClient.from('admin_requests').update({ status: 'approved' }).eq('id', reqId);
-    alert(`✅ Admin account created for ${email} and credentials emailed!`);
-    loadAdminRequests();
-  }
 
   window.rejectRequest = async function(reqId) {
     if(!confirm("Reject this request?")) return;
@@ -996,60 +1090,70 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     }
   }
 
-  // ---------- FIXTURES & AUTO REMOVE ----------
+  // ---------- FIXTURES & RESULTS ----------
   function renderFixtures(){
     const fixtures = currentFixtures();
-    const today = new Date(); today.setHours(0,0,0,0); 
+    const now = new Date();
     if (!fixtures.length) { fxList.innerHTML = '<li><span class="w">No fixtures yet.</span></li>'; return; }
-    
-    fxList.innerHTML = fixtures.map((f, i) => {
-      const year = today.getFullYear();
-      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      let monthIndex = monthNames.findIndex(m => m.toLowerCase() === f.mo.toLowerCase());
-      if (monthIndex === -1) monthIndex = today.getMonth();
-      
-      const matchDate = new Date(year, monthIndex, parseInt(f.d));
-      const isPast = matchDate < today;
-      const isPastClass = (isPast && f.match_status !== 'Completed') ? 'past-match' : '';
 
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const parsedFixtures = fixtures.map(f => {
+      const dateValue = /^\d{4}-\d{2}-\d{2}$/.test(String(f.date || '')) ? String(f.date) : legacyFixtureDate(f.d, f.mo);
+      const timeValue = /^\d{2}:\d{2}$/.test(String(f.time || '')) ? String(f.time) : '23:59';
+      const matchDateTime = new Date(`${dateValue}T${timeValue}:00`);
+      const matchOver = !Number.isNaN(matchDateTime.getTime()) && matchDateTime <= now;
+      const hasScore = f.score_team !== null && f.score_team !== undefined && f.score_team !== '' && f.score_opp !== null && f.score_opp !== undefined && f.score_opp !== '';
+      const resultReady = String(f.match_status || '').toLowerCase() === 'completed' || matchOver;
+      return { ...f, dateValue, timeValue, matchDateTime, matchOver, hasScore, resultReady };
+    }).sort((a,b) => a.matchDateTime - b.matchDateTime);
+
+    // Upcoming fixtures আগে; সময় শেষ হয়ে যাওয়া/Completed ম্যাচ Results অংশে দেখানো হয়।
+    const upcoming = parsedFixtures.filter(f => !f.resultReady);
+    const results = parsedFixtures.filter(f => f.resultReady).sort((a,b) => b.matchDateTime - a.matchDateTime);
+    const ordered = [...upcoming, ...results];
+
+    fxList.innerHTML = ordered.map((f, i) => {
+      const dateObj = f.matchDateTime;
+      const dayLabel = String(dateObj.getDate()).padStart(2, '0');
+      const monthLabel = monthNames[dateObj.getMonth()];
       let badgeHtml = '';
-      if (f.match_status === 'Completed') {
-        const ourScore = parseInt(f.score_team) || 0;
-        const oppScore = parseInt(f.score_opp) || 0;
+      if (f.resultReady && f.hasScore) {
+        const ourScore = Number(f.score_team);
+        const oppScore = Number(f.score_opp);
         if (ourScore > oppScore) badgeHtml = `<span class="fx-badge win">Won ${ourScore}-${oppScore}</span>`;
         else if (ourScore < oppScore) badgeHtml = `<span class="fx-badge loss">Lost ${ourScore}-${oppScore}</span>`;
         else badgeHtml = `<span class="fx-badge draw">Draw ${ourScore}-${oppScore}</span>`;
+      } else if (f.resultReady) {
+        badgeHtml = '<span class="fx-badge draw">Full time · Score pending</span>';
       } else {
-        badgeHtml = i === 0 ? `<span class="fx-badge next">Next: ${f.c}</span>` : `<span class="fx-badge upcoming">${f.c}</span>`;
+        badgeHtml = upcoming.indexOf(f) === 0 ? `<span class="fx-badge next">Next: ${f.c}</span>` : `<span class="fx-badge upcoming">${f.c}</span>`;
       }
-
-      return `<li class="fixture-item ${isPastClass}">
-        <div class="fx-date">${f.d}<small>${f.mo}</small></div>
+      const displayTime = f.time && /^\d{2}:\d{2}$/.test(f.time) ? ` · ${f.time}` : '';
+      return `<li class="fixture-item ${f.resultReady ? 'result-match' : ''}">
+        <div class="fx-date">${dayLabel}<small>${monthLabel}</small></div>
         <div class="fx-info">
           <div class="v">${f.v}</div>
-          <div class="w">${f.w}</div>
+          <div class="w">${f.w}${displayTime}</div>
+          ${f.resultReady ? '<div class="w">Results</div>' : ''}
         </div>
         ${badgeHtml}
-        
         <div class="fx-edit-box" data-fixture-edit="${f.dbId}">
-          <input data-fx="d" value="${f.d}" placeholder="Day (e.g. 14)" style="width:70px">
-          <input data-fx="mo" value="${f.mo}" placeholder="Month (e.g. Nov)" style="width:90px">
-          <input data-fx="v" value="${f.v.replace(/"/g,'&quot;')}" placeholder="Match (A vs B)" class="full-width">
-          <input data-fx="w" value="${f.w.replace(/"/g,'&quot;')}" placeholder="Venue">
-          <input data-fx="c" value="${f.c.replace(/"/g,'&quot;')}" placeholder="Competition">
-          
-          <div class="full-width" style="border-top: 1px solid var(--line); margin-top: 10px; padding-top: 10px;">
-            <label style="display:block; font-size: 0.8rem; margin-bottom: 5px;">Update Result (if completed)</label>
-            <div style="display: flex; gap: 10px;">
-              <input type="number" data-fx="score_team" value="${f.score_team || ''}" placeholder="Our Score" style="flex:1;">
-              <input type="number" data-fx="score_opp" value="${f.score_opp || ''}" placeholder="Opp Score" style="flex:1;">
+          <label>Date<input type="date" data-fx="date" value="${f.dateValue}" required></label>
+          <label>Time<input type="time" data-fx="time" value="${f.time || ''}"></label>
+          <input data-fx="v" value="${String(f.v || '').replace(/"/g,'&quot;')}" placeholder="Match (A vs B)" class="full-width">
+          <input data-fx="w" value="${String(f.w || '').replace(/"/g,'&quot;')}" placeholder="Venue">
+          <input data-fx="c" value="${String(f.c || '').replace(/"/g,'&quot;')}" placeholder="Competition">
+          <div class="full-width" style="border-top:1px solid var(--line);margin-top:10px;padding-top:10px;">
+            <label style="display:block;font-size:.8rem;margin-bottom:5px;">Final score (enter actual score)</label>
+            <div style="display:flex;gap:10px;">
+              <input type="number" min="0" data-fx="score_team" value="${f.score_team ?? ''}" placeholder="Our Score" style="flex:1;">
+              <input type="number" min="0" data-fx="score_opp" value="${f.score_opp ?? ''}" placeholder="Opponent Score" style="flex:1;">
               <select data-fx="status" style="flex:1;">
-                <option value="Upcoming" ${f.match_status !== 'Completed' ? 'selected' : ''}>Upcoming</option>
-                <option value="Completed" ${f.match_status === 'Completed' ? 'selected' : ''}>Completed</option>
+                <option value="Upcoming" ${String(f.match_status || '').toLowerCase() !== 'completed' ? 'selected' : ''}>Upcoming</option>
+                <option value="Completed" ${String(f.match_status || '').toLowerCase() === 'completed' ? 'selected' : ''}>Completed</option>
               </select>
             </div>
           </div>
-
           <div class="btn-row">
             <button class="btn p" data-save-fixture="${f.dbId}" type="button" style="padding:6px 14px;font-size:.82rem">Save</button>
             <button class="btn s" data-cancel-fixture="${f.dbId}" type="button" style="padding:6px 14px;font-size:.82rem">Cancel</button>
@@ -1061,31 +1165,36 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
     fxList.querySelectorAll('[data-save-fixture]').forEach(btn => {
       btn.addEventListener('click', async function(){
+        if (!isAdmin) return;
         const dbId = Number(this.dataset.saveFixture);
         const editDiv = fxList.querySelector(`[data-fixture-edit="${dbId}"]`);
-        const d = editDiv.querySelector('[data-fx="d"]').value.trim();
-        const mo = editDiv.querySelector('[data-fx="mo"]').value.trim();
+        const date = editDiv.querySelector('[data-fx="date"]').value;
+        const time = editDiv.querySelector('[data-fx="time"]').value || null;
         const v = editDiv.querySelector('[data-fx="v"]').value.trim();
         const w = editDiv.querySelector('[data-fx="w"]').value.trim();
         const c = editDiv.querySelector('[data-fx="c"]').value.trim();
-        const score_team = editDiv.querySelector('[data-fx="score_team"]').value.trim() || null;
-        const score_opp = editDiv.querySelector('[data-fx="score_opp"]').value.trim() || null;
-        const match_status = editDiv.querySelector('[data-fx="status"]').value;
-
-        const { error } = await supabaseClient.from('fixtures').update({ 
-          day: d, month: mo, match_name: v, venue: w, competition: c,
-          score_team: score_team, score_opp: score_opp, match_status: match_status
+        const scoreTeamText = editDiv.querySelector('[data-fx="score_team"]').value.trim();
+        const scoreOppText = editDiv.querySelector('[data-fx="score_opp"]').value.trim();
+        const score_team = scoreTeamText === '' ? null : Number(scoreTeamText);
+        const score_opp = scoreOppText === '' ? null : Number(scoreOppText);
+        let match_status = editDiv.querySelector('[data-fx="status"]').value;
+        if (!date) { alert('Please choose the full match date.'); return; }
+        if ((score_team === null) !== (score_opp === null)) { alert('Enter both scores, or leave both blank.'); return; }
+        const scheduledAt = new Date(`${date}T${time || '23:59'}:00`);
+        if (scheduledAt <= new Date() && score_team !== null && score_opp !== null) match_status = 'Completed';
+        const [year, month, day] = date.split('-').map(Number);
+        const monthText = monthNames[month - 1];
+        const { error } = await supabaseClient.from('fixtures').update({
+          match_date: date, match_time: time, day: String(day).padStart(2,'0'), month: monthText,
+          match_name: v, venue: w, competition: c, score_team, score_opp, match_status
         }).eq('id', dbId);
-        
-        if (error) { alert('Failed: ' + error.message); return; }
+        if (error) { alert('Could not save fixture. Run the supplied Supabase SQL migration first if match_date/match_time columns are missing. ' + error.message); return; }
         await loadAllDataFromSupabase();
       });
     });
-
     fxList.querySelectorAll('[data-cancel-fixture]').forEach(btn => {
       btn.addEventListener('click', function(){ fxList.querySelector(`[data-fixture-edit="${Number(this.dataset.cancelFixture)}"]`).style.display = 'none'; });
     });
-    
     fxList.querySelectorAll('[data-del-fixture]').forEach(btn => {
       btn.addEventListener('click', async function(){
         if (!isAdmin) return;
@@ -1106,9 +1215,13 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     const originalText = this.textContent;
     this.textContent = 'Adding…';
     try {
+      const now = new Date();
+      const defaultMatchDate = new Date(now);
+      defaultMatchDate.setDate(defaultMatchDate.getDate() + 1);
+      const monthText = defaultMatchDate.toLocaleString('en-US', { month: 'short' });
       const { error } = await supabaseClient.from('fixtures').insert({
-        session_id: session.id, day: String(new Date().getDate()).padStart(2, '0'),
-        month: new Date().toLocaleString('en-US', { month: 'short' }),
+        session_id: session.id, match_date: localDateString(defaultMatchDate), match_time: '18:00',
+        day: String(defaultMatchDate.getDate()).padStart(2, '0'), month: monthText,
         match_name: 'Department of Chemistry vs Opponent', venue: 'Away ground',
         competition: 'Inter-department cup', match_status: 'Upcoming'
       });
@@ -1135,7 +1248,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     selectedPlayer = currentPlayers().length ? currentPlayers()[0].n : 1;
     currentFormation = '4-3-3';
     fmEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.f === '4-3-3')));
-    slotRotations = {}; stopRotation(); refreshAll();
+    rotationStep = 0; stopRotation(); refreshAll();
   });
 
   function setAdmin(state){
@@ -1303,7 +1416,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
   document.getElementById('addPlayerBtn').addEventListener('click', () => {
     if (!isAdmin) return;
-    playerError.textContent = ''; document.getElementById('pNo').value = ''; document.getElementById('pName').value = ''; document.getElementById('pPos').value = '';
+    playerError.textContent = ''; document.getElementById('pNo').value = ''; document.getElementById('pName').value = ''; document.getElementById('pPos').value = ''; document.getElementById('pStudentSession').value = '';
     playerModal.classList.add('open');
   });
 
@@ -1315,16 +1428,37 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (!session) { alert('Please create a session first.'); return; }
     const no = Number(document.getElementById('pNo').value);
     const name = document.getElementById('pName').value.trim();
+    const studentSession = document.getElementById('pStudentSession').value.trim();
     const ln = document.getElementById('pLn').value;
     const pos = ln === 'manager' ? 'Manager' : (document.getElementById('pPos').value.trim() || 'Player');
     if (!no || no < 1 || no > 99) { playerError.textContent = 'Jersey number 1–99.'; return; }
     if (!name) { playerError.textContent = 'Name required.'; return; }
-    const { error } = await supabaseClient.from('players').insert({ session_id: session.id, jersey_no: no, name, position: pos, line: ln });
+    const { error } = await supabaseClient.from('players').insert({ session_id: session.id, jersey_no: no, name, position: pos, line: ln, student_session: studentSession || null });
     if (error) { playerError.textContent = error.message; return; }
-    const slot = { n: no, r: ln === 'gk' ? 'GK' : ln === 'def' ? 'CB' : ln === 'mid' ? 'MID' : 'CF', x: 50, y: 50 };
-    Object.keys(FORMATIONS).forEach(fk => FORMATIONS[fk].push({ ...slot }));
+    // Squad roster and pitch formation are separate: adding a squad player must not add a 12th pitch slot.
     playerModal.classList.remove('open');
     await loadAllDataFromSupabase();
+  });
+
+  const heroPhotoInput = document.getElementById('heroPhotoInput');
+  const heroPhoto = document.getElementById('heroPhoto');
+  const heroPhotoBtn = document.getElementById('heroPhotoBtn');
+  const HERO_PHOTO_PATH = 'hero-card/hero-image';
+  function showHeroPhoto(url) { if (!url) return; heroPhoto.src = url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now(); heroPhoto.hidden = false; document.getElementById('heroTile').classList.add('has-hero-photo'); }
+  // Stable public object path lets every visitor see the same uploaded hero image.
+  const initialHeroUrl = supabaseClient.storage.from('player-photos').getPublicUrl(HERO_PHOTO_PATH).data.publicUrl;
+  showHeroPhoto(initialHeroUrl);
+  heroPhotoBtn.addEventListener('click', () => { if (isAdmin) heroPhotoInput.click(); });
+  heroPhotoInput.addEventListener('change', async function() {
+    if (!isAdmin) { this.value = ''; return; }
+    const file = this.files && this.files[0]; if (!file) return;
+    if (!file.type.startsWith('image/')) { showToast('Please choose an image file.'); return; }
+    if (file.size > 8 * 1024 * 1024) { showToast('Image must be 8 MB or smaller.'); return; }
+    heroPhotoBtn.disabled = true; heroPhotoBtn.textContent = 'Uploading…';
+    const { error } = await supabaseClient.storage.from('player-photos').upload(HERO_PHOTO_PATH, file, { upsert: true, contentType: file.type, cacheControl: '0' });
+    if (error) showToast('Hero photo upload failed: ' + error.message);
+    else { showHeroPhoto(initialHeroUrl); showToast('Hero photo updated for visitors.'); }
+    heroPhotoBtn.disabled = false; heroPhotoBtn.textContent = 'Upload hero photo'; this.value = '';
   });
 
   let pendingPhotoDbId = null;
