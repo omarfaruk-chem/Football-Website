@@ -85,6 +85,11 @@
     .tile.has-hero-photo > .top, .tile.has-hero-photo > b, .tile.has-hero-photo > .t, .tile.has-hero-photo > .u { display:none; }
     .tile.has-hero-photo .hero-photo { opacity:1; }
     .hero-photo-btn { position:relative; z-index:3; margin-top:10px; padding:6px 9px; border:1px solid #fff; border-radius:4px; background:rgba(0,0,0,.55); color:#fff; cursor:pointer; font:600 .72rem var(--f); }
+    /* Hero photo fix: keep the photo inside the card and pin the admin button over it */
+    .tile { overflow: hidden; }
+    .hero-photo { object-position: center 25%; }
+    .tile.has-hero-photo { background: #0b1119; }
+    .tile.has-hero-photo .hero-photo-btn { position: absolute; right: 10px; bottom: 10px; margin: 0; }
 
     section { padding: 68px 0; border-top: 1px solid var(--line); }
     h2 { font-size: clamp(1.9rem, 4.4vw, 2.9rem); line-height: 1.05; letter-spacing: -.03em; font-weight: 800; margin: 0 0 10px; }
@@ -108,7 +113,7 @@
     .tl:has(img.tile-photo) > b { display: none; }
     .tl .nm { position: absolute; bottom: calc(100% + 3px); left: 50%; transform: translateX(-50%); max-width: 180%; overflow: hidden; text-overflow: ellipsis; background: var(--g); color: #fff; font: 600 max(9px,2.3cqw)/1.1 var(--f); padding: 3px 5px; white-space: nowrap; border-radius: 3px; z-index: 8; }
     .tl.on { background: var(--gold); box-shadow: 0 0 0 3px var(--g); z-index: 2; }
-    .tl .cap { position: absolute; top: -8px; right: -8px; width: 17px; height: 17px; border-radius: 50%; background: #fff; border: 2px solid var(--g); font: 700 9px/13px var(--m); text-align: center; z-index: 4; }
+    .tl .cap { position: absolute; top: -9px; right: -9px; width: 21px; height: 21px; border-radius: 50%; background: #ffd028; color: #111; border: 2px solid #111; font: 800 11px/17px var(--f); text-align: center; z-index: 9; box-shadow: 0 1px 4px rgba(0,0,0,.45); }
     .lb { font: 400 .74rem var(--m); letter-spacing: .16em; text-transform: uppercase; color: var(--mute); margin: 0 0 10px; }
     .fm { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
     .fm button { font: 600 .95rem var(--m); letter-spacing: .08em; padding: 12px 18px; border: 2px solid var(--g); background: var(--card); color: var(--g); cursor: pointer; }
@@ -285,6 +290,12 @@
       .fx li { align-items: flex-start; }
     }
     @media(prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .tile { animation: none; } }
+      /* ---- Squad order controls ---- */
+    .move-btn { padding: 4px 8px; border: 1px solid var(--ink); border-radius: 4px; background: #fff; color: var(--ink); font: 700 .75rem var(--m); cursor: pointer; line-height: 1.2; }
+    .move-btn:disabled { opacity: .3; cursor: default; }
+    body.is-admin #sheet tr[data-manager] { cursor: default; }
+    #squad td.actions-cell { min-width: 220px; }
+    #squad .cap-badge { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-left: 8px; border-radius: 50%; background: var(--green); color: #fff; font: 700 .72rem/1 var(--m); vertical-align: middle; }
   </style>
 </head>
 <body>
@@ -364,7 +375,7 @@
 
   <section id="squad">
     <h2>The squad <span class="tag" id="squadTag">Season</span></h2>
-    <p class="sub">Starting XI appears first; all remaining registered players are listed as extra squad members. The student session (e.g., 2021-22) is shown for every player.</p>
+    <p class="sub">The manager is listed first. Players follow in squad order: the first player after the manager (SL 2) is always the captain (green C badge). The first 11 players after the manager (SL 2 to SL 12) are the Starting XI. Everyone after them is a substitute who rotates in for a starter of the same position, one at a time.</p>
     <div class="chips" id="chips" role="group" aria-label="Filter by position">
       <button class="chip" data-f="all" aria-pressed="true">All</button>
       <button class="chip" data-f="gk" aria-pressed="false">Goalkeeper</button>
@@ -385,7 +396,7 @@
       <button class="btn s" id="toggleSessionBtn" type="button">Hide/Show current session</button>
       <button class="btn s" id="addPlayerBtn" type="button">+ Add player</button>
     </div>
-    <p class="note admin-only" style="margin-top:12px">As admin you can add new seasons, hide old ones, and edit any player row inline (double-click a row or use the Edit button).</p>
+    <p class="note admin-only" style="margin-top:12px">As admin you can add new seasons, hide old ones, and edit any player row inline (double-click a row or use the Edit button). Drag a row, or use the ▲ ▼ buttons, to change the squad order. It is saved automatically for everyone; whoever is at SL 2 becomes captain.</p>
   </section>
 
   <section id="admin-requests-section" class="admin-only" style="display: none; border-top: 2px solid var(--line); padding: 40px 0;">
@@ -482,7 +493,10 @@
     <form id="loginForm">
       <label for="luser">Email</label>
       <input id="luser" type="email" autocomplete="username" required>
-      <label for="lpass">Password</label>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin: 14px 0 4px;">
+        <label for="lpass" style="margin: 0;">Password</label>
+        <a href="#" id="forgotPasswordLink" style="font-size: .8rem; color: var(--cobalt); text-decoration: none; font-weight: 600;">Forgot?</a>
+      </div>
       <input id="lpass" type="password" autocomplete="current-password" required>
       
       <div style="display: flex; align-items: center; gap: 8px; margin-top: 14px;">
@@ -499,6 +513,44 @@
     <p style="margin-top: 20px; text-align: center; font-size: .9rem;">
       Don't have an account? <a href="#" id="goToRegister" style="color: var(--cobalt); font-weight: bold; text-decoration: none;">Request Registration</a>
     </p>
+  </div>
+</div>
+
+<!-- Reset Password Modal -->
+<div class="modal-bg" id="resetPasswordModal">
+  <div class="modal">
+    <button class="close" id="closeResetPassword" aria-label="Close">&times;</button>
+    <h3>Reset Password</h3>
+    <p>Enter your admin email and we'll send you a link to reset your password.</p>
+    <form id="resetPasswordForm">
+      <label for="resetEmail">Email</label>
+      <input id="resetEmail" type="email" autocomplete="email" required>
+      <div class="error" id="resetError"></div>
+      <div class="row">
+        <button class="btn p" type="submit">Send Reset Link</button>
+        <button class="btn s" type="button" id="cancelResetPassword">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- New Password Modal (opens after the user clicks the email reset link) -->
+<div class="modal-bg" id="newPasswordModal">
+  <div class="modal">
+    <button class="close" id="closeNewPassword" aria-label="Close">&times;</button>
+    <h3>Set new password</h3>
+    <p>Choose a new password for your admin account.</p>
+    <form id="newPasswordForm">
+      <label for="recoverPass">New password</label>
+      <input id="recoverPass" type="password" autocomplete="new-password" minlength="6" required>
+      <label for="recoverPass2">Confirm password</label>
+      <input id="recoverPass2" type="password" autocomplete="new-password" minlength="6" required>
+      <div class="error" id="recoverError"></div>
+      <div class="row">
+        <button class="btn p" type="submit">Save password</button>
+        <button class="btn s" type="button" id="cancelNewPassword">Cancel</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -649,7 +701,6 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   };
 
   const ROLE_NAMES = { GK:'Goalkeeper', RB:'Right back', LB:'Left back', CB:'Centre-back', CB1:'Centre-back 1', CB2:'Centre-back 2', CB3:'Centre-back 3', DM:'Defensive midfielder', CM:'Central midfielder', MID:'Midfielder', CMF:'Central midfielder', LMF:'Left midfielder', RMF:'Right midfielder', LM:'Left midfielder', RM:'Right midfielder', LW:'Left winger', RW:'Right winger', CF:'Centre forward', ST:'Striker', LWB:'Left wing-back', RWB:'Right wing-back', Manager:'Manager' };
-  const CAPTAIN_NO = 1;
 
   const $ = s => document.querySelector(s);
   const pitch = $('#pitch');
@@ -718,7 +769,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       id: s.id,
       name: s.name,
       visible: s.visible,
-      players: (playersData || []).filter(p => p.session_id === s.id).map(p => ({ dbId: p.id, n: p.jersey_no, name: p.name, pos: p.position, ln: p.line, img: p.photo_url || '', studentSession: p.student_session || '' })),
+      players: (playersData || []).filter(p => p.session_id === s.id).map(p => ({ dbId: p.id, n: p.jersey_no, name: p.name, pos: p.position, ln: p.line, img: p.photo_url || '', studentSession: p.student_session || '', order: (p.squad_order ?? null) })),
       fixtures: (fixturesData || []).filter(f => f.session_id === s.id).map(f => ({ 
         dbId: f.id, d: f.day, mo: f.month, date: f.match_date || legacyFixtureDate(f.day, f.month), time: (f.match_time || '').slice(0,5), v: f.match_name, w: f.venue, c: f.competition,
         score_team: f.score_team, score_opp: f.score_opp, match_status: f.match_status 
@@ -748,9 +799,20 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   let rotationStep = 0;
 
   function playerId(p) { return String(p?.dbId ?? `jersey-${p?.n}`); }
+  function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function normPos(p) { return String(p?.pos || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
   function isManagerPlayer(p) { return String(p?.ln || '').toLowerCase() === 'manager' || String(p?.pos || '').toLowerCase() === 'manager'; }
   function lineKey(p) { return String(p?.ln || '').toLowerCase(); }
+  // Squad order = priority list. Saved in the database (players.squad_order) so everyone sees the same order.
+  function sortedRoster() {
+    return currentPlayers().filter(p => !isManagerPlayer(p)).slice().sort((a,b) =>
+      (a.order ?? 999999) - (b.order ?? 999999) ||
+      Number(a.n || 0) - Number(b.n || 0) ||
+      String(a.dbId ?? '').localeCompare(String(b.dbId ?? '')));
+  }
+  // The captain is ALWAYS the first player after the manager (SL 2).
+  function getCaptain() { return sortedRoster()[0] || null; }
+  function isCaptainPlayer(p) { const c = getCaptain(); return !!(c && p && !isManagerPlayer(p) && playerId(c) === playerId(p)); }
   function isDefenderSlot(r) { return ['RB','LB','CB','CB1','CB2','CB3','LWB','RWB'].includes(r); }
   function isMidfieldSlot(r) { return ['DM','CM','MID','CMF','LMF','RMF','LM','RM'].includes(r); }
   function isForwardSlot(r) { return ['LW','RW','CF','ST','FW'].includes(r); }
@@ -808,37 +870,47 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
   function getLineupData() {
     const formation = FORMATIONS[currentFormation] || FORMATIONS['4-3-3'];
-    const roster = currentPlayers().filter(p => !isManagerPlayer(p)).slice().sort((a,b) => Number(a.n || 0) - Number(b.n || 0));
+    const roster = sortedRoster();                 // squad order (not jersey order)
+    const xiPool = roster.slice(0, 11);            // the first 11 players in the order ARE the Starting XI
     const used = new Set();
     const assignments = new Map();
-    // Pass 1: reserve exact/compatible-position players for their matching slots.
+    const captain = roster[0] || null;
+    // Pass 0: the captain always starts in the XI (he rotates with substitutes like everyone else). Best matching slot first, then same line, then any outfield slot.
+    if (captain) {
+      const capSlot = formation.find(s => matchesSlot(captain, s, xiPool))
+        || formation.find(s => lineKey(captain) === slotLine(s.r))
+        || formation.find(s => s.r !== 'GK');
+      if (capSlot) { assignments.set(capSlot, captain); used.add(playerId(captain)); }
+    }
+    // Pass 1: earlier in the squad order gets priority for each matching slot.
     formation.forEach(slot => {
-      const candidate = roster.find(p => !used.has(playerId(p)) && matchesSlot(p, slot, roster));
+      if (assignments.has(slot)) return;
+      const candidate = xiPool.find(p => !used.has(playerId(p)) && matchesSlot(p, slot, xiPool));
       if (candidate) { assignments.set(slot, candidate); used.add(playerId(candidate)); }
     });
     // Pass 2: fill still-empty slots with players from the same broad line (GK/DEF/MID/FWD).
     formation.forEach(slot => {
       if (assignments.has(slot)) return;
       const expectedLine = slotLine(slot.r);
-      const candidate = roster.find(p => !used.has(playerId(p)) && lineKey(p) === expectedLine);
+      const candidate = xiPool.find(p => !used.has(playerId(p)) && lineKey(p) === expectedLine);
       if (candidate) { assignments.set(slot, candidate); used.add(playerId(candidate)); }
     });
-    // Pass 3: only if positions/lines are incomplete, fill remaining slots with any unused player.
+    // Pass 3: remaining slots get any unused XI player, in squad order.
     formation.forEach(slot => {
       if (assignments.has(slot)) return;
-      const candidate = roster.find(p => !used.has(playerId(p)));
+      const candidate = xiPool.find(p => !used.has(playerId(p)));
       if (candidate) { assignments.set(slot, candidate); used.add(playerId(candidate)); }
     });
-    const bench = roster.filter(p => !used.has(playerId(p)));
+    const bench = roster.slice(11);                // everyone after the first 11 = substitutes
     const rotationPairs = [];
-    const rotationSlots = formation.slice().sort((a,b) => a.x - b.x); // rotate left-to-right, then restore the starter
+    const rotationSlots = formation.slice().sort((a,b) => a.x - b.x);
     bench.forEach(sub => {
       rotationSlots.forEach(slot => {
         const starter = assignments.get(slot);
         if (starter && canRotateIntoSlot(sub, slot, roster)) rotationPairs.push({ sub, slot, starter });
       });
     });
-    return { formation, roster, assignments, bench, rotationPairs };
+    return { formation, roster, assignments, bench, rotationPairs, captain };
   }
 
   function renderPitch(){
@@ -862,25 +934,23 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
     // Every 3-second cycle rotates all eligible positions simultaneously.
     // Odd steps show substitutes; even steps restore the starting XI.
+    // Rotation (every 3 s): even steps show the normal XI, odd steps show ONE swap per substitute.
+    // Example: extra CB swaps with CB #1 (3 s) -> back to XI (3 s) -> swaps with CB #2 (3 s) -> back ...
+    // Every substitute runs its own cycle at the same time, so it works for every position.
     const activePairs = new Map();
     if (rotationStep > 0 && rotationStep % 2 === 1 && rotationPairs.length) {
-      const bySlot = new Map();
+      const cycleIndex = Math.floor((rotationStep - 1) / 2);
+      const bySub = new Map();
       rotationPairs.forEach(pair => {
-        if (!bySlot.has(pair.slot)) bySlot.set(pair.slot, []);
-        bySlot.get(pair.slot).push(pair);
+        const k = playerId(pair.sub);
+        if (!bySub.has(k)) bySub.set(k, []);
+        bySub.get(k).push(pair);
       });
-      const usedSubs = new Set();
-      formation.forEach(slot => {
-        const options = bySlot.get(slot) || [];
-        if (!options.length) return;
-        const cycleIndex = Math.floor((rotationStep - 1) / 2);
-        for (let offset = 0; offset < options.length; offset++) {
-          const candidate = options[(cycleIndex + offset) % options.length];
-          if (!usedSubs.has(playerId(candidate.sub))) {
-            activePairs.set(slot, candidate);
-            usedSubs.add(playerId(candidate.sub));
-            break;
-          }
+      const takenSlots = new Set();
+      bySub.forEach(options => {
+        for (let off = 0; off < options.length; off++) {
+          const cand = options[(cycleIndex + off) % options.length];
+          if (!takenSlots.has(cand.slot)) { activePairs.set(cand.slot, cand); takenSlots.add(cand.slot); break; }
         }
       });
     }
@@ -893,10 +963,10 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'tl'; b.dataset.n = p.n;
       b.style.left = slot.x + '%'; b.style.top = slot.y + '%';
-      const isCaptain = Number(p.n) === CAPTAIN_NO;
+      const isCaptain = isCaptainPlayer(p);
       const imgTag = p.img ? `<img src="${p.img}" class="tile-photo" alt="">` : '';
       if (!p.img) b.classList.add('no-img');
-      b.innerHTML = imgTag + `<span class="n">${p.n}</span><b>${sym(p.name)}</b><span class="r">${slot.r}</span><span class="nm">${(String(p.name || '').split(' ')[0] || '')}</span>` + (isCaptain ? '<span class="cap">C</span>' : '');
+      b.innerHTML = imgTag + `<span class="n">${p.n}</span><b>${sym(p.name)}</b><span class="r">${slot.r}</span><span class="nm">${(String(p.name || '').split(' ')[0] || '')}</span>` + (isCaptain ? '<span class="cap" title="Captain">C</span>' : '');
       b.setAttribute('aria-label', `${p.name}, ${ROLE_NAMES[slot.r] || slot.r}, number ${p.n}`);
       b.setAttribute('aria-pressed', String(Number(p.n) === Number(selectedPlayer)));
       if (Number(p.n) === Number(selectedPlayer)) b.classList.add('on');
@@ -935,7 +1005,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     const lineup = getLineupData();
     const slot = [...lineup.assignments.entries()].find(([s, assigned]) => playerId(assigned) === playerId(p))?.[0];
     const roleLabel = isManager ? 'Manager' : (slot ? (ROLE_NAMES[slot.r] || slot.r) : p.pos);
-    const isCaptain = !isManager && p.n === CAPTAIN_NO;
+    const isCaptain = !isManager && isCaptainPlayer(p);
 
     const photoBlock = p.img ? `<img src="${p.img}" alt="${p.name}" class="player-photo">` : `<div class="photo-fallback"><b>${sym(p.name)}</b></div>`;
 
@@ -974,60 +1044,100 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     startRotation();
     fmEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
     refreshLineup();
+    renderSquad();
   });
 
+  // Rewrites squad_order (1..n) for every player whose position changed, then saves to Supabase.
+  let savingOrder = false;
+  async function persistOrder(ids) {
+    const session = getActiveSession(); if (!session) return;
+    const changed = [];
+    ids.forEach((id, i) => {
+      const p = session.players.find(x => playerId(x) === id);
+      if (p && p.order !== i + 1) { p.order = i + 1; changed.push(p); }
+    });
+    if (!changed.length) return;
+    refreshLineup(); renderSquad();                // instant feedback (captain / XI update immediately)
+    savingOrder = true;
+    const results = await Promise.all(changed.map(p => supabaseClient.from('players').update({ squad_order: p.order }).eq('id', p.dbId)));
+    savingOrder = false;
+    const failed = results.find(r => r.error);
+    if (failed) {
+      showToast('Order NOT saved: ' + failed.error.message + (/squad_order/i.test(failed.error.message) ? ' (run the SQL file first)' : ''));
+      await loadAllDataFromSupabase();
+      return;
+    }
+    const cap = getCaptain();
+    showToast('Squad order saved.' + (cap ? ' Captain: ' + cap.name : ''));
+  }
+
   function renderSquad(){
-    const { roster, assignments } = getLineupData();
+    const { roster, assignments, captain } = getLineupData();
     const startingIds = new Set(Array.from(assignments.values()).map(playerId));
     const managers = currentPlayers().filter(isManagerPlayer);
-    const savedOrder = JSON.parse(localStorage.getItem('chem_squad_order_' + (getActiveSession()?.name || 'default')) || '[]');
-    const orderIndex = id => { const i = savedOrder.indexOf(playerId(id)); return i < 0 ? 999999 : i; };
-    const starters = roster.filter(p => startingIds.has(playerId(p))).sort((a,b) => orderIndex(a)-orderIndex(b) || Number(a.n || 0)-Number(b.n || 0));
-    const extras = roster.filter(p => !startingIds.has(playerId(p))).sort((a,b) => orderIndex(a)-orderIndex(b) || Number(a.n || 0)-Number(b.n || 0));
-    const players = [...starters, ...extras, ...managers];
-    const sessionName = getActiveSession()?.name || '—';
+    const players = [...managers, ...roster];       // manager(s) = SL 1, first player = SL 2 = captain
     let html = '';
     players.forEach((p, index) => {
+      const pid = playerId(p);
       const isManager = isManagerPlayer(p);
-      const isStarter = !isManager && startingIds.has(playerId(p));
-      const isCaptain = !isManager && Number(p.n) === CAPTAIN_NO;
-      const photoCell = p.img ? `<img src="${p.img}" alt="" style="width:34px;height:30px;object-fit:cover;border:2px solid var(--ink)">` : `<span>${sym(p.name)}</span>`;
-        const line = String(p.ln || '').toLowerCase();
-      html += `<tr draggable="${isAdmin ? 'true' : 'false'}" class="${isStarter ? 'starter-row' : 'extra-row'}" data-l="${isManager ? 'manager' : p.ln}" data-n="${p.n}" data-player-id="${playerId(p)}">
+      const isStarter = !isManager && startingIds.has(pid);
+      const isCaptain = !isManager && !!captain && playerId(captain) === pid;
+      const rIdx = isManager ? -1 : roster.indexOf(p);
+      const photoCell = p.img ? `<img src="${esc(p.img)}" alt="" style="width:34px;height:30px;object-fit:cover;border:2px solid var(--ink)">` : `<span>${esc(sym(p.name))}</span>`;
+      const line = String(p.ln || '').toLowerCase();
+      const moveBtns = isManager ? '' :
+        `<button class="move-btn" data-move="up" data-pid="${esc(pid)}" type="button" title="Move up"${rIdx === 0 ? ' disabled' : ''}>▲</button>` +
+        `<button class="move-btn" data-move="down" data-pid="${esc(pid)}" type="button" title="Move down"${rIdx === roster.length - 1 ? ' disabled' : ''}>▼</button>`;
+      html += `<tr draggable="${isAdmin && !isManager ? 'true' : 'false'}" class="${isStarter ? 'starter-row' : 'extra-row'}" data-l="${esc(isManager ? 'manager' : p.ln)}" ${isManager ? 'data-manager="1"' : ''} data-n="${esc(p.n)}" data-player-id="${esc(pid)}">
         <td class="num">${index + 1}</td>
-        <td class="num">${isManager ? '—' : (p.n ?? '—')}</td>
+        <td class="num">${isManager ? '—' : esc(p.n ?? '—')}</td>
         <td class="sym">${photoCell}</td>
-        <td>${p.name || 'Unnamed'}${isCaptain ? '<span class="cn">C</span>' : ''}</td>
-        <td>${isManager ? 'Manager' : (p.pos || '—')}</td>
-        <td class="mono">${p.studentSession || '—'}</td>
-        <td class="admin-only actions-cell"><div class="squad-actions"><button class="edit-player-btn" data-edit-player="${p.n}" type="button">Edit</button><button class="del-btn" data-del-player="${p.dbId}" type="button">Del</button></div></td>
+        <td>${esc(p.name || 'Unnamed')}${isCaptain ? '<span class="cap-badge" title="Captain">C</span>' : ''}</td>
+        <td>${isManager ? 'Manager' : esc(p.pos || '—')}</td>
+        <td class="mono">${esc(p.studentSession || '—')}</td>
+        <td class="admin-only actions-cell"><div class="squad-actions">${moveBtns}<button class="edit-player-btn" data-edit-player="${esc(pid)}" type="button">Edit</button><button class="del-btn" data-del-player="${esc(p.dbId)}" type="button">Del</button></div></td>
       </tr>`;
-      html += `<tr class="edit-row" data-edit-for="${p.n}" style="display:none"><td colspan="7"><div class="squad-edit-fields">
-        <label>Jersey <input data-edit="n" value="${p.n ?? ''}" type="number" min="1" max="99" style="width:75px"></label>
-        <label>Name <input data-edit="name" value="${String(p.name || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" style="min-width:140px"></label>
-        <label>Position <input data-edit="pos" value="${String(p.pos || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" style="min-width:120px"></label>
-        <label>Session <input data-edit="studentSession" value="${String(p.studentSession || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" placeholder="2021-22" maxlength="20" style="width:110px"></label>
+      html += `<tr class="edit-row" data-edit-for="${esc(pid)}" style="display:none"><td colspan="7"><div class="squad-edit-fields">
+        <label>Jersey <input data-edit="n" value="${esc(p.n ?? '')}" type="number" min="1" max="99" style="width:75px"></label>
+        <label>Name <input data-edit="name" value="${esc(p.name)}" style="min-width:140px"></label>
+        <label>Position <input data-edit="pos" value="${esc(p.pos)}" style="min-width:120px"></label>
+        <label>Session <input data-edit="studentSession" value="${esc(p.studentSession)}" placeholder="2021-22" maxlength="20" style="width:110px"></label>
         <label>Line <select data-edit="ln"><option value="gk"${line==='gk'?' selected':''}>Goalkeeper</option><option value="def"${line==='def'?' selected':''}>Defender</option><option value="mid"${line==='mid'?' selected':''}>Midfielder</option><option value="fwd"${line==='fwd'?' selected':''}>Forward</option><option value="manager"${line==='manager'?' selected':''}>Manager</option></select></label>
-        <button data-save="${p.dbId}" type="button">Save</button><button class="cancel" data-cancel="${p.dbId}" type="button">Cancel</button>
+        <button data-save="${esc(p.dbId)}" type="button">Save</button><button class="cancel" data-cancel="${esc(p.dbId)}" type="button">Cancel</button>
       </div></td></tr>`;
     });
     sheetBody.innerHTML = html;
 
     if (isAdmin) {
-      let draggedRow = null;
-      sheetBody.querySelectorAll('tr[data-l]').forEach(row => {
-        row.addEventListener('dragstart', e => { draggedRow = row; row.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
-        row.addEventListener('dragend', () => { if (draggedRow) draggedRow.classList.remove('dragging'); draggedRow = null; });
-        row.addEventListener('dragover', e => { e.preventDefault(); if (!draggedRow || draggedRow === row) return; const box = row.getBoundingClientRect(); sheetBody.insertBefore(draggedRow, e.clientY < box.top + box.height/2 ? row : row.nextSibling); });
-        row.addEventListener('drop', e => { e.preventDefault(); const rows = [...sheetBody.querySelectorAll('tr[data-l]')]; const order = rows.map(r => r.dataset.playerId); localStorage.setItem('chem_squad_order_' + (getActiveSession()?.name || 'default'), JSON.stringify(order)); showToast('Squad order saved in this browser.'); });
+      let dragged = null;
+      const editRowFor = pid => sheetBody.querySelector(`tr[data-edit-for="${CSS.escape(pid)}"]`);
+      const domOrder = () => [...sheetBody.querySelectorAll('tr[data-player-id]:not([data-manager])')].map(r => r.dataset.playerId);
+      sheetBody.querySelectorAll('tr[data-player-id]:not([data-manager])').forEach(row => {
+        row.addEventListener('dragstart', e => { dragged = row; row.classList.add('dragging'); if (e.dataTransfer) { e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', row.dataset.playerId); } catch(_) {} } });
+        row.addEventListener('dragover', e => {
+          e.preventDefault();
+          if (!dragged || dragged === row) return;
+          const box = row.getBoundingClientRect();
+          const before = e.clientY < box.top + box.height / 2;
+          // Move the player row AND its hidden edit row together so they never get separated.
+          const ref = before ? row : (editRowFor(row.dataset.playerId)?.nextSibling || null);
+          sheetBody.insertBefore(dragged, ref);
+          const er = editRowFor(dragged.dataset.playerId);
+          if (er) dragged.after(er);
+        });
+        row.addEventListener('drop', e => e.preventDefault());
+        // dragend always fires (even if dropped outside a row), so the order is always saved.
+        row.addEventListener('dragend', () => {
+          row.classList.remove('dragging');
+          if (!dragged) return;
+          dragged = null;
+          persistOrder(domOrder());
+        });
       });
-    }
-
-    if (isAdmin) {
-      sheetBody.querySelectorAll('tr[data-l]').forEach(row => {
-        row.style.cursor = 'pointer';
+      sheetBody.querySelectorAll('tr[data-player-id]').forEach(row => {
+        row.style.cursor = row.hasAttribute('data-manager') ? 'default' : 'grab';
         row.addEventListener('dblclick', function(){
-          const editRow = sheetBody.querySelector(`tr[data-edit-for="${this.dataset.n}"]`);
+          const editRow = editRowFor(this.dataset.playerId);
           if (editRow) editRow.style.display = editRow.style.display === 'table-row' ? 'none' : 'table-row';
         });
       });
@@ -1036,6 +1146,17 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
   // Squad table actions are delegated because the table rows are rebuilt after each update.
   sheetBody.addEventListener('click', async function(e) {
+    const moveBtn = e.target.closest('[data-move]');
+    if (moveBtn) {
+      if (!isAdmin || moveBtn.disabled) return;
+      const ids = sortedRoster().map(playerId);
+      const i = ids.indexOf(moveBtn.dataset.pid);
+      const j = moveBtn.dataset.move === 'up' ? i - 1 : i + 1;
+      if (i < 0 || j < 0 || j >= ids.length) return;
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+      persistOrder(ids);
+      return;
+    }
     const editBtn = e.target.closest('[data-edit-player]');
     if (editBtn) {
       if (!isAdmin) return;
@@ -1097,10 +1218,90 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       const line = String(row.dataset.l || '').toLowerCase();
       const show = filter === 'all' || line === filter;
       row.hidden = !show;
-      const editRow = sheetBody.querySelector(`tr[data-edit-for="${row.dataset.n}"]`);
-      if (editRow && !show) editRow.hidden = true;
+      const editRow = sheetBody.querySelector(`tr[data-edit-for="${CSS.escape(row.dataset.playerId)}"]`);
+      if (editRow) editRow.hidden = !show;
     });
   });
+
+  // ---------- REGISTRATION LOGIC (restored: this block was missing, so Register did nothing and admin login threw an error) ----------
+  const registerModal = document.getElementById('registerModal');
+  const registerError = document.getElementById('registerError');
+
+  document.getElementById('goToRegister').addEventListener('click', (e) => {
+    e.preventDefault(); loginModal.classList.remove('open'); document.getElementById('registerBtn').click();
+  });
+
+  document.getElementById('registerBtn').addEventListener('click', () => {
+    registerError.textContent = ''; document.getElementById('rName').value = ''; document.getElementById('rEmail').value = ''; document.getElementById('rPass').value = '';
+    registerModal.classList.add('open');
+  });
+
+  document.getElementById('closeRegister').onclick = () => registerModal.classList.remove('open');
+  document.getElementById('cancelRegister').onclick = () => registerModal.classList.remove('open');
+
+  document.getElementById('submitRegisterBtn').addEventListener('click', async () => {
+    const name = document.getElementById('rName').value.trim();
+    const email = document.getElementById('rEmail').value.trim();
+    const pass = document.getElementById('rPass').value;
+
+    if (!name || !email || !pass) { registerError.textContent = 'All fields are required.'; return; }
+    if (pass.length < 6) { registerError.textContent = 'Password must be at least 6 characters.'; return; }
+
+    const { data: existingData, error: checkError } = await supabaseClient.from('admin_requests').select('id, status').eq('email', email);
+    if (checkError) { registerError.textContent = 'Something went wrong. Please try again.'; return; }
+
+    if (existingData && existingData.length > 0) {
+      const status = existingData[0].status;
+      if (status.startsWith('pending')) { registerError.textContent = 'This email is already registered and pending approval.'; return; }
+      else if (status === 'approved') { registerError.textContent = 'This email is already approved! Please go to Login.'; return; }
+      else if (status === 'rejected') { registerError.textContent = 'This email was previously rejected. Please contact the admin.'; return; }
+    }
+
+    const { error } = await supabaseClient.from('admin_requests').insert({ name: name, email: email, status: 'pending_' + btoa(pass) });
+    if (error) {
+      if (error.code === '23505') { registerError.textContent = 'This email is already registered.'; }
+      else { registerError.textContent = error.message; }
+    } else {
+      showToast('Request submitted! Waiting for admin approval.');
+      registerModal.classList.remove('open');
+      localStorage.setItem('chem_pending_email', email);
+    }
+  });
+
+  // ---------- ADMIN REQUESTS HANDLING (restored) ----------
+  async function loadAdminRequests() {
+    const { data, error } = await supabaseClient.from('admin_requests').select('*').like('status', 'pending%').order('created_at', { ascending: false });
+    if (error) { console.error(error); return; }
+    const sheet = document.getElementById('requestSheet');
+    if (!data || data.length === 0) { sheet.innerHTML = '<tr><td colspan="4">No pending requests.</td></tr>'; return; }
+
+    sheet.innerHTML = data.map(req => `
+      <tr>
+        <td>${req.name}</td><td>${req.email}</td>
+        <td style="color:var(--amber);font-weight:bold;">Pending</td>
+        <td>
+          <button class="btn p" style="padding:4px 10px;font-size:.8rem;" onclick="approveRequest(${req.id}, '${req.email}', '${req.status}', '${req.name}')">Approve</button>
+          <button class="del-btn" onclick="rejectRequest(${req.id})">Reject</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  window.approveRequest = async function(reqId, email, encodedStatus, name) {
+    const password = atob(encodedStatus.replace('pending_', ''));
+    if(!confirm(`Create admin account for ${email} and send credentials via email?`)) return;
+
+    const { data, error } = await supabaseClient.functions.invoke('bright-worker', { body: { email: email, password: password, name: name } });
+    if (error) {
+      let msg = error.message;
+      try { const errorBody = await error.context.json(); msg = errorBody.error || msg; } catch(e) {}
+      alert('Failed to create user: ' + msg); return;
+    }
+
+    await supabaseClient.from('admin_requests').update({ status: 'approved' }).eq('id', reqId);
+    alert(`✅ Admin account created for ${email} and credentials emailed!`);
+    loadAdminRequests();
+  }
 
   window.rejectRequest = async function(reqId) {
     if(!confirm("Reject this request?")) return;
@@ -1273,7 +1474,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
   sessionSelect.addEventListener('change', function(){
     activeSessionName = this.value;
-    selectedPlayer = currentPlayers().length ? currentPlayers()[0].n : 1;
+    selectedPlayer = (getCaptain() || currentPlayers()[0])?.n ?? 1;
     currentFormation = '4-3-3';
     fmEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.f === '4-3-3')));
     rotationStep = 0; stopRotation(); refreshAll();
@@ -1355,6 +1556,83 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     } finally {
       btn.textContent = 'Update Password'; btn.disabled = false;
     }
+  });
+
+  // ---------- RESET PASSWORD LOGIC ----------
+  const resetPasswordModal = document.getElementById('resetPasswordModal');
+  const resetError = document.getElementById('resetError');
+  const newPasswordModal = document.getElementById('newPasswordModal');
+  const recoverError = document.getElementById('recoverError');
+
+  document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
+    e.preventDefault();
+    loginModal.classList.remove('open');
+    document.getElementById('resetEmail').value = document.getElementById('luser').value || '';
+    resetError.textContent = '';
+    resetPasswordModal.classList.add('open');
+  });
+
+  document.getElementById('closeResetPassword').onclick = () => resetPasswordModal.classList.remove('open');
+  document.getElementById('cancelResetPassword').onclick = () => resetPasswordModal.classList.remove('open');
+
+  document.getElementById('resetPasswordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('resetEmail').value.trim();
+    if (!email) { resetError.textContent = 'Please enter your email.'; return; }
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    resetError.textContent = '';
+
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
+    });
+
+    if (error) {
+      resetError.textContent = error.message;
+    } else {
+      showToast('Password reset link sent! Check your email.');
+      resetPasswordModal.classList.remove('open');
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Send Reset Link';
+  });
+
+  // When the user clicks the reset link in the email, Supabase fires PASSWORD_RECOVERY.
+  // A proper modal is used here instead of prompt(), which many mobile browsers block.
+  supabaseClient.auth.onAuthStateChange((event) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      recoverError.textContent = '';
+      document.getElementById('recoverPass').value = '';
+      document.getElementById('recoverPass2').value = '';
+      newPasswordModal.classList.add('open');
+    }
+  });
+
+  document.getElementById('closeNewPassword').onclick = () => newPasswordModal.classList.remove('open');
+  document.getElementById('cancelNewPassword').onclick = () => newPasswordModal.classList.remove('open');
+
+  document.getElementById('newPasswordForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const p1 = document.getElementById('recoverPass').value;
+    const p2 = document.getElementById('recoverPass2').value;
+    if (p1.length < 6) { recoverError.textContent = 'Password must be at least 6 characters.'; return; }
+    if (p1 !== p2) { recoverError.textContent = 'Passwords do not match.'; return; }
+
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true; btn.textContent = 'Saving...'; recoverError.textContent = '';
+
+    const { error } = await supabaseClient.auth.updateUser({ password: p1 });
+    if (error) {
+      recoverError.textContent = error.message;
+    } else {
+      newPasswordModal.classList.remove('open');
+      showToast('Password updated successfully! You are now logged in.');
+      history.replaceState(null, '', window.location.pathname);
+    }
+    btn.disabled = false; btn.textContent = 'Save password';
   });
 
   loginBtn.addEventListener('click', async function(){
@@ -1461,7 +1739,10 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     const pos = ln === 'manager' ? 'Manager' : (document.getElementById('pPos').value.trim() || 'Player');
     if (!no || no < 1 || no > 99) { playerError.textContent = 'Jersey number 1–99.'; return; }
     if (!name) { playerError.textContent = 'Name required.'; return; }
-    const { error } = await supabaseClient.from('players').insert({ session_id: session.id, jersey_no: no, name, position: pos, line: ln, student_session: studentSession || null });
+    const nextOrder = Math.max(0, ...currentPlayers().filter(p => !isManagerPlayer(p)).map(p => Number(p.order) || 0)) + 1;
+    const row = { session_id: session.id, jersey_no: no, name, position: pos, line: ln, student_session: studentSession || null, squad_order: ln === 'manager' ? null : nextOrder };
+    let { error } = await supabaseClient.from('players').insert(row);
+    if (error && /squad_order/i.test(error.message)) { delete row.squad_order; ({ error } = await supabaseClient.from('players').insert(row)); }
     if (error) { playerError.textContent = error.message; return; }
     // Squad roster and pitch formation are separate: adding a squad player must not add a 12th pitch slot.
     playerModal.classList.remove('open');
@@ -1473,20 +1754,18 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   const heroPhotoBtn = document.getElementById('heroPhotoBtn');
   const HERO_PHOTO_PATH = 'hero-card/hero-image';
   
-  function showHeroPhoto(url) { 
-    if (!url) return; 
-    heroPhoto.src = url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now(); 
-    heroPhoto.hidden = false; 
-    document.getElementById('heroTile').classList.add('has-hero-photo'); 
+  // Plain public URL: the old `transform` option goes through Supabase image transformations
+  // (paid plans only), so the image failed to load and the card was left empty.
+  const initialHeroUrl = supabaseClient.storage.from('player-photos').getPublicUrl(HERO_PHOTO_PATH).data.publicUrl;
+
+  // The card switches to photo mode only if the image really loads; otherwise the
+  // normal "11 / Fb / Football XI" card stays visible instead of a blank blue box.
+  function showHeroPhoto(url) {
+    const tile = document.getElementById('heroTile');
+    heroPhoto.onload = () => { heroPhoto.hidden = false; tile.classList.add('has-hero-photo'); };
+    heroPhoto.onerror = () => { heroPhoto.hidden = true; tile.classList.remove('has-hero-photo'); };
+    heroPhoto.src = url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now();
   }
-  
-  // FIXED LINE HERE:
-  const initialHeroUrl = supabaseClient.storage.from('player-photos').getPublicUrl(HERO_PHOTO_PATH, {
-    transform: {
-      width: 1200,
-      quality: 100
-    }
-  }).data.publicUrl;
 
   showHeroPhoto(initialHeroUrl);
   
@@ -1529,11 +1808,22 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     pendingPhotoDbId = null;
   });
 
+  // One reorder updates many rows, so realtime events are merged into a single reload.
+  // The reload waits while an order save or a drag is in progress.
+  let reloadTimer = null;
+  function scheduleReload() {
+    clearTimeout(reloadTimer);
+    reloadTimer = setTimeout(() => {
+      if (savingOrder || sheetBody.querySelector('.dragging')) { scheduleReload(); return; }
+      loadAllDataFromSupabase();
+    }, 500);
+  }
+
   function setupRealtime() {
     supabaseClient.channel('db-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => loadAllDataFromSupabase())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions' }, () => loadAllDataFromSupabase())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'fixtures' }, () => loadAllDataFromSupabase())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, scheduleReload)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions' }, scheduleReload)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'fixtures' }, scheduleReload)
       .subscribe();
   }
 
@@ -1555,7 +1845,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
     fmEl.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.f === '4-3-3')));
     const players = currentPlayers().filter(p => String(p.ln || '').toLowerCase() !== 'manager' && String(p.pos || '').toLowerCase() !== 'manager');
-    const cap = players.find(p => p.n === CAPTAIN_NO);
+    const cap = getCaptain();
     selectedPlayer = cap ? cap.n : (players.length ? players[0].n : 1);
     refreshAll();
   }
