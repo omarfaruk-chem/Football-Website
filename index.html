@@ -1472,10 +1472,24 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   const heroPhoto = document.getElementById('heroPhoto');
   const heroPhotoBtn = document.getElementById('heroPhotoBtn');
   const HERO_PHOTO_PATH = 'hero-card/hero-image';
-  function showHeroPhoto(url) { if (!url) return; heroPhoto.src = url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now(); heroPhoto.hidden = false; document.getElementById('heroTile').classList.add('has-hero-photo'); }
-  // Stable public object path lets every visitor see the same uploaded hero image.
-  const initialHeroUrl = supabaseClient.storage.from('player-photos').getPublicUrl(HERO_PHOTO_PATH).data.publicUrl;
+  
+  function showHeroPhoto(url) { 
+    if (!url) return; 
+    heroPhoto.src = url + (url.includes('?') ? '&' : '?') + 'v=' + Date.now(); 
+    heroPhoto.hidden = false; 
+    document.getElementById('heroTile').classList.add('has-hero-photo'); 
+  }
+  
+  // FIXED LINE HERE:
+  const initialHeroUrl = supabaseClient.storage.from('player-photos').getPublicUrl(HERO_PHOTO_PATH, {
+    transform: {
+      width: 1200,
+      quality: 100
+    }
+  }).data.publicUrl;
+
   showHeroPhoto(initialHeroUrl);
+  
   heroPhotoBtn.addEventListener('click', () => { if (isAdmin) heroPhotoInput.click(); });
   heroPhotoInput.addEventListener('change', async function() {
     if (!isAdmin) { this.value = ''; return; }
@@ -1483,9 +1497,13 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     if (!file.type.startsWith('image/')) { showToast('Please choose an image file.'); return; }
     if (file.size > 8 * 1024 * 1024) { showToast('Image must be 8 MB or smaller.'); return; }
     heroPhotoBtn.disabled = true; heroPhotoBtn.textContent = 'Uploading…';
+    
+    // Upload the image
     const { error } = await supabaseClient.storage.from('player-photos').upload(HERO_PHOTO_PATH, file, { upsert: true, contentType: file.type, cacheControl: '0' });
+    
     if (error) showToast('Hero photo upload failed: ' + error.message);
     else { showHeroPhoto(initialHeroUrl); showToast('Hero photo updated for visitors.'); }
+    
     heroPhotoBtn.disabled = false; heroPhotoBtn.textContent = 'Upload hero photo'; this.value = '';
   });
 
