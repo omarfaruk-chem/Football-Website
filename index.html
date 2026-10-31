@@ -258,7 +258,7 @@
     .add-fixture-btn { margin-top: 16px; }
 
     /* Notification Toast */
-    .toast { position: fixed; bottom: 20px; right: 20px; background: var(--ink); color: #fff; padding: 15px 25px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.3); z-index: 999; display: none; align-items: center; gap: 10px; font-weight: 600; animation: slideIn 0.3s ease-out; max-width: 90%; }
+    .toast { position: fixed; bottom: calc(92px + env(safe-area-inset-bottom, 0px)); right: 20px; background: var(--ink); color: #fff; padding: 15px 25px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,.3); z-index: 999; display: none; align-items: center; gap: 10px; font-weight: 600; animation: slideIn 0.3s ease-out; max-width: 90%; }
     @keyframes slideIn { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
     /* Responsive Design */
@@ -296,6 +296,118 @@
     body.is-admin #sheet tr[data-manager] { cursor: default; }
     #squad td.actions-cell { min-width: 220px; }
     #squad .cap-badge { display: inline-grid; place-items: center; width: 22px; height: 22px; margin-left: 8px; border-radius: 50%; background: var(--green); color: #fff; font: 700 .72rem/1 var(--m); vertical-align: middle; }
+      /* ================= Cricket XI ================= */
+    #cricket { --turf: #1f6e4a; --turf2: #1a6244; --ball: #b3202a; }
+    .cx-admin { display: none; }
+    body.is-admin .cx-admin { display: flex; }
+    .cx-tools { gap: 10px; margin: 0 0 18px; flex-wrap: wrap; }
+    .cx-wrap { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+    .cx-side { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 84px); border: 2px solid var(--ink); background: var(--card); }
+    .cx-order { list-style: none; margin: 0; padding: 0; border: 2px solid var(--ink); background: var(--card); }
+    .cx-row { display: grid; grid-template-columns: 64px 52px minmax(0,1fr) auto; gap: 12px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+    .cx-row:last-child { border-bottom: 0; }
+    .cx-row.bench { background: rgba(0,0,0,.035); }
+    .cx-row.dragging { opacity: .45; }
+    body.is-admin .cx-row { cursor: grab; }
+    .cx-row:has(.cx-actions) .cx-role { justify-self: end; }
+    .cx-pos { text-align: center; }
+    .cx-pos b { display: block; font: 700 1.55rem/1 var(--c); }
+    .cx-pos small { display: block; margin-top: 3px; font: 500 .56rem/1.2 var(--m); letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+    .cx-avatar { position: relative; width: 48px; height: 48px; border-radius: 50%; background: var(--turf); color: #fff; display: grid; place-items: center; font: 700 1.05rem var(--c); border: 2px solid var(--ink); }
+    .cx-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .cx-avatar i { position: absolute; bottom: -5px; right: -7px; font: 600 .62rem/1 var(--m); font-style: normal; background: var(--ink); color: #fff; padding: 2px 4px; border-radius: 3px; }
+    body.is-admin .cx-avatar[data-cx-photo] { cursor: pointer; }
+    .cx-name { font-weight: 700; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .cx-meta { font: 400 .76rem/1.4 var(--m); color: var(--mute); margin-top: 2px; }
+    .cx-b { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 99px; font: 700 .68rem/1 var(--m); }
+    .cx-b.c { background: var(--green); color: #fff; }
+    .cx-b.vc { background: #fff; color: var(--green); border: 2px solid var(--green); }
+    .cx-role { font: 700 .66rem/1 var(--m); letter-spacing: .06em; color: #fff; padding: 5px 9px; border-radius: 99px; white-space: nowrap; }
+    .cx-role.r-batter { background: var(--cobalt); }
+    .cx-role.r-wicketkeeper { background: var(--teal); }
+    .cx-role.r-allrounder { background: var(--amber); color: #111; }
+    .cx-role.r-bowler { background: var(--ball); }
+    .cx-actions { grid-column: 1 / -1; justify-content: flex-end; flex-wrap: wrap; gap: 6px; padding-top: 4px; }
+    .cx-act { padding: 4px 9px; border: 1px solid var(--ink); border-radius: 4px; background: #fff; color: var(--ink); font: 700 .72rem/1.2 var(--m); cursor: pointer; }
+    .cx-act.on { background: var(--green); border-color: var(--green); color: #fff; }
+    .cx-act.edit { background: var(--cobalt); border-color: var(--cobalt); color: #fff; font-family: var(--f); }
+    .cx-act.del { background: var(--pink); border-color: var(--pink); color: #fff; font-family: var(--f); }
+    .cx-divider { list-style: none; padding: 7px 14px; background: var(--ink); color: #fff; font: 600 .66rem/1 var(--m); letter-spacing: .14em; text-transform: uppercase; text-align: center; }
+    .cx-empty { list-style: none; padding: 28px 18px; text-align: center; color: var(--mute); }
+    .cx-status { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; color: #fff; font: 700 .78rem/1 var(--m); letter-spacing: .12em; text-transform: uppercase; background: repeating-linear-gradient(90deg, var(--turf) 0 12.5%, var(--turf2) 12.5% 25%); }
+    .cx-pill { padding: 6px 11px; border-radius: 99px; font: 700 .7rem/1 var(--m); letter-spacing: .08em; }
+    .cx-pill.ok { background: #fff; color: var(--turf); }
+    .cx-pill.warn { background: var(--amber); color: #111; }
+    .cx-block { padding: 14px 16px; border-top: 1px solid var(--line); }
+    .cx-block:first-of-type { border-top: 0; }
+    .cx-block h4 { margin: 0 0 10px; font: 600 .66rem/1 var(--m); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
+    .cx-lead { display: flex; align-items: center; gap: 10px; padding: 5px 0; }
+    .cx-lead small { flex: none; width: 92px; font: 500 .66rem/1.2 var(--m); color: var(--mute); text-transform: uppercase; letter-spacing: .06em; }
+    .cx-lead span.nm { font-weight: 600; }
+    .cx-lead span.none { color: var(--mute); font-style: italic; }
+    .cx-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .cx-stat { text-align: center; padding: 8px 4px; border: 1.5px solid var(--line); border-radius: 6px; background: #fff; }
+    .cx-stat b { display: block; font: 700 1.35rem/1 var(--c); }
+    .cx-stat small { font: 600 .6rem/1 var(--m); letter-spacing: .08em; color: var(--mute); }
+    .cx-checks, .cx-attack { list-style: none; margin: 0; padding: 0; }
+    .cx-checks li { display: flex; gap: 9px; align-items: flex-start; padding: 4px 0; font-size: .88rem; line-height: 1.4; }
+    .cx-checks li::before { flex: none; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font: 700 .7rem/1 var(--m); color: #fff; margin-top: 1px; }
+    .cx-checks li.ok::before { content: "✓"; background: var(--green); }
+    .cx-checks li.warn::before { content: "!"; background: var(--amber); color: #111; }
+    .cx-attack li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px dashed var(--line); font-size: .88rem; }
+    .cx-attack li:last-child { border-bottom: 0; }
+    .cx-attack li span:last-child { font: 400 .74rem var(--m); color: var(--mute); text-align: right; }
+    @media (max-width: 900px) {
+      .cx-wrap { grid-template-columns: 1fr; }
+      .cx-side { position: static; order: -1; }
+    }
+    @media (max-width: 560px) {
+      .cx-row { grid-template-columns: 46px 46px minmax(0,1fr); gap: 10px; padding: 10px; }
+      .cx-role { grid-column: 3; justify-self: start; }
+      .cx-pos b { font-size: 1.3rem; }
+    }
+      /* ================= Sport pages + switch ================= */
+    body[data-sport="football"] [data-sport-only="cricket"],
+    body[data-sport="cricket"] [data-sport-only="football"] { display: none !important; }
+    .sport-page[hidden] { display: none; }
+    .tile.cx-tile { background: var(--ball, #b3202a); }
+    .sport-admin { display: none; background: var(--ink); color: #fff; border-bottom: 3px solid var(--amber); }
+    body.is-admin .sport-admin { display: block; }
+    .sport-admin .wrap { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
+    .sa-label { font: 600 .68rem/1 var(--m); letter-spacing: .12em; text-transform: uppercase; opacity: .85; }
+    .sa-seg { display: inline-flex; border: 2px solid #fff; border-radius: 99px; overflow: hidden; }
+    .sa-seg button { border: 0; background: transparent; color: #fff; font: 700 .78rem/1 var(--m); padding: 8px 16px; cursor: pointer; }
+    .sa-seg button[aria-pressed="true"] { background: #fff; color: var(--ink); }
+    .sa-note { font-size: .76rem; opacity: .75; }
+
+    .sport-fab { --fab-bg: #b3202a; position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 60; display: flex; flex-direction: row-reverse; align-items: center; border: 0; background: none; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    body[data-sport="cricket"] .sport-fab { --fab-bg: var(--cobalt, #2447b8); }
+    .fab-core { position: relative; width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: var(--fab-bg); box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 0 0 3px rgba(255,255,255,.28); animation: fabFloat 3.2s ease-in-out infinite; transition: transform .25s; }
+    .fab-core::before { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 2px dashed var(--fab-bg); opacity: .6; animation: fabSpin 9s linear infinite; }
+    .fab-ring { position: absolute; left: 0; top: 0; width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--fab-bg); opacity: 0; animation: fabPulse 2.4s ease-out infinite; pointer-events: none; }
+    .fab-ring.r2 { animation-delay: 1.2s; }
+    .fab-ic { grid-area: 1 / 1; width: 30px; height: 30px; }
+    body[data-sport="football"] .ic-football, body[data-sport="cricket"] .ic-cricket { display: none; }
+    .sport-fab:hover .fab-core, .sport-fab:focus-visible .fab-core { transform: scale(1.08) rotate(-8deg); }
+    .sport-fab:active .fab-core { transform: scale(.94); }
+    .sport-fab:focus-visible { outline: none; }
+    .sport-fab:focus-visible .fab-core { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--fab-bg); }
+    .fab-label { max-width: 0; opacity: 0; overflow: hidden; white-space: nowrap; margin-right: 0; padding: 0; border-radius: 99px; background: var(--ink); color: #fff; font: 700 .8rem/1 var(--m); letter-spacing: .04em; transition: max-width .35s, opacity .25s, padding .35s, margin .35s; }
+    .sport-fab:hover .fab-label, .sport-fab:focus-visible .fab-label, .sport-fab.hint .fab-label { max-width: 160px; opacity: 1; padding: 10px 15px; margin-right: 10px; }
+    @keyframes fabFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    @keyframes fabSpin { to { transform: rotate(360deg); } }
+    @keyframes fabPulse { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.9); opacity: 0; } }
+
+    .sport-wipe { position: fixed; inset: 0; z-index: 90; pointer-events: none; visibility: hidden; background: var(--wipe, #b3202a); clip-path: circle(0 at calc(100% - 46px) calc(100% - 46px)); }
+    .sport-wipe.go { visibility: visible; animation: wipeIn .5s cubic-bezier(.7,0,.3,1) forwards; }
+    .sport-wipe.out { visibility: visible; clip-path: circle(150vmax at calc(100% - 46px) calc(100% - 46px)); animation: wipeOut .45s ease forwards; }
+    @keyframes wipeIn { from { clip-path: circle(0 at calc(100% - 46px) calc(100% - 46px)); } to { clip-path: circle(150vmax at calc(100% - 46px) calc(100% - 46px)); } }
+    @keyframes wipeOut { from { opacity: 1; } to { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) {
+      .fab-core, .fab-core::before, .fab-ring { animation: none; }
+      .fab-ring { display: none; }
+      .sport-wipe { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -304,16 +416,18 @@
   <div class="wrap bar">
     <a class="brand" href="#top">
       <span class="logo"><svg viewBox="0 0 24 24"><path d="M10 2v7.5a2 2 0 0 1-.2.9L4.7 20.5a1 1 0 0 0 .9 1.5h12.8a1 1 0 0 0 .9-1.5l-5.1-10.1a2 2 0 0 1-.2-.9V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg></span>
-      <span>Chemistry Football XI<small>Gopalganj Science &amp; Technology University</small></span>
+      <span><span data-sport-only="football">Chemistry Football XI</span><span data-sport-only="cricket">Chemistry Cricket XI</span><small>Gopalganj Science &amp; Technology University</small></span>
     </a>
     
     <button class="hamburger" id="hamburgerBtn">☰</button>
 
     <nav id="mainNav">
-      <a href="#lineup">Lineup</a>
-      <a href="#squad">Squad</a>
-      <a href="#fixtures">Fixtures</a>
-      <a href="#about">About</a>
+      <a href="#lineup" data-sport-only="football">Lineup</a>
+      <a href="#squad" data-sport-only="football">Squad</a>
+      <a href="#fixtures" data-sport-only="football">Fixtures</a>
+      <a href="#about" data-sport-only="football">About</a>
+      <a href="#cricket" data-sport-only="cricket">Team sheet</a>
+      <a href="#cx-about" data-sport-only="cricket">About</a>
       <span class="session-pill" id="sessionPill">
         <span>Season</span>
         <select id="sessionSelect"></select>
@@ -332,7 +446,21 @@
   </div>
 </header>
 
+<!-- Admin only: choose which sport the home page opens with -->
+<div class="sport-admin" id="sportAdminBar">
+  <div class="wrap">
+    <span class="sa-label">Admin · Home page shows</span>
+    <div class="sa-seg" role="group" aria-label="Home page sport">
+      <button type="button" data-home-sport="football" aria-pressed="true">Football</button>
+      <button type="button" data-home-sport="cricket" aria-pressed="false">Cricket</button>
+    </div>
+    <span class="sa-note" id="sportAdminNote"></span>
+  </div>
+</div>
+
 <main id="top" class="wrap">
+  <!-- ===== FOOTBALL PAGE ===== -->
+  <div id="page-football" class="sport-page">
   <div class="hero">
     <div>
       <h1>Where chemistry meets the pitch.</h1>
@@ -375,7 +503,6 @@
 
   <section id="squad">
     <h2>The squad <span class="tag" id="squadTag">Season</span></h2>
-    <p class="sub">The manager is listed first. Players follow in squad order: the first player after the manager (SL 2) is always the captain (green C badge). The first 11 players after the manager (SL 2 to SL 12) are the Starting XI. Everyone after them is a substitute who rotates in for a starter of the same position, one at a time.</p>
     <div class="chips" id="chips" role="group" aria-label="Filter by position">
       <button class="chip" data-f="all" aria-pressed="true">All</button>
       <button class="chip" data-f="gk" aria-pressed="false">Goalkeeper</button>
@@ -399,16 +526,7 @@
     <p class="note admin-only" style="margin-top:12px">As admin you can add new seasons, hide old ones, and edit any player row inline (double-click a row or use the Edit button). Drag a row, or use the ▲ ▼ buttons, to change the squad order. It is saved automatically for everyone; whoever is at SL 2 becomes captain.</p>
   </section>
 
-  <section id="admin-requests-section" class="admin-only" style="display: none; border-top: 2px solid var(--line); padding: 40px 0;">
-    <h2>Admin Requests</h2>
-    <p class="sub">Approve or reject requests to join as admin.</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr></thead>
-        <tbody id="requestSheet"></tbody>
-      </table>
-    </div>
-  </section>
+
 
   <section id="fixtures">
     <h2>Fixtures & Results <span class="tag" id="fixturesTag">Season</span></h2>
@@ -426,6 +544,62 @@
       </div>
     </div>
   </section>
+  </div><!-- /page-football -->
+
+  <!-- ===== CRICKET PAGE ===== -->
+  <div id="page-cricket" class="sport-page" hidden>
+  <div class="hero">
+    <div>
+      <h1>Where chemistry meets the crease.</h1>
+      <p class="lead"><b>Department of Chemistry, Gopalganj Science &amp; Technology University.</b> Eleven students, one batting order, one reaction at the crease. See the playing XI, the captain and the full team sheet.</p>
+      <div class="btns">
+        <a class="btn p" href="#cricket">See the team sheet</a>
+        <a class="btn s" href="#cx-about">About the team</a>
+      </div>
+    </div>
+    <div class="tile cx-tile">
+      <div class="top"><span class="n">11</span><span class="m">Batting order</span></div>
+      <b>Ck</b>
+      <span class="t">Cricket XI</span>
+      <span class="u">Department of Chemistry</span>
+    </div>
+  </div>
+
+  <section id="cricket">
+    <h2>Cricket XI <span class="tag" id="cxTag">Season</span></h2>
+    <p class="sub">The team sheet in batting order. The first 11 players are the playing XI; everyone after them is on the bench (the first of them is the 12th man). The captain and vice-captain are chosen by the admin and can bat anywhere in the order.</p>
+    <div class="cx-tools cx-admin"><button class="btn s" id="cxAddBtn" type="button">+ Add cricket player</button></div>
+    <p class="note" id="cxNotice" hidden></p>
+    <div class="cx-wrap" id="cxWrap">
+      <div>
+        <ol class="cx-order" id="cxList" aria-label="Batting order"></ol>
+        <p class="note cx-admin" style="margin-top:10px">Admin: drag a row, or use the ▲ ▼ buttons, to change the batting order. It is saved for everyone. Use C and VC to pick the captain and vice-captain.</p>
+      </div>
+      <aside class="cx-side" id="cxSummary" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section id="cx-about">
+    <div class="two">
+      <div><h2>About the team</h2></div>
+      <div>
+        <p>The Chemistry Cricket XI plays for the Department of Chemistry at Gopalganj Science &amp; Technology University. We take on other departments in tournaments and friendlies.</p>
+        <p>Players come from every year of the programme. If you bat, bowl, keep wicket or love fielding, we would like to see you at a trial. Ask the team captain or visit the department office.</p>
+      </div>
+    </div>
+  </section>
+  </div><!-- /page-cricket -->
+
+  <section id="admin-requests-section" class="admin-only" style="display: none; border-top: 2px solid var(--line); padding: 40px 0;">
+    <h2>Admin Requests</h2>
+    <p class="sub">Approve or reject requests to join as admin.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="requestSheet"></tbody>
+      </table>
+    </div>
+  </section>
 </main>
 
 <!-- FOOTER & CREDIT TICKER START -->
@@ -434,17 +608,20 @@
     <div>
       <a class="brand" href="#top">
         <span class="logo"><svg viewBox="0 0 24 24"><path d="M10 2v7.5a2 2 0 0 1-.2.9L4.7 20.5a1 1 0 0 0 .9 1.5h12.8a1 1 0 0 0 .9-1.5l-5.1-10.1a2 2 0 0 1-.2-.9V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg></span>
-        <span>Chemistry Football XI<small>Gopalganj Science &amp; Technology University</small></span>
+        <span><span data-sport-only="football">Chemistry Football XI</span><span data-sport-only="cricket">Chemistry Cricket XI</span><small>Gopalganj Science &amp; Technology University</small></span>
       </a>
-      <p>The official season hub of the Department of Chemistry football XI. Lineups, squad and fixtures in one place.</p>
+      <p data-sport-only="football">The official season hub of the Department of Chemistry football XI. Lineups, squad and fixtures in one place.</p>
+      <p data-sport-only="cricket">The official season hub of the Department of Chemistry cricket XI. Batting order, captain and team sheet in one place.</p>
     </div>
     <div>
       <h4>Explore</h4>
       <ul class="foot-links">
-        <li><a href="#lineup">Lineup</a></li>
-        <li><a href="#squad">Squad</a></li>
-        <li><a href="#fixtures">Fixtures &amp; Results</a></li>
-        <li><a href="#about">About the team</a></li>
+        <li data-sport-only="football"><a href="#lineup">Lineup</a></li>
+        <li data-sport-only="football"><a href="#squad">Squad</a></li>
+        <li data-sport-only="football"><a href="#fixtures">Fixtures &amp; Results</a></li>
+        <li data-sport-only="football"><a href="#about">About the team</a></li>
+        <li data-sport-only="cricket"><a href="#cricket">Team sheet</a></li>
+        <li data-sport-only="cricket"><a href="#cx-about">About the team</a></li>
       </ul>
     </div>
     <div>
@@ -454,7 +631,7 @@
     </div>
   </div>
   <div class="wrap foot-bottom">
-    <span>© Chemistry Football XI · Department of Chemistry</span>
+    <span><span data-sport-only="football">© Chemistry Football XI · Department of Chemistry</span><span data-sport-only="cricket">© Chemistry Cricket XI · Department of Chemistry</span></span>
     <a href="#top">Back to top ↑</a>
   </div>
   <div class="ticker" aria-label="Website credit">
@@ -480,6 +657,17 @@
 <!-- FOOTER & CREDIT TICKER END -->
 
 <!-- Toast Notification -->
+<!-- Round switch button (always bottom-left) -->
+<button id="sportFab" class="sport-fab" type="button" aria-label="Switch to Cricket XI">
+  <span class="fab-core">
+    <span class="fab-ring"></span><span class="fab-ring r2"></span>
+    <svg class="fab-ic ic-cricket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g transform="rotate(45 12 12)"><rect x="9.5" y="9" width="5" height="12" rx="1.6"/><path d="M12 9V3"/></g><circle cx="18.5" cy="18.5" r="2.4" fill="currentColor"/></svg>
+    <svg class="fab-ic ic-football" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8.2l3.2 2.3-1.2 3.8h-4l-1.2-3.8z"/><path d="M12 8.2V3.2M15.2 10.5l4.6-1.5M14 14.3l2.8 3.9M10 14.3l-2.8 3.9M8.8 10.5L4.2 9"/></svg>
+  </span>
+  <span class="fab-label" id="sportFabLabel">Cricket XI</span>
+</button>
+<div class="sport-wipe" id="sportWipe" aria-hidden="true"></div>
+
 <div class="toast" id="toast">
   <span id="toastMsg"></span>
 </div>
@@ -646,6 +834,49 @@
   </div>
 </div>
 
+<div class="modal-bg" id="cxModal">
+  <div class="modal">
+    <button class="close" id="cxClose" aria-label="Close">&times;</button>
+    <h3 id="cxModalTitle">Add cricket player</h3>
+    <p>Saved in the active season.</p>
+    <label>Jersey number</label>
+    <input id="cxNo" type="number" min="1" max="99">
+    <label>Full name</label>
+    <input id="cxName">
+    <label>Role</label>
+    <select id="cxRole">
+      <option value="batter">Batter</option>
+      <option value="wicketkeeper">Wicketkeeper-batter</option>
+      <option value="allrounder">All-rounder</option>
+      <option value="bowler">Bowler</option>
+    </select>
+    <label>Batting hand</label>
+    <select id="cxBat">
+      <option value="right">Right-hand bat</option>
+      <option value="left">Left-hand bat</option>
+    </select>
+    <label>Bowling style</label>
+    <select id="cxBowl">
+      <option value="none">Does not bowl</option>
+      <option value="right-fast">Right-arm fast</option>
+      <option value="right-medium">Right-arm medium</option>
+      <option value="left-fast">Left-arm fast</option>
+      <option value="left-medium">Left-arm medium</option>
+      <option value="off-spin">Off spin</option>
+      <option value="leg-spin">Leg spin</option>
+      <option value="left-arm-spin">Left-arm spin</option>
+    </select>
+    <label>Student session (e.g. 2021-22)</label>
+    <input id="cxSession" placeholder="2021-22" maxlength="20">
+    <div class="error" id="cxError"></div>
+    <div class="row">
+      <button class="btn p" id="cxSaveBtn" type="button">Save player</button>
+      <button class="btn s" id="cxCancelBtn" type="button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="cxPhotoInput" accept="image/*" hidden>
 <input type="file" id="photoInput" accept="image/*" hidden>
 <input type="file" id="heroPhotoInput" accept="image/*" hidden>
 
@@ -666,6 +897,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
 
   let sessions = [];
   let activeSessionName = null;
+  let cricketMissing = false;   // true until cricket_xi.sql has been run
   let isAdmin = false;
   let currentFormation = '4-3-3';
   let selectedPlayer = 6;
@@ -781,6 +1013,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       const sortedSessions = [...sessions].sort((a, b) => b.name.localeCompare(a.name));
       activeSessionName = sortedSessions.length ? sortedSessions[0].name : null;
     }
+    await loadCricket(false);
     refreshAll();
   }
 
@@ -978,6 +1211,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   function startRotation() {
     if (rotationInterval) clearInterval(rotationInterval);
     rotationStep = 0;
+    if (currentSport === 'cricket') { rotationInterval = null; return; }   // pitch is hidden on the cricket page
     const { rotationPairs } = getLineupData();
     if (rotationPairs.length) {
       rotationInterval = setInterval(() => { rotationStep += 1; renderPitch(); }, 3000);
@@ -1501,7 +1735,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     document.getElementById('admin-requests-section').style.display = isAdmin ? 'block' : 'none';
     
     if(isAdmin) { loadAdminRequests(); }
-    renderSquad(); renderFixtures(); renderPlayerCard();
+    renderSquad(); renderFixtures(); renderPlayerCard(); renderCricket();
   }
 
   const accountModal = document.getElementById('accountModal');
@@ -1808,6 +2042,440 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
     pendingPhotoDbId = null;
   });
 
+  // =====================================================================
+  //  CRICKET XI
+  //  - Batting order = squad order. The first 11 players are the playing XI, the rest are the bench.
+  //  - Captain / vice-captain are chosen explicitly (a captain can bat anywhere), one of each per season.
+  //  - A team-sheet check flags an unbalanced XI (no keeper, too few bowlers, bowlers in the top 7 ...).
+  // =====================================================================
+  const CX_ROLES = {
+    batter:       { label: 'Batter',              short: 'BAT'  },
+    wicketkeeper: { label: 'Wicketkeeper-batter', short: 'WK'   },
+    allrounder:   { label: 'All-rounder',         short: 'AR'   },
+    bowler:       { label: 'Bowler',              short: 'BOWL' }
+  };
+  const CX_BOWL = { 'none':'Does not bowl', 'right-fast':'Right-arm fast', 'right-medium':'Right-arm medium', 'left-fast':'Left-arm fast', 'left-medium':'Left-arm medium', 'off-spin':'Off spin', 'leg-spin':'Leg spin', 'left-arm-spin':'Left-arm spin' };
+  const CX_MIN_BOWLERS = 5;   // 5 frontline bowlers x 4 overs covers a 20-over innings. Change if your format differs.
+  const cxList = $('#cxList'), cxSummary = $('#cxSummary'), cxNotice = $('#cxNotice'), cxWrap = $('#cxWrap'), cxTag = $('#cxTag');
+  const cxModal = $('#cxModal'), cxError = $('#cxError');
+  let cxEditingId = null, cxDrag = null, savingCx = false, cxReloadTimer = null, cxPhotoId = null;
+
+  function mapCx(c) {
+    return { dbId: c.id, n: c.jersey_no, name: c.name, role: c.role || 'batter', bat: c.bat_hand || 'right', bowl: c.bowl_style || 'none',
+             img: c.photo_url || '', studentSession: c.student_session || '', order: c.bat_order ?? null, cap: !!c.is_captain, vice: !!c.is_vice };
+  }
+
+  async function loadCricket(render = true) {
+    const res = await supabaseClient.from('cricket_players').select('*');
+    if (res.error) console.warn('cricket_players:', res.error.message);
+    cricketMissing = !!res.error;
+    const rows = res.error ? [] : (res.data || []);
+    sessions.forEach(s => { s.cricket = rows.filter(c => String(c.session_id) === String(s.id)).map(mapCx); });
+    if (render) renderCricket();
+  }
+
+  function scheduleCxReload() {
+    clearTimeout(cxReloadTimer);
+    cxReloadTimer = setTimeout(() => {
+      if (savingCx || cxList.querySelector('.dragging')) { scheduleCxReload(); return; }
+      loadCricket();
+    }, 500);
+  }
+
+  function cxPlayers() {
+    return (getActiveSession()?.cricket || []).slice().sort((a, b) =>
+      (a.order ?? 999999) - (b.order ?? 999999) ||
+      Number(a.n || 0) - Number(b.n || 0) ||
+      String(a.dbId).localeCompare(String(b.dbId)));
+  }
+
+  function cxPhase(i) {
+    if (i < 2) return 'Opener';
+    if (i < 4) return 'Top order';
+    if (i < 6) return 'Middle order';
+    if (i < 8) return 'Lower middle';
+    if (i < 11) return 'Tail';
+    return i === 11 ? '12th man' : 'Reserve';
+  }
+
+  // Team-sheet analysis of the playing XI (first 11 in batting order).
+  function cxAnalyse(list) {
+    const xi = list.slice(0, 11);
+    const captain = list.find(p => p.cap) || null;
+    const vice = list.find(p => p.vice) || null;
+    const keepers = xi.filter(p => p.role === 'wicketkeeper');
+    const frontline = xi.filter(p => p.role === 'bowler' || p.role === 'allrounder');
+    const bowlersInTop7 = xi.slice(0, 7).filter(p => p.role === 'bowler');
+    const count = r => xi.filter(p => p.role === r).length;
+    const checks = [];
+    checks.push(xi.length === 11
+      ? { ok: true,  text: 'Playing XI complete (11 of 11)' }
+      : { ok: false, text: `Only ${xi.length} of 11 players selected` });
+    checks.push(keepers.length === 1 ? { ok: true, text: 'One wicketkeeper in the XI' }
+      : keepers.length === 0 ? { ok: false, text: 'No wicketkeeper in the XI' }
+      : { ok: false, text: `${keepers.length} wicketkeepers in the XI (only one can keep; set the other as a batter)` });
+    checks.push(frontline.length >= CX_MIN_BOWLERS
+      ? { ok: true,  text: `${frontline.length} frontline bowling options (need ${CX_MIN_BOWLERS})` }
+      : { ok: false, text: `Only ${frontline.length} frontline bowling options (need ${CX_MIN_BOWLERS})` });
+    checks.push(bowlersInTop7.length === 0
+      ? { ok: true,  text: 'Top 7 has no specialist bowlers' }
+      : { ok: false, text: `Specialist bowler in the top 7: ${bowlersInTop7.map(p => p.name).join(', ')}` });
+    checks.push(!captain ? { ok: false, text: 'No captain selected' }
+      : !xi.includes(captain) ? { ok: false, text: `Captain ${captain.name} is not in the playing XI` }
+      : { ok: true, text: 'Captain selected' });
+    checks.push(!vice ? { ok: false, text: 'No vice-captain selected' }
+      : !xi.includes(vice) ? { ok: false, text: `Vice-captain ${vice.name} is not in the playing XI` }
+      : { ok: true, text: 'Vice-captain selected' });
+    const issues = checks.filter(c => !c.ok).length;
+    return { xi, captain, vice, keeper: keepers[0] || null, frontline, checks, issues,
+             counts: { batter: count('batter'), wicketkeeper: count('wicketkeeper'), allrounder: count('allrounder'), bowler: count('bowler') } };
+  }
+
+  function cxLeadRow(label, p, badge) {
+    return `<div class="cx-lead"><small>${label}</small>` +
+      (p ? `<span class="nm">${esc(p.name)}</span>${badge || ''}` : '<span class="none">Not set</span>') + '</div>';
+  }
+
+  function renderCricket() {
+    const session = getActiveSession();
+    cxTag.textContent = 'Season ' + (session?.name || '—');
+    if (cricketMissing) {
+      cxWrap.hidden = true; cxNotice.hidden = false;
+      cxNotice.textContent = isAdmin
+        ? 'Cricket XI needs a one-time database setup: run cricket_xi.sql in the Supabase SQL editor, then reload this page.'
+        : 'The cricket team sheet is coming soon.';
+      return;
+    }
+    cxWrap.hidden = false; cxNotice.hidden = true;
+    const list = cxPlayers();
+
+    if (!list.length) {
+      cxList.innerHTML = '<li class="cx-empty">No cricket players in this season yet.</li>';
+      cxSummary.innerHTML = '';
+      return;
+    }
+
+    let html = '';
+    list.forEach((p, i) => {
+      if (i === 11) html += '<li class="cx-divider" aria-hidden="true">Playing XI above · Bench below</li>';
+      const id = esc(p.dbId);
+      const role = CX_ROLES[p.role] || CX_ROLES.batter;
+      const avatar = p.img ? `<img src="${esc(p.img)}" alt="">` : `<span>${esc(sym(p.name))}</span>`;
+      html += `<li class="cx-row ${i < 11 ? 'xi' : 'bench'}" data-id="${id}" draggable="${isAdmin ? 'true' : 'false'}">
+        <div class="cx-pos"><b>${i + 1}</b><small>${cxPhase(i)}</small></div>
+        <div class="cx-avatar"${isAdmin ? ` data-cx-photo="${id}" title="Change photo"` : ''}>${avatar}<i>${esc(p.n ?? '')}</i></div>
+        <div>
+          <div class="cx-name">${esc(p.name)}${p.cap ? '<span class="cx-b c" title="Captain">C</span>' : ''}${p.vice ? '<span class="cx-b vc" title="Vice-captain">VC</span>' : ''}</div>
+          <div class="cx-meta">${p.bat === 'left' ? 'Left-hand bat' : 'Right-hand bat'} · ${esc(CX_BOWL[p.bowl] || CX_BOWL.none)}${p.studentSession ? ' · ' + esc(p.studentSession) : ''}</div>
+        </div>
+        <span class="cx-role r-${esc(p.role)}">${role.short}</span>
+        <div class="cx-actions cx-admin">
+          <button class="move-btn" type="button" data-cx-move="up" data-id="${id}" title="Move up"${i === 0 ? ' disabled' : ''}>▲</button>
+          <button class="move-btn" type="button" data-cx-move="down" data-id="${id}" title="Move down"${i === list.length - 1 ? ' disabled' : ''}>▼</button>
+          <button class="cx-act${p.cap ? ' on' : ''}" type="button" data-cx-lead="captain" data-id="${id}" title="Captain">C</button>
+          <button class="cx-act${p.vice ? ' on' : ''}" type="button" data-cx-lead="vice" data-id="${id}" title="Vice-captain">VC</button>
+          <button class="cx-act edit" type="button" data-cx-edit="${id}">Edit</button>
+          <button class="cx-act del" type="button" data-cx-del="${id}">Del</button>
+        </div>
+      </li>`;
+    });
+    cxList.innerHTML = html;
+
+    const a = cxAnalyse(list);
+    cxSummary.innerHTML =
+      `<div class="cx-status"><span>Team sheet</span><span class="cx-pill ${a.issues ? 'warn' : 'ok'}">${a.issues ? a.issues + (a.issues === 1 ? ' issue' : ' issues') : 'Match ready'}</span></div>` +
+      `<div class="cx-block"><h4>Leadership</h4>` +
+        cxLeadRow('Captain', a.captain, '<span class="cx-b c">C</span>') +
+        cxLeadRow('Vice-captain', a.vice, '<span class="cx-b vc">VC</span>') +
+        cxLeadRow('Wicketkeeper', a.keeper, '<span class="cx-role r-wicketkeeper">WK</span>') +
+      `</div>` +
+      `<div class="cx-block"><h4>Balance of the XI</h4><div class="cx-stats">` +
+        `<div class="cx-stat"><b>${a.counts.batter}</b><small>BAT</small></div>` +
+        `<div class="cx-stat"><b>${a.counts.wicketkeeper}</b><small>WK</small></div>` +
+        `<div class="cx-stat"><b>${a.counts.allrounder}</b><small>AR</small></div>` +
+        `<div class="cx-stat"><b>${a.counts.bowler}</b><small>BOWL</small></div>` +
+      `</div></div>` +
+      `<div class="cx-block"><h4>Checks</h4><ul class="cx-checks">${a.checks.map(c => `<li class="${c.ok ? 'ok' : 'warn'}">${esc(c.text)}</li>`).join('')}</ul></div>` +
+      `<div class="cx-block"><h4>Bowling attack (${a.frontline.length})</h4>` +
+        (a.frontline.length
+          ? `<ul class="cx-attack">${a.frontline.map(p => `<li><span>${esc(p.name)}</span><span>${esc(CX_BOWL[p.bowl] || CX_BOWL.none)}</span></li>`).join('')}</ul>`
+          : '<p class="note">No bowlers in the XI yet.</p>') +
+      `</div>`;
+  }
+
+  // ---- order saving: only rows whose position changed are written ----
+  async function persistCxOrder(ids) {
+    const session = getActiveSession(); if (!session) return;
+    const changed = [];
+    ids.forEach((id, i) => {
+      const p = (session.cricket || []).find(x => String(x.dbId) === String(id));
+      if (p && p.order !== i + 1) { p.order = i + 1; changed.push(p); }
+    });
+    if (!changed.length) return;
+    renderCricket();
+    savingCx = true;
+    const results = await Promise.all(changed.map(p => supabaseClient.from('cricket_players').update({ bat_order: p.order }).eq('id', p.dbId)));
+    savingCx = false;
+    const failed = results.find(r => r.error);
+    if (failed) { showToast('Batting order NOT saved: ' + failed.error.message); await loadCricket(); return; }
+    showToast('Batting order saved.');
+  }
+
+  // ---- captain / vice-captain: one of each per season, never the same person ----
+  async function setCxLeader(id, kind) {
+    const session = getActiveSession();
+    const p = (session?.cricket || []).find(x => String(x.dbId) === String(id));
+    if (!p) return;
+    const col = kind === 'captain' ? 'is_captain' : 'is_vice';
+    const other = kind === 'captain' ? 'is_vice' : 'is_captain';
+    const key = kind === 'captain' ? 'cap' : 'vice';
+    savingCx = true;
+    let err = null;
+    if (p[key]) {
+      ({ error: err } = await supabaseClient.from('cricket_players').update({ [col]: false }).eq('id', p.dbId));
+    } else {
+      ({ error: err } = await supabaseClient.from('cricket_players').update({ [col]: false }).eq('session_id', session.id).eq(col, true));
+      if (!err) ({ error: err } = await supabaseClient.from('cricket_players').update({ [col]: true, [other]: false }).eq('id', p.dbId));
+    }
+    savingCx = false;
+    if (err) showToast('Could not update: ' + err.message);
+    await loadCricket();
+  }
+
+  // ---- add / edit modal ----
+  function openCxModal(p) {
+    cxEditingId = p ? p.dbId : null;
+    $('#cxModalTitle').textContent = p ? 'Edit cricket player' : 'Add cricket player';
+    $('#cxNo').value = p ? (p.n ?? '') : '';
+    $('#cxName').value = p ? p.name : '';
+    $('#cxRole').value = p ? p.role : 'batter';
+    $('#cxBat').value = p ? p.bat : 'right';
+    $('#cxBowl').value = p ? p.bowl : 'none';
+    $('#cxSession').value = p ? p.studentSession : '';
+    cxError.textContent = '';
+    cxModal.classList.add('open');
+  }
+  function closeCxModal() { cxModal.classList.remove('open'); cxEditingId = null; }
+
+  async function saveCxPlayer() {
+    const session = getActiveSession();
+    if (!session) { cxError.textContent = 'Create a season first.'; return; }
+    const no = Number($('#cxNo').value);
+    const name = $('#cxName').value.trim();
+    const role = $('#cxRole').value, bat = $('#cxBat').value, bowl = $('#cxBowl').value;
+    const studentSession = $('#cxSession').value.trim();
+    if (!no || no < 1 || no > 99) { cxError.textContent = 'Jersey number must be 1–99.'; return; }
+    if (!name) { cxError.textContent = 'Name is required.'; return; }
+    if ((session.cricket || []).some(p => String(p.dbId) !== String(cxEditingId) && Number(p.n) === no)) { cxError.textContent = `Jersey ${no} is already used in this season.`; return; }
+    if ((role === 'bowler' || role === 'allrounder') && bowl === 'none') { cxError.textContent = 'Bowlers and all-rounders need a bowling style.'; return; }
+    const payload = { jersey_no: no, name, role, bat_hand: bat, bowl_style: bowl, student_session: studentSession || null };
+    $('#cxSaveBtn').disabled = true;
+    let error;
+    if (cxEditingId !== null) {
+      ({ error } = await supabaseClient.from('cricket_players').update(payload).eq('id', cxEditingId));
+    } else {
+      const next = Math.max(0, ...(session.cricket || []).map(p => Number(p.order) || 0)) + 1;
+      ({ error } = await supabaseClient.from('cricket_players').insert({ ...payload, session_id: session.id, bat_order: next }));
+    }
+    $('#cxSaveBtn').disabled = false;
+    if (error) { cxError.textContent = error.message; return; }
+    closeCxModal();
+    await loadCricket();
+    showToast('Cricket player saved.');
+  }
+
+  $('#cxAddBtn').addEventListener('click', () => { if (isAdmin) openCxModal(null); });
+  $('#cxClose').addEventListener('click', closeCxModal);
+  $('#cxCancelBtn').addEventListener('click', closeCxModal);
+  $('#cxSaveBtn').addEventListener('click', saveCxPlayer);
+
+  // ---- photo ----
+  const cxPhotoInput = $('#cxPhotoInput');
+  cxPhotoInput.addEventListener('change', async function () {
+    const file = this.files && this.files[0];
+    if (!file || cxPhotoId === null || !isAdmin) return;
+    if (!file.type.startsWith('image/')) { showToast('Please choose an image file.'); return; }
+    if (file.size > 8 * 1024 * 1024) { showToast('Image must be 8 MB or smaller.'); return; }
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const path = `cricket/${cxPhotoId}/${Date.now()}.${ext}`;
+    const up = await supabaseClient.storage.from('player-photos').upload(path, file, { upsert: true });
+    if (up.error) { showToast('Photo upload failed: ' + up.error.message); return; }
+    const url = supabaseClient.storage.from('player-photos').getPublicUrl(path).data.publicUrl;
+    const { error } = await supabaseClient.from('cricket_players').update({ photo_url: url }).eq('id', cxPhotoId);
+    if (error) { showToast('Could not save photo: ' + error.message); return; }
+    await loadCricket();
+  });
+
+  // ---- list interactions (delegated: rows are rebuilt on every render) ----
+  cxList.addEventListener('click', async function (e) {
+    if (!isAdmin) return;
+    const session = getActiveSession();
+    const find = id => (session?.cricket || []).find(p => String(p.dbId) === String(id));
+    const mv = e.target.closest('[data-cx-move]');
+    if (mv) {
+      if (mv.disabled) return;
+      const ids = cxPlayers().map(p => String(p.dbId));
+      const i = ids.indexOf(String(mv.dataset.id));
+      const j = mv.dataset.cxMove === 'up' ? i - 1 : i + 1;
+      if (i < 0 || j < 0 || j >= ids.length) return;
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+      persistCxOrder(ids);
+      return;
+    }
+    const lead = e.target.closest('[data-cx-lead]');
+    if (lead) { setCxLeader(lead.dataset.id, lead.dataset.cxLead); return; }
+    const edit = e.target.closest('[data-cx-edit]');
+    if (edit) { const p = find(edit.dataset.cxEdit); if (p) openCxModal(p); return; }
+    const del = e.target.closest('[data-cx-del]');
+    if (del) {
+      const p = find(del.dataset.cxDel); if (!p) return;
+      if (!confirm(`Remove ${p.name} from the cricket team?`)) return;
+      const { error } = await supabaseClient.from('cricket_players').delete().eq('id', p.dbId);
+      if (error) { showToast('Delete failed: ' + error.message); return; }
+      await loadCricket();
+      showToast('Player removed.');
+      return;
+    }
+    const photo = e.target.closest('[data-cx-photo]');
+    if (photo) { cxPhotoId = photo.dataset.cxPhoto; cxPhotoInput.value = ''; cxPhotoInput.click(); }
+  });
+
+  cxList.addEventListener('dragstart', e => {
+    const row = e.target.closest('.cx-row');
+    if (!row || !isAdmin) return;
+    cxDrag = row; row.classList.add('dragging');
+    if (e.dataTransfer) { e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', row.dataset.id); } catch (_) {} }
+  });
+  cxList.addEventListener('dragover', e => {
+    if (!cxDrag) return;
+    e.preventDefault();
+    const row = e.target.closest('.cx-row');
+    if (!row || row === cxDrag) return;
+    const box = row.getBoundingClientRect();
+    cxList.insertBefore(cxDrag, e.clientY < box.top + box.height / 2 ? row : row.nextSibling);
+  });
+  cxList.addEventListener('drop', e => e.preventDefault());
+  // dragend always fires, even when dropped outside a row, so the order is always saved.
+  cxList.addEventListener('dragend', () => {
+    if (!cxDrag) return;
+    cxDrag.classList.remove('dragging'); cxDrag = null;
+    persistCxOrder([...cxList.querySelectorAll('.cx-row')].map(r => r.dataset.id));
+  });
+
+  // =====================================================================
+  //  SPORT PAGES: football page and cricket page
+  //  - The admin picks which one the home page opens with (saved in home_settings).
+  //  - A visitor can switch manually with the round button. That choice lasts for the
+  //    browser tab session only, so the next visit opens the admin's choice again.
+  // =====================================================================
+  const SPORT_META = {
+    football: { title: 'Chemistry Football XI · Season Hub', label: 'Football XI', wipe: '#2447b8' },
+    cricket:  { title: 'Chemistry Cricket XI · Season Hub',  label: 'Cricket XI',  wipe: '#b3202a' }
+  };
+  const pageFootball = $('#page-football'), pageCricket = $('#page-cricket');
+  const sportFab = $('#sportFab'), sportFabLabel = $('#sportFabLabel'), sportWipe = $('#sportWipe');
+  let homeSport = 'football', currentSport = null, homeSettingsMissing = false, sportBusy = false, fabHintTimer = null;
+
+  const otherSport = s => (s === 'cricket' ? 'football' : 'cricket');
+  const reduceMotion = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const getVisitorSport = () => { try { const v = sessionStorage.getItem('chem_sport'); return (v === 'cricket' || v === 'football') ? v : null; } catch (_) { return null; } };
+  const setVisitorSport = v => { try { if (v) sessionStorage.setItem('chem_sport', v); else sessionStorage.removeItem('chem_sport'); } catch (_) {} };
+  const getCachedHome = () => { try { return localStorage.getItem('chem_home_sport') === 'cricket' ? 'cricket' : 'football'; } catch (_) { return 'football'; } };
+  const setCachedHome = v => { try { localStorage.setItem('chem_home_sport', v); } catch (_) {} };
+
+  function flashFabHint() {
+    sportFab.classList.add('hint');
+    clearTimeout(fabHintTimer);
+    fabHintTimer = setTimeout(() => sportFab.classList.remove('hint'), 4500);
+  }
+
+  // Immediate swap of the two pages (no animation).
+  function showSport(sport, scrollTop) {
+    currentSport = sport;
+    document.body.dataset.sport = sport;
+    pageFootball.hidden = sport !== 'football';
+    pageCricket.hidden = sport !== 'cricket';
+    const target = otherSport(sport);
+    sportFab.setAttribute('aria-label', 'Switch to ' + SPORT_META[target].label);
+    sportFabLabel.textContent = SPORT_META[target].label;
+    document.title = SPORT_META[sport].title;
+    if (sport === 'football') { if (sessions.length) startRotation(); } else { stopRotation(); }
+    if (scrollTop) window.scrollTo(0, 0);
+    flashFabHint();
+  }
+
+  // Circular reveal from the round button, swap the page under the cover, then fade out.
+  function applySport(sport, animate) {
+    if (sport === currentSport) { updateSportAdminBar(); return; }
+    if (!animate || currentSport === null || reduceMotion()) { showSport(sport, !!animate); updateSportAdminBar(); return; }
+    if (sportBusy) return;
+    sportBusy = true;
+    sportWipe.style.setProperty('--wipe', SPORT_META[sport].wipe);
+    sportWipe.className = 'sport-wipe go';
+    setTimeout(() => {
+      showSport(sport, true);
+      sportWipe.className = 'sport-wipe out';
+      setTimeout(() => { sportWipe.className = 'sport-wipe'; sportBusy = false; }, 460);
+    }, 500);
+    updateSportAdminBar();
+  }
+
+  function updateSportAdminBar() {
+    document.querySelectorAll('[data-home-sport]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.homeSport === homeSport)));
+    const note = $('#sportAdminNote');
+    if (!note) return;
+    note.textContent = homeSettingsMissing
+      ? 'Saving is not set up yet: run cricket_xi.sql in Supabase, then reload.'
+      : `Visitors land on the ${SPORT_META[homeSport].label} page first and can switch with the round button.`;
+  }
+
+  async function fetchHomeSport() {
+    const res = await supabaseClient.from('home_settings').select('value').eq('key', 'home_sport').maybeSingle();
+    if (res.error) { console.warn('home_settings:', res.error.message); return { ok: false }; }
+    return { ok: true, value: (res.data && res.data.value === 'cricket') ? 'cricket' : 'football' };
+  }
+
+  async function loadHomeSport() {
+    const r = await fetchHomeSport();
+    homeSettingsMissing = !r.ok;
+    homeSport = r.ok ? r.value : getCachedHome();
+    if (r.ok) setCachedHome(homeSport);
+    applySport(getVisitorSport() || homeSport, false);
+    updateSportAdminBar();
+  }
+
+  // Realtime: the admin changed the home page. Visitors who have not switched by hand follow it.
+  async function onHomeSettingsChange() {
+    const r = await fetchHomeSport();
+    if (!r.ok) return;
+    const before = homeSport;
+    homeSport = r.value; setCachedHome(homeSport);
+    updateSportAdminBar();
+    if (homeSport !== before && !getVisitorSport()) applySport(homeSport, true);
+  }
+
+  async function setHomeSport(sport) {
+    if (!isAdmin) return;
+    const { error } = await supabaseClient.from('home_settings').upsert({ key: 'home_sport', value: sport, updated_at: new Date().toISOString() });
+    if (error) { showToast('Could not save: ' + error.message + (/home_settings/i.test(error.message) ? ' (run cricket_xi.sql)' : '')); return; }
+    homeSettingsMissing = false;
+    homeSport = sport; setCachedHome(sport);
+    setVisitorSport(null);            // the admin follows the page they just chose
+    applySport(sport, true);
+    updateSportAdminBar();
+    showToast('Home page now opens with ' + SPORT_META[sport].label + '.');
+  }
+
+  document.querySelectorAll('[data-home-sport]').forEach(b => b.addEventListener('click', () => setHomeSport(b.dataset.homeSport)));
+  sportFab.addEventListener('click', () => {
+    const target = otherSport(currentSport);
+    setVisitorSport(target);
+    applySport(target, true);
+  });
+  // First paint uses the last known choice so the right page shows with no flash; loadHomeSport() confirms it.
+  applySport(getVisitorSport() || getCachedHome(), false);
+  updateSportAdminBar();
+
   // One reorder updates many rows, so realtime events are merged into a single reload.
   // The reload waits while an order save or a drag is in progress.
   let reloadTimer = null;
@@ -1825,10 +2493,17 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
       .on('postgres_changes', { event: '*', schema: 'public', table: 'sessions' }, scheduleReload)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'fixtures' }, scheduleReload)
       .subscribe();
+    // Separate channel: if the cricket table is not set up yet it cannot break football realtime.
+    supabaseClient.channel('cricket-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cricket_players' }, scheduleCxReload)
+      .subscribe();
+    supabaseClient.channel('home-settings')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'home_settings' }, onHomeSettingsChange)
+      .subscribe();
   }
 
   function refreshAll(){
-    renderSessionSelect(); refreshLineup(); renderSquad(); renderFixtures();
+    renderSessionSelect(); refreshLineup(); renderSquad(); renderFixtures(); renderCricket();
     document.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.f === 'all')));
     sheetBody.querySelectorAll('tr[data-l]').forEach(r => r.hidden = false);
     startRotation();
@@ -1837,6 +2512,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLI
   async function init(){
     const { data: { session } } = await supabaseClient.auth.getSession();
     setAdmin(!!session);
+    await loadHomeSport();
     await loadAllDataFromSupabase();
     setupRealtime();
     
